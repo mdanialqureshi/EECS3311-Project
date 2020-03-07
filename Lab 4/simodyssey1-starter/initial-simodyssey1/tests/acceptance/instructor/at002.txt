@@ -1,0 +1,16 @@
+-- Tests winning condition in play mode.
+play
+abort
+play
+abort
+play
+abort
+play
+abort
+play
+abort
+play
+move(N)
+move(NE)
+move(SW)
+land
