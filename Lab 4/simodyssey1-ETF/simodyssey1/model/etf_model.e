@@ -28,6 +28,7 @@ feature -- model attributes
 	s : STRING
 	i : INTEGER
 
+
 feature -- model operations
 	default_update
 			-- Perform update to the model state.
@@ -39,6 +40,31 @@ feature -- model operations
 			-- Reset model state.
 		do
 			make
+		end
+
+	play
+		local
+			g : GALAXY
+			info : SHARED_INFORMATION
+			access : SHARED_INFORMATION_ACCESS
+		do
+			info := access.shared_info
+        	print("This code is creating two boards with different thresholds.%N")
+
+        	--set first threshold
+        	print("This board has threshold 30.%N")
+        	info.set_planet_threshold(30)
+         	create g.make
+           	print(g.out)
+			print("%N")
+
+           	--set second threshold
+           	print("This board has threshold 100.%N")
+        	info.set_planet_threshold(100)
+         	create g.make
+           	print(g.out)
+           	io.new_line
+
 		end
 
 feature -- queries
