@@ -29,6 +29,10 @@ feature -- attributes
 			Result:= shared_info_access.shared_info
 		end
 
+	planets: LINKED_LIST[PLANET]
+	planet_count: INTEGER
+	explorer: EXPLORER
+
 feature --constructor
 
 	make
@@ -36,8 +40,12 @@ feature --constructor
 		local
 			row : INTEGER
 			column : INTEGER
+			i: INTEGER
 		do
 			create grid.make_filled (create {SECTOR}.make_dummy, shared_info.number_rows, shared_info.number_columns)
+			create planets.make
+			create explorer.make
+
 			from
 				row := 1
 			until
@@ -49,8 +57,14 @@ feature --constructor
 				until
 					column > shared_info.number_columns
 				loop
-					grid[row,column] := create {SECTOR}.make(row,column,create{ENTITY_ALPHABET}.make ('E'))
+					grid[row,column] := create {SECTOR}.make(row,column,explorer.icon,(planets.count + 1))
+
+					across grid[row,column].planets as curr
+					loop
+						planets.extend (curr.item)
+					end
 					column:= column + 1;
+
 				end
 				row := row + 1
 			end
