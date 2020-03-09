@@ -13,6 +13,7 @@
 		</option>
 		<setting name="dead_code_removal" value="feature"/>
 		<capability>
+			<catcall_detection support="none"/>
 			<concurrency support="scoop"/>
 			<void_safety support="all" use="all"/>
 		</capability>
@@ -36,9 +37,9 @@
 		<library name="parse_skl" location="$ISE_LIBRARY\contrib\library\gobo\library\parse\src\library_skl.ecf"/>
 		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf"/>
 		<library name="vision2" location="$ISE_LIBRARY\library\vision2\vision2.ecf"/>
-		<cluster name="simodyssey1" location=".\simodyssey1\" recursive="true"/>
 		<cluster name="generated_code" location=".\generated_code\" recursive="true"/>
 		<cluster name="root" location=".\root\" recursive="true"/>
+		<cluster name="simodyssey1" location=".\simodyssey1\" recursive="true"/>
+		<cluster name="universe" location="\Users\danialqureshi\git\EECS3311 Repos\EECS3311-Project\Lab 4\simodyssey1-ETF\universe\"/>
 	</target>
 </system>
-

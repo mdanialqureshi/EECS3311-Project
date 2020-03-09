@@ -20,12 +20,12 @@ feature {NONE} -- Initialization
 	make
 			-- Initialization for `Current'.
 		do
-			create s.make_empty
 			i := 0
+			state := 0.0
 		end
 
 feature -- model attributes
-	s : STRING
+	state : DOUBLE
 	i : INTEGER
 
 
@@ -64,6 +64,7 @@ feature -- model operations
          	create g.make
            	print(g.out)
            	io.new_line
+           	state := state + 1
 
 		end
 
@@ -71,10 +72,12 @@ feature -- queries
 	out : STRING
 		do
 			create Result.make_from_string ("  ")
-			Result.append ("System State: default model state ")
-			Result.append ("(")
-			Result.append (i.out)
-			Result.append (")")
+			Result.append ("state:" + state.out +", ok%N")
+			Result.append ("  ")
+			if state = 0.0 then
+				Result.append ("Welcome! Try test(30)")
+			end
+
 		end
 
 end
