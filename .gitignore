@@ -1,12 +1,12 @@
+#ignore EIFGENs
+EIFGENs/
+
 ### macOS ###
 
 # General
 .DS_Store
 .AppleDouble
 .LSOverride
-
-#ignore EIFGENs
-EIFGENs/
 
 # Files that might appear in the root of a volume
 .DocumentRevisions-V100
