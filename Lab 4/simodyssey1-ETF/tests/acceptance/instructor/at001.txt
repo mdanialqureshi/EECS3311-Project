@@ -1,0 +1,7 @@
+-- Tests winning condition in test mode.
+test(30)
+move(N)
+wormhole
+move(SW)
+land
+
