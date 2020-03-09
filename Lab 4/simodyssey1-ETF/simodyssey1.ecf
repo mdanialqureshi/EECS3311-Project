@@ -40,6 +40,6 @@
 		<cluster name="generated_code" location=".\generated_code\" recursive="true"/>
 		<cluster name="root" location=".\root\" recursive="true"/>
 		<cluster name="simodyssey1" location=".\simodyssey1\" recursive="true"/>
-		<cluster name="universe" location="\Users\danialqureshi\git\EECS3311 Repos\EECS3311-Project\Lab 4\simodyssey1-ETF\universe\"/>
+		<cluster name="universe" location=".\universe\"/>
 	</target>
 </system>
