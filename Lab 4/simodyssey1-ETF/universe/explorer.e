@@ -30,16 +30,21 @@ feature -- variables
 	icon: ENTITY_ALPHABET
 	fuel: INTEGER
 	life: INTEGER
-	sector: TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER]
-	is_landed: BOOLEAN
+	sector: TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER] assign set_sector
+	is_landed: BOOLEAN assign set_landed
 	death_msg : STRING
 
 feature --commands
 
-	set_landed(land : BOOLEAN)
+	set_landed(land:BOOLEAN)
 		do
 			is_landed := land
 		end
+
+	set_sector(sec :TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER])
+			do
+				sector := sec
+			end
 
 feature --queries
 

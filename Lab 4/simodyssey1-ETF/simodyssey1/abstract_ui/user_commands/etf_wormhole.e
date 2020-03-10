@@ -6,15 +6,15 @@ note
 
 class
 	ETF_WORMHOLE
-inherit 
+inherit
 	ETF_WORMHOLE_INTERFACE
 create
 	make
-feature -- command 
+feature -- command
 	wormhole
     	do
 			-- perform some update on the model state
-			model.default_update
+			model.wormhole
 			etf_cmd_container.on_change.notify ([Current])
     	end
 

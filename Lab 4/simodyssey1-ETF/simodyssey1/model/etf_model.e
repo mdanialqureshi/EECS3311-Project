@@ -30,6 +30,8 @@ feature {NONE} -- Initialization
 			create land_msg.make_empty
 			create liftoff_err.make_empty
 			create liftoff_msg.make_empty
+			create wormhole_err.make_empty
+			create wormhole_msg.make_empty
 		end
 
 feature -- model attributes
@@ -41,6 +43,8 @@ feature -- model attributes
 	land_msg : STRING
 	liftoff_err : STRING
 	liftoff_msg : STRING
+	wormhole_err : STRING
+	wormhole_msg : STRING
 
 
 feature -- model operations
@@ -99,7 +103,7 @@ feature -- model operations
 				across g.grid[row,col].planets as i loop
 					if not (i.item.visited) then
 						all_visited := false
-						g.explorer.set_landed(true)
+						g.explorer.is_landed := true
 						if i.item.support_life then
 							land_msg.append ("Tranquility base here - we've got a life!")
 							in_game := false
@@ -136,9 +140,57 @@ feature -- model operations
 
 			if is_valid then
 				liftoff_msg.append ("Explorer has lifted off from planet at Sector:" + row.out + ":" + col.out)
-				g.explorer.set_landed (false)
+				g.explorer.is_landed := false
 			end
 
+		end
+
+	wormhole
+		local
+			row : INTEGER
+			col : INTEGER
+			is_valid : BOOLEAN
+			added : BOOLEAN -- has the explorer been wormholed successfully
+			temp_row : INTEGER
+			temp_col : INTEGER
+			explorer_sec : TUPLE[INTEGER,INTEGER,INTEGER] --explorers sector field to be updated
+			temp_index : INTEGER -- index of where explorer is placed in quarant of a sector	
+		do
+			create wormhole_err.make_empty
+			create wormhole_msg.make_empty
+			is_valid := true
+			row := g.explorer.sector.row
+			col := g.explorer.sector.col
+			if not (in_game) then -- is it in a game
+				wormhole_err.append ("Negative on that request:no mission in progress.")
+				is_valid := false
+			elseif  g.explorer.is_landed then --is the explorer landed already
+				liftoff_err.append ("Negative on that request:you are currently landed at Sector:" + row.out + ":" + col.out)
+				is_valid := false
+			elseif not (g.grid[row,col].contents.has (create {ENTITY_ALPHABET}.make ('W'))) then
+				liftoff_err.append ("Explorer couldn't find wormhole at Sector:"+ row.out + ":" + col.out)
+				is_valid := false
+			end
+
+			if is_valid then
+				from
+					added := false
+				until
+					added
+				loop
+					temp_row := g.gen.rchoose (1,5)
+					temp_col := g.gen.rchoose (1,5)
+					if not (g.grid[temp_row,temp_col].is_full) then
+						g.grid[temp_row,temp_col].contents.extend (g.explorer.icon) --add explorer to sectors available quadrant position
+						create explorer_sec.default_create
+						temp_index := g.grid[temp_row,temp_col].contents.index_of (g.explorer.icon,1) -- index of first occurance of E in quadrants
+						explorer_sec := [temp_row,temp_col,temp_index] -- assign to explorer sector the row col and quadrant index
+						g.explorer.sector := explorer_sec
+						added := true
+
+					end
+				end
+			end
 		end
 
 feature -- queries
