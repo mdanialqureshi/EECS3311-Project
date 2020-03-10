@@ -86,7 +86,6 @@ feature -- commands
 				threshold := gen.rchoose (1, 100) -- each iteration, generate a new value to compare against the threshold values provided by `test` or `play`
 
 				if threshold < shared_info.planet_threshold then
-
 					create planet.make (planet_id,gen.rchoose (0, 2),[row,column,0])
 					planet_id := planet_id + 1
 					component := planet.icon

@@ -6,17 +6,17 @@ note
 
 class
 	ETF_MOVE
-inherit 
+inherit
 	ETF_MOVE_INTERFACE
 create
 	make
-feature -- command 
+feature -- command
 	move(dir: INTEGER_32)
-		require else 
+		require else
 			move_precond(dir)
     	do
 			-- perform some update on the model state
-			model.default_update
+			model.move(dir)
 			etf_cmd_container.on_change.notify ([Current])
     	end
 

@@ -28,10 +28,10 @@ feature -- Variables
 
 	icon: ENTITY_ALPHABET
 	id: INTEGER
-	turns_left: INTEGER
-	in_orbit: BOOLEAN
+	turns_left: INTEGER assign set_turns_left
+	in_orbit: BOOLEAN assign set_in_orbit
 	support_life: BOOLEAN
-	sector: TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER]
+	sector: TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER] assign set_sector
 	is_alive : BOOLEAN
 	death_msg : STRING
 	gen : RANDOM_GENERATOR_ACCESS
@@ -39,12 +39,12 @@ feature -- Variables
 
 feature --queries
 
-	behave(contents : ARRAYED_LIST [ENTITY_ALPHABET]; used_wormhole : BOOLEAN) : BOOLEAN
+	behave(contents : ARRAYED_LIST [ENTITY_ALPHABET])
 
 		do
 			if contents.has (create {ENTITY_ALPHABET}.make ('O')) then
 				is_alive := false -- planet is killed by blackhole (Remove from planets array in galaxy and dont place
-								 -- the planet in the new sector after movement from old sector
+								  -- the planet in the new sector after movement from old sector
 				death_msg.append("Planet got devoured by blackhole (id: -1) at Sector:3:3")
 			end
 
@@ -59,6 +59,22 @@ feature --queries
 				turns_left := gen.rchoose (0, 2)
 			end
 
+		end
+
+feature -- commands
+	set_in_orbit(orbit: BOOLEAN)
+		do
+			in_orbit := orbit
+		end
+
+	set_turns_left(turns: INTEGER)
+		do
+			turns_left := turns
+		end
+
+	set_sector(new_sector: TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER])
+		do
+			sector := new_sector
 		end
 
 
