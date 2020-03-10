@@ -24,7 +24,8 @@ feature {NONE} -- Initialization
 		do
 			info := access.shared_info
 			create g.make_dummy
-			state := 0.0
+			state1 := 0
+			state2 := 0
 			in_game := false
 			create movements.make
 			create land_err.make_empty
@@ -35,11 +36,13 @@ feature {NONE} -- Initialization
 			create wormhole_msg.make_empty
 			create move_msg.make_empty
 			create move_err.make_empty
+			create play_err.make_empty
 
 		end
 
 feature -- model attributes
-	state : DOUBLE
+	state1 : INTEGER
+	state2 : INTEGER
 	g : GALAXY
 	info : SHARED_INFORMATION
 	in_game : BOOLEAN
@@ -52,6 +55,7 @@ feature -- model attributes
 	wormhole_msg : STRING
 	move_msg: STRING
 	move_err : STRING
+	play_err : STRING
 
 
 feature -- model operations
@@ -69,10 +73,16 @@ feature -- model operations
 
 	play
 		do
-			in_game := true
-			-- set threshold to be 30 for play
-        	info.set_planet_threshold(30)
-         	create g.make
+			if not (in_game) then
+				in_game := true
+				-- set threshold to be 30 for play
+	        	info.set_planet_threshold(30)
+	         	create g.make
+	         	next_state (true)
+	        else
+				next_state (false)
+				play_err.append("To start a new mission, please abort the current one first.")
+	        end
 
 		end
 
@@ -100,8 +110,12 @@ feature -- model operations
 				is_valid := false
 			end
 
-			if is_valid then
+			if not (is_valid) then
+				next_state (false)
+			end
 
+			if is_valid then
+				next_state (true)
 				if explorer_dest.row = 0 then
 					explorer_dest.row := 5
 
@@ -136,6 +150,7 @@ feature -- model operations
 				end
 			end
 
+
 			-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			-- *NOTE* after we move the explorer do the explorer check to see if still alive and if not handle it accordingly
 			-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -169,7 +184,12 @@ feature -- model operations
 				is_valid := false
 			end
 
+			if not (is_valid) then
+				next_state(false)
+			end
+
 			if is_valid then
+				next_state(true)
 				across g.grid[row,col].planets as i loop
 					if not (i.item.visited) then
 						all_visited := false
@@ -194,6 +214,7 @@ feature -- model operations
 
 		end
 
+
 	liftoff
 		local
 			row : INTEGER
@@ -206,7 +227,7 @@ feature -- model operations
 			is_valid := true
 			row := g.explorer.sector.row
 			col := g.explorer.sector.col
-			if not (in_game) then -- is it in a game
+			if not (in_game) then -- is not in a game
 				liftoff_err.append ("Negative on that request:no mission in progress.")
 				is_valid := false
 			elseif not (g.explorer.is_landed) then --is the explorer landed already
@@ -214,7 +235,13 @@ feature -- model operations
 				is_valid := false
 			end
 
+
+			if not (is_valid) then
+				next_state(false)
+			end
+
 			if is_valid then
+				next_state (true)
 				liftoff_msg.append ("Explorer has lifted off from planet at Sector:" + row.out + ":" + col.out)
 				g.explorer.is_landed := false
 				across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
@@ -252,7 +279,13 @@ feature -- model operations
 				is_valid := false
 			end
 
+
+			if not (is_valid) then
+				next_state(false)
+			end
+
 			if is_valid then
+				next_state (true)
 				wormhole_msg.append ("[" + "0,E]:[" + g.explorer.sector.row.out + "," + g.explorer.sector.col.out + "," + g.explorer.sector.quadrant.out + "]->[")
 				from
 					added := false
@@ -280,7 +313,19 @@ feature -- model operations
 			end
 		end
 
+	next_state(ceil : BOOLEAN) -- increment the state accordingly. if it is not and error (not + 0.1) then ceil is true
+		do
+			if ceil then
+				state1 := state1 + 1
+				state2 := 0
+			else
+				state2 := state2 + 1
+			end
+
+		end
+
 feature -- queries
+
 	out : STRING
 		local
 			count: INTEGER
@@ -288,14 +333,53 @@ feature -- queries
 			create Result.make_from_string ("  ")
 			count := 1
 			if in_game then
-				Result.append ("state:" + state.out + ", mode:play, ok%N")
+				if not land_err.is_empty or not (land_msg.is_empty) then
+					Result.append(land_string)
+				elseif not (play_err.is_empty) then -- user requested play while in a game
+					Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, error%N")
+					Result.append ("  " + play_err)
+					create play_err.make_empty -- make it empty after we finish
+				else
+					Result.append (play_string)
+					Result.append(g.out) -- print the board out
+				end
+			else -- not in a game
+				if not(move_err.is_empty) or not (land_err.is_empty) or not (liftoff_err.is_empty) or
+				not (wormhole_err.is_empty)  then -- add the rest of the commands after implementation e.g pass
+					Result.append ("state:" + state1.out + "." + state2.out + ", error%N")
+					Result.append ("  Negative on that request:no mission in progress.")
+				else -- not in a game and no errors such as invalid commands outside game like move
+					Result.append ("state:" + state1.out + "." + state2.out +", ok%N")
+					Result.append ("  ")
+					if state1 = 0 then
+						Result.append ("Welcome! Try test(30)")
+					end
+				end
+			end
+		end
+
+
+
+	play_string : STRING
+		local
+			count : INTEGER
+		do
+			create Result.make_empty
+			count := 1
+			Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, ok%N")
+			if not (land_msg.is_empty) then -- landed but no life found on planet
+				Result.append ("  " + land_msg + "%N")
+			end
 
 				if movements.is_empty then
-					Result.append ("  Movement:none%N" )
+					Result.append ("  Movement:none" )
 
 				else
-					Result.append ("  Movement:%N" )
+					Result.append ("  Movement:" )
 					across movements as curr loop
+						if count ~ 1 then
+							Result.append("%N")
+						end
 						Result.append ("    " + curr.item.out)
 						if not (count ~ movements.count) then
 							Result.append("%N")
@@ -304,18 +388,63 @@ feature -- queries
 
 					end
 				end
-
-				Result.append(g.out)
-				Result.append ("%N")
-			else
-				Result.append ("state:" + state.out +", ok%N")
-				Result.append ("  ")
-				if state = 0.0 then
-					Result.append ("Welcome! Try test(30)")
-				end
-			end
-			print(Result)
 		end
+
+	move_string : STRING
+		do
+			create Result.make_empty
+		end
+
+	land_string : STRING
+		do
+			create Result.make_empty
+			if land_msg.is_equal ("Tranquility base here - we've got a life!") then
+				Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, ok%N")
+				Result.append("  " + land_string)
+			elseif not (land_msg.is_empty) then -- no life found after landing
+				Result.append (play_string)
+			elseif not (land_err.is_empty) then
+				Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, error%N")
+				Result.append ("  " + land_err)
+			end
+
+			-- empty both strings since this land situation has been dealt with in output
+			create land_err.make_empty
+			create land_msg.make_empty
+
+		end
+
+	pass_string: STRING
+		do
+			create Result.make_empty
+		end
+
+	test_string : STRING
+		do
+			create Result.make_empty
+		end
+
+	abort_string : STRING
+		do
+			create Result.make_empty
+		end
+
+	lift_off_string : STRING
+		do
+			create Result.make_empty
+			Result.append (liftoff_err)
+		end
+
+	wormhole_string : STRING
+		do
+			create Result.make_empty
+			Result.append (wormhole_err)
+		end
+
+
+
+
+
 
 end
 
