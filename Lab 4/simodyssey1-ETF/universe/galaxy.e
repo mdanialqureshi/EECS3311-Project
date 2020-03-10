@@ -13,7 +13,7 @@ inherit ANY
 	end
 
 create
-	make
+	make, make_dummy
 
 feature -- attributes
 
@@ -34,6 +34,15 @@ feature -- attributes
 	explorer: EXPLORER
 
 feature --constructor
+
+	make_dummy
+		do
+			create grid.make_filled (create {SECTOR}.make_dummy, shared_info.number_rows, shared_info.number_columns)
+			create planets.make
+			create explorer.make
+		end
+
+
 
 	make
 		-- creates a dummy of galaxy grid

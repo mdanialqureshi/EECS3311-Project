@@ -6,15 +6,15 @@ note
 
 class
 	ETF_LIFTOFF
-inherit 
+inherit
 	ETF_LIFTOFF_INTERFACE
 create
 	make
-feature -- command 
+feature -- command
 	liftoff
     	do
 			-- perform some update on the model state
-			model.default_update
+			model.liftoff
 			etf_cmd_container.on_change.notify ([Current])
     	end
 

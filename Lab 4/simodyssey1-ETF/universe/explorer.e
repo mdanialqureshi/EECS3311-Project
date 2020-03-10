@@ -20,6 +20,7 @@ feature -- Constructor
 			fuel := 3
 			life := 3
 			is_landed := false
+			create death_msg.make_empty
 		end
 
 
@@ -31,5 +32,48 @@ feature -- variables
 	life: INTEGER
 	sector: TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER]
 	is_landed: BOOLEAN
+	death_msg : STRING
+
+feature --commands
+
+	set_landed(land : BOOLEAN)
+		do
+			is_landed := land
+		end
+
+feature --queries
+
+	check_alive(contents : ARRAYED_LIST [ENTITY_ALPHABET]; used_wormhole : BOOLEAN) : BOOLEAN
+		do
+			Result := true
+			if fuel = 0 then
+				Result := false
+			end
+
+		if not(used_wormhole) then
+			fuel := fuel - 1
+		end
+
+		if contents.has (create {ENTITY_ALPHABET}.make ('Y')) then
+			fuel := fuel + 2
+		elseif contents.has (create {ENTITY_ALPHABET}.make ('*')) then
+			fuel := fuel + 5
+		end
+
+		if fuel > 3 then --check if too much fuel
+			fuel := 3
+		end
+
+		if fuel = 0 then
+			life := 0
+			Result := false
+			death_msg.append ("Explorer got lost in space - out of fuel at Sector:" + sector.row.out + ":" + sector.col.out)
+		elseif contents.has (create {ENTITY_ALPHABET}.make ('O')) then
+			life := 0
+			Result := false
+			death_msg.append ("Explorer got devoured by blackhole (id: -1) at Sector:3:3")
+		end
+
+		end
 
 end
