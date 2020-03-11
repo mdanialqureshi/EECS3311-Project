@@ -217,13 +217,6 @@ feature {NONE} -- command
 				planet_dest.quadrant := grid[planet_dest.row,planet_dest.col].recently_added
 				grid[planet_dest.row,planet_dest.col].planets.extend (p) -- add planet to the planets list in SECTOR
 				p.sector := planet_dest
-
-
-				across grid[planet_dest.row,planet_dest.col].planets_sorted as curr
-				loop
-					print(curr.item.id.out + " ")
-				end
-				print("%N")
 				p.behave (grid[p.sector.row,p.sector.col].contents)
 				Result := true
 

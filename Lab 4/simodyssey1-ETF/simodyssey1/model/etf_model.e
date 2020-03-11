@@ -433,8 +433,6 @@ feature -- queries
 					end
 				end
 			end
-			print(Result)
-			print("%N")
 		end
 
 
