@@ -37,6 +37,13 @@ feature {NONE} -- Initialization
 			create move_msg.make_empty
 			create move_err.make_empty
 			create play_err.make_empty
+			create status_msg.make_empty
+			create status_err.make_empty
+			create pass_err.make_empty
+			create test_err.make_empty
+			create test_msg.make_empty
+			create abort_err.make_empty
+			create abort_msg.make_empty
 
 		end
 
@@ -56,6 +63,13 @@ feature -- model attributes
 	move_msg: STRING
 	move_err : STRING
 	play_err : STRING
+	status_msg : STRING
+	status_err : STRING
+	pass_err : STRING
+	test_err : STRING
+	test_msg : STRING
+	abort_err : STRING
+	abort_msg : STRING
 
 
 feature -- model operations
@@ -322,6 +336,45 @@ feature -- model operations
 			end
 		end
 
+	status
+		local
+			row : INTEGER
+			col : INTEGER
+			quad : INTEGER
+		do
+			create status_msg.make_empty
+			create status_err.make_empty
+			if in_game then -- if its in game
+				row := g.explorer.sector.row
+				col := g.explorer.sector.col
+				quad := g.explorer.sector.quadrant
+				if g.explorer.is_landed then
+					status_msg.append ("Explorer status report:Stationary on planet surface at [" + row.out + "," + col.out + "," + quad.out + "]%N")
+				else
+					status_msg.append ("Explorer status report:Travelling at cruise speed at [" + row.out + "," + col.out + "," + quad.out + "]%N")
+  				end
+  				status_msg.append ("  Life units left:" + g.explorer.life.out + ", Fuel units left:" + g.explorer.fuel.out)
+  			else -- not in a game
+  				status_err.append ("Negative on that request:no mission in progress.")
+  			end
+
+  			next_state (false) -- status always only increments state by 0.1
+
+		end
+
+	abort
+		do
+			create abort_err.make_empty
+			create abort_msg.make_empty
+			if in_game then
+				abort_msg.append ("Mission aborted. Try test(30)")
+			else
+				abort_err.append ("Negative on that request:no mission in progress.")
+			end
+			-- in_game := false --set this value after we are done using it for the output so in abort_string
+			next_state (false) -- abort always increases the state by 0.1
+		end
+
 	next_state(ceil : BOOLEAN) -- increment the state accordingly. if it is not and error (not + 0.1) then ceil is true
 		do
 			if ceil then
@@ -333,34 +386,49 @@ feature -- model operations
 
 		end
 
+
 feature -- queries
 
 	out : STRING
-		local
-			count: INTEGER
 		do
 			create Result.make_from_string ("  ")
-			count := 1
 			if in_game then
-				if not land_err.is_empty or not (land_msg.is_empty) then
+				if not land_err.is_empty or not (land_msg.is_empty) then -- land messages
 					Result.append(land_string)
 				elseif not (play_err.is_empty) then -- user requested play while in a game
 					Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, error%N")
 					Result.append ("  " + play_err)
 					create play_err.make_empty -- make it empty after we finish
+				elseif not (liftoff_err.is_empty) or not (liftoff_msg.is_empty) then -- handle liftoff outputs (errors and success messages)
+					Result.append (lift_off_string)
+				elseif not (wormhole_err.is_empty) or not (liftoff_msg.is_empty) then -- handle wormhole outputs (erros and success messages)
+					Result.append (wormhole_string)
+				elseif not (status_err.is_empty) or not (status_msg.is_empty) then -- handle status outputs (erros and success messages)
+					Result.append (status_string)
+				elseif not (abort_err.is_empty) or not (abort_msg.is_empty) then -- handle abort outputs (erros and success messages)
+					Result.append (abort_string)
 				else
 					Result.append (play_string)
 					Result.append(g.out) -- print the board out
 				end
+
 			else -- not in a game
 				if not(move_err.is_empty) or not (land_err.is_empty) or not (liftoff_err.is_empty) or
-				not (wormhole_err.is_empty)  then -- add the rest of the commands after implementation e.g pass
+				not (wormhole_err.is_empty) or not (status_err.is_empty) or not (pass_err.is_empty) or
+				not (abort_err.is_empty) then -- add the rest of the commands after implementation e.g pass
 					Result.append ("state:" + state1.out + "." + state2.out + ", error%N")
 					Result.append ("  Negative on that request:no mission in progress.")
+					create move_err.make_empty
+					create land_err.make_empty
+					create liftoff_err.make_empty
+					create wormhole_err.make_empty
+					create status_err.make_empty
+					create pass_err.make_empty
+					create abort_err.make_empty
 				else -- not in a game and no errors such as invalid commands outside game like move
 					Result.append ("state:" + state1.out + "." + state2.out +", ok%N")
 					Result.append ("  ")
-					if state1 = 0 then
+					if state1 = 0 and state2 = 0 then
 						Result.append ("Welcome! Try test(30)")
 					end
 				end
@@ -380,6 +448,8 @@ feature -- queries
 			Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, ok%N")
 			if not (land_msg.is_empty) then -- landed but no life found on planet
 				Result.append ("  " + land_msg + "%N")
+			elseif not (liftoff_msg.is_empty) then
+				Result.append ("  " + liftoff_msg + "%N") -- successfully liftoff of a planet
 			end
 
 				if movements.is_empty then
@@ -401,11 +471,6 @@ feature -- queries
 				end
 		end
 
-	move_string : STRING
-		do
-			create Result.make_empty
-		end
-
 	land_string : STRING
 		do
 			create Result.make_empty
@@ -414,6 +479,7 @@ feature -- queries
 				Result.append("  " + land_string)
 			elseif not (land_msg.is_empty) then -- no life found after landing
 				Result.append (play_string)
+				Result.append(g.out) -- print the board out
 			elseif not (land_err.is_empty) then
 				Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, error%N")
 				Result.append ("  " + land_err)
@@ -425,6 +491,62 @@ feature -- queries
 
 		end
 
+
+	lift_off_string : STRING
+		do
+			create Result.make_empty
+			if not (liftoff_err.is_empty) then
+				Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, error%N")
+				Result.append ("  " + liftoff_err)
+			elseif not (liftoff_msg.is_empty) then
+				Result.append (play_string)
+				Result.append(g.out) -- print the board out
+			end
+			-- empty both strings since this liftoff situation has been dealt with in output
+			create liftoff_err.make_empty
+			create liftoff_msg.make_empty
+		end
+
+	wormhole_string : STRING
+		do
+			create Result.make_empty
+			if not (wormhole_err.is_empty) then
+				Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, error%N")
+				Result.append ("  " + wormhole_err)
+			elseif not (wormhole_msg.is_empty) then
+				Result.append (play_string)
+				Result.append (g.out)
+			end
+		end
+
+	status_string : STRING
+		do
+			create Result.make_empty
+			if in_game then
+				Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, ok%N")
+				Result.append ("  " + status_msg)
+			end
+
+			create status_err.make_empty
+			create status_msg.make_empty
+		end
+
+	abort_string : STRING
+		do
+			create Result.make_empty
+			if in_game then
+				Result.append ("state:" + state1.out + "." + state2.out + ", ok%N")
+				Result.append("  " + abort_msg)
+				in_game := false -- done using this value so set it to false
+			else
+				Result.append ("state:" + state1.out + "." + state2.out + ", error%N")
+				Result.append ("  " + abort_err)
+			end
+			create abort_err.make_empty
+			create abort_msg.make_empty
+		end
+
+
 	pass_string: STRING
 		do
 			create Result.make_empty
@@ -434,27 +556,6 @@ feature -- queries
 		do
 			create Result.make_empty
 		end
-
-	abort_string : STRING
-		do
-			create Result.make_empty
-		end
-
-	lift_off_string : STRING
-		do
-			create Result.make_empty
-			Result.append (liftoff_err)
-		end
-
-	wormhole_string : STRING
-		do
-			create Result.make_empty
-			Result.append (wormhole_err)
-		end
-
-
-
-
 
 
 end
