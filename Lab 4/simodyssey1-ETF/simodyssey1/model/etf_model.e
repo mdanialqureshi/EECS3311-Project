@@ -89,6 +89,7 @@ feature -- model operations
 
 	play
 		do
+			clear_messages
 			if not (in_game) then
 				in_game := true
 				-- set threshold to be 30 for play
@@ -110,8 +111,7 @@ feature -- model operations
 			temp_index : INTEGER -- index of where explorer is placed in quarant of a sector
 			is_valid : BOOLEAN
 		do
-			create move_err.make_empty
-			create move_msg.make_empty
+			clear_messages
 			create movements.make
 			is_valid := true
 			vector := g.directions[dir]
@@ -181,8 +181,7 @@ feature -- model operations
 			all_visited : BOOLEAN -- have all the planets in this sector already been visited?
 			not_found : BOOLEAN
 		do
-			create land_err.make_empty
-			create land_msg.make_empty
+			clear_messages
 			create movements.make
 			row := g.explorer.sector.row
 			col := g.explorer.sector.col
@@ -248,8 +247,7 @@ feature -- model operations
 			col : INTEGER
 			is_valid : BOOLEAN
 		do
-			create liftoff_err.make_empty
-			create liftoff_msg.make_empty
+			clear_messages
 			create movements.make
 			is_valid := true
 			row := g.explorer.sector.row
@@ -289,8 +287,7 @@ feature -- model operations
 			explorer_dest : TUPLE[INTEGER,INTEGER,INTEGER] --explorers sector field to be updated
 			temp_index : INTEGER -- index of where explorer is placed in quarant of a sector	
 		do
-			create wormhole_err.make_empty
-			create wormhole_msg.make_empty
+			clear_messages
 			create movements.make
 			is_valid := true
 			row := g.explorer.sector.row
@@ -347,8 +344,7 @@ feature -- model operations
 			col : INTEGER
 			quad : INTEGER
 		do
-			create status_msg.make_empty
-			create status_err.make_empty
+			clear_messages
 			if in_game then -- if its in game
 				row := g.explorer.sector.row
 				col := g.explorer.sector.col
@@ -369,8 +365,7 @@ feature -- model operations
 
 	abort
 		do
-			create abort_err.make_empty
-			create abort_msg.make_empty
+			clear_messages
 			if in_game then
 				abort_msg.append ("Mission aborted. Try test(30)")
 			else
@@ -382,17 +377,11 @@ feature -- model operations
 
 	next_state(ceil : BOOLEAN) -- increment the state accordingly. if it is not and error (not + 0.1) then ceil is true
 		do
-			old_state1 := state1
-			old_state2 := state2
 			if ceil then
 				state1 := state1 + 1
 				state2 := 0
 			else
 				state2 := state2 + 1
-				if state2 = 10 then
-					state1 := state1 + 1
-					state2 := 0
-				end
 			end
 
 		end
@@ -422,9 +411,6 @@ feature -- queries
 		do
 			create Result.make_from_string ("  ")
 			-- empty both strings since this land situation has been dealt with in output
-			if not (old_state1 ~ state1) and not (old_state2 ~ state2) then
-				clear_messages
-			end
 
 			if in_game then
 				if not (land_err.is_empty) or not (land_msg.is_empty) then -- land messages
