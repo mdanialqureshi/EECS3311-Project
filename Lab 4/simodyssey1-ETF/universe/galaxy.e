@@ -31,6 +31,7 @@ feature -- attributes
 
 	planets: LINKED_LIST[PLANET]
 	planet_count: INTEGER
+	dead_planets: LINKED_LIST[PLANET]
 	explorer: EXPLORER
 
 	directions: ARRAY[TUPLE[row:INTEGER;col:INTEGER]]
@@ -45,6 +46,7 @@ feature --constructor
 			create grid.make_filled (create {SECTOR}.make_dummy, shared_info.number_rows, shared_info.number_columns)
 			create planets.make
 			create explorer.make
+			create dead_planets.make
 		end
 
 
@@ -58,6 +60,7 @@ feature --constructor
 			create grid.make_filled (create {SECTOR}.make_dummy, shared_info.number_rows, shared_info.number_columns)
 			create planets.make
 			create explorer.make
+			create dead_planets.make
 
 			from
 				row := 1
@@ -218,22 +221,29 @@ feature {NONE} -- command
 				grid[planet_dest.row,planet_dest.col].planets.extend (p) -- add planet to the planets list in SECTOR
 				p.sector := planet_dest
 				p.behave (grid[p.sector.row,p.sector.col].contents)
+				if not p.is_alive then
+					planet_died(p)
+				end
 				Result := true
 
 			else
 				Result := false
 			end
 
-
-
-
-
-			-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-			-- *NOTE* after we move the planet do the planet behave call to see if still alive and if not handle it accordingly
-			-- if it died we need to remove from sector and from planets list in galaxy
-			-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		end
 
+	planet_died(p: PLANET)
+		do
+			across planets as curr
+			loop
+				if curr.item.id ~ curr.item.id then
+					dead_planets.extend (curr.item)
+					grid[3,3].contents.prune_all (p.icon)
+					planets.remove
+				end
+			end
+
+		end
 
 feature -- query
 	out: STRING
