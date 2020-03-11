@@ -33,6 +33,7 @@ feature -- attributes
 	planet_count: INTEGER
 	dead_planets: LINKED_LIST[PLANET]
 	explorer: EXPLORER
+	test_mode : BOOLEAN
 
 	directions: ARRAY[TUPLE[row:INTEGER;col:INTEGER]]
 		do
@@ -51,7 +52,7 @@ feature --constructor
 
 
 
-	make
+	make (is_test_mode : BOOLEAN)
 		-- creates a dummy of galaxy grid
 		local
 			row : INTEGER
@@ -61,6 +62,7 @@ feature --constructor
 			create planets.make
 			create explorer.make
 			create dead_planets.make
+			test_mode := is_test_mode
 
 			from
 				row := 1

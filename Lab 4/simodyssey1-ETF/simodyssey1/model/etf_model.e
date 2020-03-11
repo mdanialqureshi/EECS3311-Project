@@ -44,6 +44,8 @@ feature {NONE} -- Initialization
 			create test_msg.make_empty
 			create abort_err.make_empty
 			create abort_msg.make_empty
+			test_mode := false
+
 
 		end
 
@@ -72,6 +74,7 @@ feature -- model attributes
 	test_msg : STRING
 	abort_err : STRING
 	abort_msg : STRING
+	test_mode : BOOLEAN
 
 
 
@@ -93,14 +96,30 @@ feature -- model operations
 			clear_messages
 			if not (in_game) then
 				in_game := true
+				test_mode := false
 				-- set threshold to be 30 for play
 	        	info.set_planet_threshold(30)
-	         	create g.make
+	         	create g.make(false)
 	         	next_state (true)
 	        else
 				next_state (false)
 				play_err.append("To start a new mission, please abort the current one first.")
 	        end
+
+		end
+
+	test (p_threshold : INTEGER)
+		do
+			if in_game then -- in play mode
+				next_state (false)
+				test_err.append ("To start a new mission, please abort the current one first.")
+			else
+				test_mode := true
+				in_game := true
+				info.set_planet_threshold (p_threshold)
+				create g.make(true)
+				next_state (true)
+			end
 
 		end
 
@@ -435,27 +454,10 @@ feature -- queries
 			-- empty both strings since this land situation has been dealt with in output
 
 			if in_game then
-				if not (land_err.is_empty) or not (land_msg.is_empty) then -- land messages
-					Result.append(land_string)
-				elseif not (play_err.is_empty) then -- user requested play while in a game
-					Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, error%N")
-					Result.append ("  " + play_err)
-					create play_err.make_empty -- make it empty after we finish
-				elseif not (liftoff_err.is_empty) or not (liftoff_msg.is_empty) then -- handle liftoff outputs (errors and success messages)
-					Result.append (lift_off_string)
-				elseif not (wormhole_err.is_empty) or not (wormhole_msg.is_empty) then -- handle wormhole outputs (errors and success messages)
-					Result.append (wormhole_string)
-				elseif not (status_err.is_empty) or not (status_msg.is_empty) then -- handle status outputs (errors and success messages)
-					Result.append (status_string)
-				elseif not (abort_err.is_empty) or not (abort_msg.is_empty) then -- handle abort outputs (errors and success messages)
-					Result.append (abort_string)
-				elseif not (move_err.is_empty) then -- handle move outputs (errors and success messages)
-					Result.append (move_string)
-				elseif not(g.explorer.death_msg.is_empty) then -- handle explorer death outputs (erros and success messages)
-					Result.append (explorer_death_string)
+				if not (test_mode) then
+					Result.append (play_mode_in_game_output)
 				else
-					Result.append (play_string)
-					Result.append(g.out) -- print the board out
+
 				end
 
 			else -- not in a game
@@ -479,6 +481,33 @@ feature -- queries
 						Result.append ("Welcome! Try test(30)")
 					end
 				end
+			end
+		end
+
+	play_mode_in_game_output : STRING
+		do
+			create Result.make_empty
+			if not (land_err.is_empty) or not (land_msg.is_empty) then -- land messages
+				Result.append(land_string)
+			elseif not (play_err.is_empty) then -- user requested play while in a game
+				Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, error%N")
+				Result.append ("  " + play_err)
+				create play_err.make_empty -- make it empty after we finish
+			elseif not (liftoff_err.is_empty) or not (liftoff_msg.is_empty) then -- handle liftoff outputs (errors and success messages)
+				Result.append (lift_off_string)
+			elseif not (wormhole_err.is_empty) or not (wormhole_msg.is_empty) then -- handle wormhole outputs (errors and success messages)
+				Result.append (wormhole_string)
+			elseif not (status_err.is_empty) or not (status_msg.is_empty) then -- handle status outputs (errors and success messages)
+				Result.append (status_string)
+			elseif not (abort_err.is_empty) or not (abort_msg.is_empty) then -- handle abort outputs (errors and success messages)
+				Result.append (abort_string)
+			elseif not (move_err.is_empty) then -- handle move outputs (errors and success messages)
+				Result.append (move_string)
+			elseif not(g.explorer.death_msg.is_empty) then -- handle explorer death outputs (erros and success messages)
+				Result.append (explorer_death_string)
+			else
+				Result.append (play_string)
+				Result.append(g.out) -- print the board out
 			end
 		end
 
