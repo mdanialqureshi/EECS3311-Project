@@ -48,12 +48,8 @@ feature --commands
 
 feature --queries
 
-	check_alive(contents : ARRAYED_LIST [ENTITY_ALPHABET]; used_wormhole : BOOLEAN) : BOOLEAN
+	update_explorer(contents : ARRAYED_LIST [ENTITY_ALPHABET]; used_wormhole : BOOLEAN)
 		do
-			Result := true
-			if fuel = 0 then
-				Result := false
-			end
 
 		if not(used_wormhole) then
 			fuel := fuel - 1
@@ -71,11 +67,9 @@ feature --queries
 
 		if fuel = 0 then
 			life := 0
-			Result := false
 			death_msg.append ("Explorer got lost in space - out of fuel at Sector:" + sector.row.out + ":" + sector.col.out)
 		elseif contents.has (create {ENTITY_ALPHABET}.make ('O')) then
 			life := 0
-			Result := false
 			death_msg.append ("Explorer got devoured by blackhole (id: -1) at Sector:3:3")
 		end
 

@@ -129,7 +129,7 @@ feature -- model operations
 			if not (is_valid) then
 				next_state(false)
 			end
-			
+
 			if is_valid then
 				if explorer_dest.row = 0 then
 					explorer_dest.row := 5
@@ -172,6 +172,8 @@ feature -- model operations
 			-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			-- *NOTE* after we move the explorer do the explorer check to see if still alive and if not handle it accordingly
 			-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			g.explorer.update_explorer(g.grid[g.explorer.sector.row,g.explorer.sector.col].contents, false) -- update explorer (fuel life etc)
+
 		end
 
 	land
@@ -391,7 +393,6 @@ feature -- model operations
 		do
 			create land_err.make_empty
 			create land_msg.make_empty
-			-- empty both strings since this liftoff situation has been dealt with in output
 			create liftoff_err.make_empty
 			create liftoff_msg.make_empty
 			create wormhole_err.make_empty
@@ -405,6 +406,7 @@ feature -- model operations
 			create pass_err.make_empty
 			create move_err.make_empty
 			create move_msg.make_empty
+			g.explorer.death_msg.make_empty
 		end
 
 
@@ -432,6 +434,8 @@ feature -- queries
 					Result.append (abort_string)
 				elseif not (move_err.is_empty) then
 					Result.append (move_string)
+				elseif not(g.explorer.death_msg.is_empty) then
+					Result.append (explorer_death_string)
 				else
 					Result.append (play_string)
 					Result.append(g.out) -- print the board out
@@ -446,6 +450,8 @@ feature -- queries
 				elseif land_msg.out.is_equal ("Tranquility base here - we've got a life!") then
 					Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, ok%N")
 					Result.append("  " + land_msg)
+				elseif not (g.explorer.death_msg.is_empty) then
+					Result.append (explorer_death_string)
 				else -- not in a game and no errors such as invalid commands outside game like move
 					Result.append ("state:" + state1.out + "." + state2.out +", ok%N")
 					Result.append ("  ")
@@ -464,7 +470,9 @@ feature -- queries
 		do
 			create Result.make_empty
 			count := 1
-			Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, ok%N")
+			if g.explorer.death_msg.is_empty then
+				Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, ok%N")
+			end
 			if not (land_msg.is_empty) then -- landed but no life found on planet
 				Result.append ("  " + land_msg + "%N")
 			elseif not (liftoff_msg.is_empty) then
@@ -565,6 +573,17 @@ feature -- queries
 				Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, error%N")
 				Result.append ("  " + move_err)
 			end
+		end
+
+	explorer_death_string : STRING
+		do
+			create Result.make_empty
+			Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, ok%N")
+			Result.append ("  " + g.explorer.death_msg + "%N")
+			Result.append ("  The game has ended. You can start a new game.")
+			Result.append (play_string)
+			Result.append (g.out)
+			in_game := false -- end the game since the explorer is dead
 		end
 
 
