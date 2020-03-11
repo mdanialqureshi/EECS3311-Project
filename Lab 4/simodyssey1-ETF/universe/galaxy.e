@@ -108,11 +108,11 @@ feature -- query
 
 
 				if (curr.item.turns_left = 0) and not curr.item.in_orbit then
-					move_msg.append ("[" + curr.item.id.out + ",P]:[" + curr.item.sector.row.out + "," + curr.item.sector.col.out + "," + curr.item.sector.quadrant.out + "]->[")
+					move_msg.append ("[" + curr.item.id.out + ",P]:[" + curr.item.sector.row.out + "," + curr.item.sector.col.out + "," + curr.item.sector.quadrant.out + "]")
 					if move_planet(curr.item) then
-						move_msg.append (curr.item.sector.row.out + "," + curr.item.sector.col.out + "," + curr.item.sector.quadrant.out + "]")
-						Result.extend (move_msg)
+						move_msg.append ("->[" + curr.item.sector.row.out + "," + curr.item.sector.col.out + "," + curr.item.sector.quadrant.out + "]")
 					end
+					Result.extend (move_msg)
 					create move_msg.make_empty
 				else
 					curr.item.turns_left := curr.item.turns_left - 1
