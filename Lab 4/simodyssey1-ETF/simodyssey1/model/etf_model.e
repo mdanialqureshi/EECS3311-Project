@@ -605,6 +605,11 @@ feature -- queries
 			in_game := false -- end the game since the explorer is dead
 		end
 
+	planet_death_string : STRING
+		do
+
+		end
+
 
 	pass_string: STRING
 		do
