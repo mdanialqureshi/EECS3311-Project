@@ -177,6 +177,7 @@ feature -- model operations
 			col : INTEGER
 			is_valid : BOOLEAN
 			all_visited : BOOLEAN -- have all the planets in this sector already been visited?
+			not_found : BOOLEAN
 		do
 			create land_err.make_empty
 			create land_msg.make_empty
@@ -185,6 +186,7 @@ feature -- model operations
 			col := g.explorer.sector.col
 			all_visited := true
 			is_valid := true
+			not_found := true
 			if not (in_game) then -- is it in a game
 				land_err.append ("Negative on that request:no mission in progress.")
 				is_valid := false
@@ -206,7 +208,7 @@ feature -- model operations
 			if is_valid then
 				next_state(true)
 				across g.grid[row,col].planets_sorted as i loop
-					if not (i.item.visited) and i.item.in_orbit then
+					if not (i.item.visited) and i.item.in_orbit and not_found then
 						all_visited := false
 						g.explorer.is_landed := true
 						if i.item.support_life then
@@ -215,6 +217,7 @@ feature -- model operations
 						else
 							land_msg.append ("Explorer found no life as we know it at Sector:" + row.out + ":" + col.out)
 						end
+						not_found := false
 						across g.grid[row,col].planets as curr
 						loop
 							if curr.item.id ~ i.item.id then
@@ -393,7 +396,7 @@ feature -- queries
 		do
 			create Result.make_from_string ("  ")
 			if in_game then
-				if not land_err.is_empty or not (land_msg.is_empty) then -- land messages
+				if not (land_err.is_empty) or not (land_msg.is_empty) then -- land messages
 					Result.append(land_string)
 				elseif not (play_err.is_empty) then -- user requested play while in a game
 					Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, error%N")
@@ -472,9 +475,10 @@ feature -- queries
 	land_string : STRING
 		do
 			create Result.make_empty
-			if land_msg.is_equal ("Tranquility base here - we've got a life!") then
+			if land_msg.out.is_equal ("Tranquility base here - we've got a life!") then
 				Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, ok%N")
-				Result.append("  " + land_string)
+				print("hey")
+				Result.append("  " + land_msg)
 			elseif not (land_msg.is_empty) then -- no life found after landing
 				Result.append (play_string)
 				Result.append(g.out) -- print the board out
@@ -515,6 +519,9 @@ feature -- queries
 				Result.append (play_string)
 				Result.append (g.out)
 			end
+
+			create wormhole_err.make_empty
+			create wormhole_msg.make_empty
 		end
 
 	status_string : STRING
