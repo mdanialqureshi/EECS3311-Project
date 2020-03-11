@@ -428,6 +428,9 @@ feature -- queries
 					create status_err.make_empty
 					create pass_err.make_empty
 					create abort_err.make_empty
+				elseif land_msg.out.is_equal ("Tranquility base here - we've got a life!") then
+					Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, ok%N")
+					Result.append("  " + land_msg)
 				else -- not in a game and no errors such as invalid commands outside game like move
 					Result.append ("state:" + state1.out + "." + state2.out +", ok%N")
 					Result.append ("  ")
@@ -477,7 +480,6 @@ feature -- queries
 			create Result.make_empty
 			if land_msg.out.is_equal ("Tranquility base here - we've got a life!") then
 				Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, ok%N")
-				print("hey")
 				Result.append("  " + land_msg)
 			elseif not (land_msg.is_empty) then -- no life found after landing
 				Result.append (play_string)
