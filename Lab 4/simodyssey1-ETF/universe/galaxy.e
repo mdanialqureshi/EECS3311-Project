@@ -29,6 +29,8 @@ feature -- attributes
 			Result:= shared_info_access.shared_info
 		end
 
+	stationary_items: LINKED_LIST[STATIONARY_ENTITY]
+	stationary_count: INTEGER
 	planets: LINKED_LIST[PLANET]
 	planet_count: INTEGER
 	dead_planets: LINKED_LIST[PLANET]
@@ -46,6 +48,7 @@ feature --constructor
 		do
 			create grid.make_filled (create {SECTOR}.make_dummy, shared_info.number_rows, shared_info.number_columns)
 			create planets.make
+			create stationary_items.make
 			create explorer.make
 			create dead_planets.make
 		end
@@ -62,7 +65,9 @@ feature --constructor
 			create planets.make
 			create explorer.make
 			create dead_planets.make
+			create stationary_items.make
 			test_mode := is_test_mode
+			stationary_count := -2
 
 			from
 				row := 1
@@ -136,6 +141,8 @@ feature --commands
 			check_sector: SECTOR
 			temp_row: INTEGER
 			temp_column: INTEGER
+			icon: ENTITY_ALPHABET
+			item: STATIONARY_ENTITY
 		do
 			from
 				loop_counter := 1
@@ -147,7 +154,18 @@ feature --commands
 				temp_column := gen.rchoose (1, shared_info.number_columns)
 				check_sector := grid[temp_row,temp_column]
 				if (not check_sector.has_stationary) and (not check_sector.is_full) then
-					grid[temp_row,temp_column].put (create_stationary_item,true)
+					icon := create_stationary_item
+					create item.make (stationary_count, icon.item)
+					if icon ~ (create {ENTITY_ALPHABET}.make('Y')) then
+						item.is_star := true
+						item.luminosity := 2
+					elseif icon ~ (create {ENTITY_ALPHABET}.make('*')) then
+						item.is_star := true
+						item.luminosity := 5
+					end
+					stationary_items.extend (item)
+					stationary_count := stationary_count - 1
+					grid[temp_row,temp_column].put (icon,true)
 					loop_counter := loop_counter + 1
 				end -- if
 			end -- loop
