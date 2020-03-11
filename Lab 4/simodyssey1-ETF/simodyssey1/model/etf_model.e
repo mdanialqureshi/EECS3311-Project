@@ -113,7 +113,6 @@ feature -- model operations
 			is_valid : BOOLEAN
 		do
 			clear_messages
-			create movements.make
 			is_valid := true
 			vector := g.directions[dir]
 			explorer_dest := [g.explorer.sector.row + vector.row, g.explorer.sector.col + vector.col, 0]
@@ -123,7 +122,7 @@ feature -- model operations
 				is_valid := false
 
 			elseif g.explorer.is_landed then
-				move_err.append ("Negative on that request:already landed on a planet at Sector:" + g.explorer.sector.row.out + ":" + g.explorer.sector.col.out)
+				move_err.append ("Negative on that request:you are currently landed at Sector:" + g.explorer.sector.row.out + ":" + g.explorer.sector.col.out)
 				is_valid := false
 			end
 
@@ -186,7 +185,6 @@ feature -- model operations
 			not_found : BOOLEAN
 		do
 			clear_messages
-			create movements.make
 			row := g.explorer.sector.row
 			col := g.explorer.sector.col
 			all_visited := true
@@ -235,8 +233,10 @@ feature -- model operations
 				if all_visited then
 					land_err.append ("Negative on that request:no unvisited attached planet at Sector:" + row.out + ":" + col.out)
 				else
-					across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
-						movements.extend (curr.item)
+					if in_game then
+						across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
+								movements.extend (curr.item)
+						end
 					end
 				end
 
@@ -252,7 +252,6 @@ feature -- model operations
 			is_valid : BOOLEAN
 		do
 			clear_messages
-			create movements.make
 			is_valid := true
 			row := g.explorer.sector.row
 			col := g.explorer.sector.col
@@ -292,7 +291,6 @@ feature -- model operations
 			temp_index : INTEGER -- index of where explorer is placed in quarant of a sector	
 		do
 			clear_messages
-			create movements.make
 			is_valid := true
 			row := g.explorer.sector.row
 			col := g.explorer.sector.col
@@ -371,7 +369,6 @@ feature -- model operations
 
 		do
 			clear_messages
-			create movements.make
 			if not in_game then
 				pass_err.append("Negative on that request:no mission in progress.")
 				next_state(false)
@@ -425,6 +422,7 @@ feature -- model operations
 			create pass_err.make_empty
 			create move_err.make_empty
 			create move_msg.make_empty
+			create movements.make
 			g.explorer.death_msg.make_empty
 		end
 
@@ -445,15 +443,15 @@ feature -- queries
 					create play_err.make_empty -- make it empty after we finish
 				elseif not (liftoff_err.is_empty) or not (liftoff_msg.is_empty) then -- handle liftoff outputs (errors and success messages)
 					Result.append (lift_off_string)
-				elseif not (wormhole_err.is_empty) or not (liftoff_msg.is_empty) then -- handle wormhole outputs (erros and success messages)
+				elseif not (wormhole_err.is_empty) or not (wormhole_msg.is_empty) then -- handle wormhole outputs (errors and success messages)
 					Result.append (wormhole_string)
-				elseif not (status_err.is_empty) or not (status_msg.is_empty) then -- handle status outputs (erros and success messages)
+				elseif not (status_err.is_empty) or not (status_msg.is_empty) then -- handle status outputs (errors and success messages)
 					Result.append (status_string)
-				elseif not (abort_err.is_empty) or not (abort_msg.is_empty) then -- handle abort outputs (erros and success messages)
+				elseif not (abort_err.is_empty) or not (abort_msg.is_empty) then -- handle abort outputs (errors and success messages)
 					Result.append (abort_string)
-				elseif not (move_err.is_empty) then
+				elseif not (move_err.is_empty) then -- handle move outputs (errors and success messages)
 					Result.append (move_string)
-				elseif not(g.explorer.death_msg.is_empty) then
+				elseif not(g.explorer.death_msg.is_empty) then -- handle explorer death outputs (erros and success messages)
 					Result.append (explorer_death_string)
 				else
 					Result.append (play_string)
@@ -471,6 +469,9 @@ feature -- queries
 					Result.append("  " + land_msg)
 				elseif not (g.explorer.death_msg.is_empty) then
 					Result.append (explorer_death_string)
+				elseif not(abort_msg.is_empty) then
+					Result.append ("state:" + state1.out + "." + state2.out + ", ok%N")
+					Result.append("  " + abort_msg)
 				else -- not in a game and no errors such as invalid commands outside game like move
 					Result.append ("state:" + state1.out + "." + state2.out +", ok%N")
 					Result.append ("  ")
@@ -500,8 +501,8 @@ feature -- queries
 
 				if movements.is_empty then
 					Result.append ("  Movement:none" )
-
 				else
+					Result.append (planet_death_string)
 					Result.append ("  Movement:" )
 					across movements as curr loop
 						if count ~ 1 then
@@ -599,15 +600,28 @@ feature -- queries
 			create Result.make_empty
 			Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, ok%N")
 			Result.append ("  " + g.explorer.death_msg + "%N")
-			Result.append ("  The game has ended. You can start a new game.")
+			Result.append ("  The game has ended. You can start a new game.%N")
 			Result.append (play_string)
 			Result.append (g.out)
 			in_game := false -- end the game since the explorer is dead
 		end
 
 	planet_death_string : STRING
+		local
+			num_dead_planets : INTEGER
 		do
-
+			create Result.make_empty
+			num_dead_planets := g.dead_planets.count
+			g.dead_planets.start
+			if not(g.dead_planets.is_empty) then
+				across 1 |..| num_dead_planets as i loop
+					Result.append ("  " + g.dead_planets[i.item].death_msg)
+					if not(i.item = num_dead_planets) then
+						Result.append ("%N")
+					end
+					g.dead_planets.remove
+				end
+			end
 		end
 
 
