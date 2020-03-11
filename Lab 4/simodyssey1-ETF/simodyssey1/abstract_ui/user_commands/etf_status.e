@@ -6,15 +6,15 @@ note
 
 class
 	ETF_STATUS
-inherit 
+inherit
 	ETF_STATUS_INTERFACE
 create
 	make
-feature -- command 
+feature -- command
 	status
     	do
 			-- perform some update on the model state
-			model.default_update
+			model.status
 			etf_cmd_container.on_change.notify ([Current])
     	end
 

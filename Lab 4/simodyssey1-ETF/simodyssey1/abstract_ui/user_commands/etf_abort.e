@@ -6,15 +6,15 @@ note
 
 class
 	ETF_ABORT
-inherit 
+inherit
 	ETF_ABORT_INTERFACE
 create
 	make
-feature -- command 
+feature -- command
 	abort
     	do
 			-- perform some update on the model state
-			model.default_update
+			model.abort
 			etf_cmd_container.on_change.notify ([Current])
     	end
 
