@@ -74,6 +74,7 @@ feature -- model attributes
 	abort_msg : STRING
 
 
+
 feature -- model operations
 	default_update
 			-- Perform update to the model state.
@@ -363,6 +364,24 @@ feature -- model operations
   			end
 
   			next_state (false) -- status always only increments state by 0.1
+
+		end
+
+	pass
+
+		do
+			clear_messages
+			create movements.make
+			if not in_game then
+				pass_err.append("Negative on that request:no mission in progress.")
+				next_state(false)
+
+			else
+				across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
+					movements.extend (curr.item)
+				end
+				next_state(true)
+			end
 
 		end
 
