@@ -127,11 +127,10 @@ feature -- model operations
 			end
 
 			if not (is_valid) then
-				next_state (false)
+				next_state(false)
 			end
-
+			
 			if is_valid then
-				next_state (true)
 				if explorer_dest.row = 0 then
 					explorer_dest.row := 5
 
@@ -147,6 +146,7 @@ feature -- model operations
 				end
 
 				if not g.grid[explorer_dest.row,explorer_dest.col].is_full then
+					next_state (true)
 
 					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents[g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.index_of(g.explorer.icon,1)] := create {ENTITY_ALPHABET}.make ('-') -- remove explorer from previous sector
 					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents_count := g.grid[g.explorer.sector.row,g.explorer.sector.col].contents_count - 1
@@ -164,6 +164,7 @@ feature -- model operations
 
 				else
 					move_err.append("Cannot transfer to new location as it is full." )
+					next_state (false)
 				end
 			end
 
@@ -402,6 +403,8 @@ feature -- model operations
 			create move_err.make_empty
 			create land_err.make_empty
 			create pass_err.make_empty
+			create move_err.make_empty
+			create move_msg.make_empty
 		end
 
 
@@ -427,6 +430,8 @@ feature -- queries
 					Result.append (status_string)
 				elseif not (abort_err.is_empty) or not (abort_msg.is_empty) then -- handle abort outputs (erros and success messages)
 					Result.append (abort_string)
+				elseif not (move_err.is_empty) then
+					Result.append (move_string)
 				else
 					Result.append (play_string)
 					Result.append(g.out) -- print the board out
@@ -435,7 +440,7 @@ feature -- queries
 			else -- not in a game
 				if not(move_err.is_empty) or not (land_err.is_empty) or not (liftoff_err.is_empty) or
 				not (wormhole_err.is_empty) or not (status_err.is_empty) or not (pass_err.is_empty) or
-				not (abort_err.is_empty) then -- add the rest of the commands after implementation e.g pass
+				not (abort_err.is_empty) or not (move_err.is_empty) then -- add the rest of the commands after implementation e.g pass
 					Result.append ("state:" + state1.out + "." + state2.out + ", error%N")
 					Result.append ("  Negative on that request:no mission in progress.")
 				elseif land_msg.out.is_equal ("Tranquility base here - we've got a life!") then
@@ -547,6 +552,18 @@ feature -- queries
 			else
 				Result.append ("state:" + state1.out + "." + state2.out + ", error%N")
 				Result.append ("  " + abort_err)
+			end
+		end
+
+	move_string : STRING
+		do
+			create Result.make_empty
+			if g.explorer.is_landed then
+				Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, error%N")
+				Result.append("  " + move_err)
+			else
+				Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, error%N")
+				Result.append ("  " + move_err)
 			end
 		end
 
