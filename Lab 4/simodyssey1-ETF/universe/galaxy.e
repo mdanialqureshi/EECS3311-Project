@@ -82,7 +82,6 @@ feature --constructor
 				row := row + 1
 			end
 			set_stationary_items
-			inital_planet_check
 	end
 
 
@@ -96,7 +95,19 @@ feature -- query
 			create move_msg.make_empty
 			across planets as curr
 			loop
-				if (curr.item.turns_left = 0) and (not curr.item.in_orbit) then
+
+				if (curr.item.turns_left = 0) and curr.item.first_check  then
+
+					if grid[curr.item.sector.row,curr.item.sector.col].contents.has(create {ENTITY_ALPHABET}.make ('Y')) and curr.item.first_check then
+						curr.item.behave (grid[curr.item.sector.row,curr.item.sector.col].contents)
+					elseif grid[curr.item.sector.row,curr.item.sector.col].contents.has(create {ENTITY_ALPHABET}.make ('*')) and curr.item.first_check then
+						curr.item.behave (grid[curr.item.sector.row,curr.item.sector.col].contents)
+					end
+					curr.item.first_check := false
+				end
+
+
+				if (curr.item.turns_left = 0) and not curr.item.in_orbit then
 					move_msg.append ("[" + curr.item.id.out + ",P]:[" + curr.item.sector.row.out + "," + curr.item.sector.col.out + "," + curr.item.sector.quadrant.out + "]->[")
 					if move_planet(curr.item) then
 						move_msg.append (curr.item.sector.row.out + "," + curr.item.sector.col.out + "," + curr.item.sector.quadrant.out + "]")
@@ -131,7 +142,7 @@ feature --commands
 				temp_column := gen.rchoose (1, shared_info.number_columns)
 				check_sector := grid[temp_row,temp_column]
 				if (not check_sector.has_stationary) and (not check_sector.is_full) then
-					grid[temp_row,temp_column].put (create_stationary_item)
+					grid[temp_row,temp_column].put (create_stationary_item,true)
 					loop_counter := loop_counter + 1
 				end -- if
 			end -- loop
@@ -157,19 +168,6 @@ feature --commands
 
 feature {NONE} -- command
 
-	inital_planet_check  -- when we first initialize the galaxy if a planet is in the same sector as a star we set in_orbit to true
-
-		do
-			across planets as curr
-			loop
-				if grid[curr.item.sector.row,curr.item.sector.col].contents.has(create {ENTITY_ALPHABET}.make ('Y')) then
-					curr.item.in_orbit := true
-				elseif grid[curr.item.sector.row,curr.item.sector.col].contents.has(create {ENTITY_ALPHABET}.make ('*')) then
-					curr.item.in_orbit := true
-				end
-			end
-		end
-
 
 	move_planet(p: PLANET): BOOLEAN -- moves a planet to a random neighbor (returns true if the planet was moved successfully)
 
@@ -177,15 +175,9 @@ feature {NONE} -- command
 			vector: TUPLE[row:INTEGER;col:INTEGER]
 			rand_dir: RANDOM_GENERATOR_ACCESS
 			planet_dest : TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER] --planet's sector field to be updated
-			prev_index : INTEGER -- previous index of our planet in the SECTOR planets list(we need this to remove 'P' from previous sector contents i.e PP_ _  ->  _ P _ _ )
-			prev_index_found: BOOLEAN -- boolean flag used when searching for the prev_index
-			old_contents_index: INTEGER -- previous index of our planet in the SECTOR contents list
-			counter: INTEGER
+
 		do
 
-			counter := 1
-			prev_index := 1
-			prev_index_found := false
 			vector := directions[(rand_dir.rchoose (1, 8))]
 			planet_dest := [p.sector.row + vector.row, p.sector.col + vector.col,0]
 
@@ -203,42 +195,35 @@ feature {NONE} -- command
 				planet_dest.col := 1
 			end
 
-			if not grid[planet_dest.row,planet_dest.col].is_full then
+
+			if not grid[planet_dest.row,planet_dest.col].is_full and (not p.in_orbit)then
 
 
-				across grid[p.sector.row,p.sector.col].planets as curr	-- this loop finds the index of our planet in the planets list defined in SECTOR
-				loop
-					if curr.item.id ~ p.id then
-						prev_index_found := true
-					end
-
-					if not prev_index_found then
-						prev_index := prev_index + 1
-					end
-				end
-
-				old_contents_index := grid[p.sector.row,p.sector.col].contents.index_of (p.icon,prev_index) -- index of our planet in its old contents list
-
-				from
-					grid[p.sector.row,p.sector.col].contents.start
+				from															-- this loop is to remove the planet from it's previous planets list in SECTOR
+					grid[p.sector.row,p.sector.col].planets.start
 				until
-					grid[p.sector.row,p.sector.col].contents.exhausted
+					grid[p.sector.row,p.sector.col].planets.exhausted
 				loop
-
-					if counter ~ old_contents_index then
-						grid[p.sector.row,p.sector.col].contents.remove
+					if grid[p.sector.row,p.sector.col].planets.item.id ~ p.id then
+						grid[p.sector.row,p.sector.col].planets.remove
 					else
-						grid[p.sector.row,p.sector.col].contents.forth
+						grid[p.sector.row,p.sector.col].planets.forth
 					end
-
-					counter := counter + 1
-
 				end
+				grid[p.sector.row,p.sector.col].contents[p.sector.quadrant] := create {ENTITY_ALPHABET}.make ('-') -- remove planet from previous sector
+				grid[p.sector.row,p.sector.col].contents_count := grid[p.sector.row,p.sector.col].contents_count - 1
 
-
-				grid[planet_dest.row,planet_dest.col].contents.extend (p.icon) --add planet to sectors available quadrant position
-				planet_dest.quadrant := grid[planet_dest.row,planet_dest.col].contents.count
+				grid[planet_dest.row,planet_dest.col].put(p.icon,false) --add planet to sectors available quadrant position
+				planet_dest.quadrant := grid[planet_dest.row,planet_dest.col].recently_added
+				grid[planet_dest.row,planet_dest.col].planets.extend (p) -- add planet to the planets list in SECTOR
 				p.sector := planet_dest
+
+
+				across grid[planet_dest.row,planet_dest.col].planets_sorted as curr
+				loop
+					print(curr.item.id.out + " ")
+				end
+				print("%N")
 				p.behave (grid[p.sector.row,p.sector.col].contents)
 				Result := true
 

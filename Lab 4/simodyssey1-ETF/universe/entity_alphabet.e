@@ -24,6 +24,7 @@ feature -- Constructor
     make (a_char: CHARACTER)
         do
             item := a_char
+
         end
 
 feature -- Attributes
@@ -54,5 +55,5 @@ feature -- Query
 
 invariant
     allowable_symbols:
-        item = 'E' or item = 'P' or item = 'O' or item = 'W' or item = 'Y' or item = '*'
+        item = 'E' or item = 'P' or item = 'O' or item = 'W' or item = 'Y' or item = '*' or item = '-'
 end

@@ -132,8 +132,9 @@ feature -- model operations
 
 				if not g.grid[explorer_dest.row,explorer_dest.col].is_full then
 
-					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.prune (g.explorer.icon) -- remove explorer from previous sector
-					g.grid[explorer_dest.row,explorer_dest.col].contents.extend (g.explorer.icon) --add explorer to sectors available quadrant position
+					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents[g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.index_of(g.explorer.icon,1)] := create {ENTITY_ALPHABET}.make ('-') -- remove explorer from previous sector
+					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents_count := g.grid[g.explorer.sector.row,g.explorer.sector.col].contents_count - 1
+					g.grid[explorer_dest.row,explorer_dest.col].put(g.explorer.icon,false) --add explorer to sectors available quadrant position
 					temp_index := g.grid[explorer_dest.row,explorer_dest.col].contents.index_of (g.explorer.icon,1) -- index of first occurance of E in quadrants
 					explorer_dest.quadrant := temp_index
 					move_msg.append ("[" + "0,E]:[" + g.explorer.sector.row.out + "," + g.explorer.sector.col.out + "," + g.explorer.sector.quadrant.out + "]->[")
@@ -190,8 +191,8 @@ feature -- model operations
 
 			if is_valid then
 				next_state(true)
-				across g.grid[row,col].planets as i loop
-					if not (i.item.visited) then
+				across g.grid[row,col].planets_sorted as i loop
+					if not (i.item.visited) and i.item.in_orbit then
 						all_visited := false
 						g.explorer.is_landed := true
 						if i.item.support_life then
@@ -200,6 +201,13 @@ feature -- model operations
 						else
 							land_msg.append ("Explorer found no life as we know it at Sector:" + row.out + ":" + col.out)
 						end
+						across g.grid[row,col].planets as curr
+						loop
+							if curr.item.id ~ i.item.id then
+								curr.item.visited := true
+							end
+						end
+
 					end
 				end
 				if all_visited then
@@ -295,8 +303,9 @@ feature -- model operations
 					temp_row := g.gen.rchoose (1,5)
 					temp_col := g.gen.rchoose (1,5)
 					if not (g.grid[temp_row,temp_col].is_full) then
-						g.grid[row,col].contents.prune (g.explorer.icon) -- remove explorer from previous sector
-						g.grid[temp_row,temp_col].contents.extend (g.explorer.icon) --add explorer to sectors available quadrant position
+						g.grid[row,col].contents[g.grid[row,col].contents.index_of(g.explorer.icon,1)] := create {ENTITY_ALPHABET}.make ('-') -- remove explorer from previous sector
+						g.grid[row,col].contents_count := g.grid[row,col].contents_count - 1
+						g.grid[temp_row,temp_col].put (g.explorer.icon,false) --add explorer to sectors available quadrant position
 						create explorer_dest.default_create
 						temp_index := g.grid[temp_row,temp_col].contents.index_of (g.explorer.icon,1) -- index of first occurance of E in quadrants
 						explorer_dest := [temp_row,temp_col,temp_index] -- assign to explorer sector the row col and quadrant index
@@ -356,6 +365,8 @@ feature -- queries
 					end
 				end
 			end
+			print(Result)
+			print("%N")
 		end
 
 

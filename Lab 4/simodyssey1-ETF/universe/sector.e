@@ -22,6 +22,8 @@ feature -- attributes
 
 	contents: ARRAYED_LIST [ENTITY_ALPHABET] --holds 4 quadrants
 
+	contents_count: INTEGER assign set_contents_count
+
 	row: INTEGER
 
 	column: INTEGER
@@ -29,6 +31,8 @@ feature -- attributes
 	planet_id: INTEGER
 
 	planets: ARRAYED_LIST[PLANET]
+
+	recently_added: INTEGER -- index of most recently added entity
 
 
 
@@ -40,16 +44,17 @@ feature -- constructor
 			valid_column: (column_input >= 1) and (column_input <= shared_info.number_columns)
 		do
 			create planets.make(4)
+			contents_count := 0
 			planet_id := planet_id_num
 			row := row_input
 			column := column_input
 			create contents.make (shared_info.max_capacity) -- Each sector should have 4 quadrants
 			contents.compare_objects
 			if (row = 3) and (column = 3) then
-				put (create {ENTITY_ALPHABET}.make ('O')) -- If this is the sector in the middle of the board, place a black hole
+				put (create {ENTITY_ALPHABET}.make ('O'),true) -- If this is the sector in the middle of the board, place a black hole
 			else
 				if (row = 1) and (column = 1) then
-					put (a_explorer) -- If this is the top left corner sector, place the explorer there
+					put (a_explorer,true) -- If this is the top left corner sector, place the explorer there
 				end
 				populate -- Run the populate command to complete setup
 			end -- if
@@ -72,7 +77,6 @@ feature -- commands
 			number_items: INTEGER
 			loop_counter: INTEGER
 			component: ENTITY_ALPHABET
-			turn :INTEGER
 			planet: PLANET
 
 		do
@@ -98,7 +102,7 @@ feature -- commands
 					if attached planet as p then
 						planets.extend (p)
 					end
-					put (entity) -- add new entity to the contents list
+					put (entity,true) -- add new entity to the contents list
 
 					--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 				--	turn:=gen.rchoose (0, 2) -- Hint: Use this number for assigning turn values to the planet created
@@ -113,18 +117,22 @@ feature -- commands
 			end
 		end
 
-feature {GALAXY} --command
+feature --command
 
-	put (new_component: ENTITY_ALPHABET)
+	put (new_component: ENTITY_ALPHABET;first_time:BOOLEAN)
 			-- put `new_component' in contents array
 		local
 			loop_counter: INTEGER
 			found: BOOLEAN
+			blank_char: ENTITY_ALPHABET
+			check_first: BOOLEAN
 		do
+			create blank_char.make ('-')
+			check_first := first_time
 			from
 				loop_counter := 1
 			until
-				loop_counter > contents.count or found
+				loop_counter > contents_count or found
 			loop
 				if contents [loop_counter] = new_component then
 					found := TRUE
@@ -133,15 +141,27 @@ feature {GALAXY} --command
 			end -- loop
 
 			if not found and not is_full then
-				contents.extend (new_component)
-				if new_component ~ (create {ENTITY_ALPHABET}.make ('P')) then
-					planets[planets.count].sector.quadrant := contents.count
+				if contents.has (blank_char) then
+					recently_added := contents.index_of (blank_char, 1)
+					contents[contents.index_of (blank_char, 1)] := new_component
+				else
+					contents.extend (new_component)
+					recently_added := contents.count
+				end
+				contents_count := contents_count + 1
+				if new_component ~ (create {ENTITY_ALPHABET}.make ('P')) and check_first then
+					planets[planets.count].sector.quadrant := contents_count
 				end
 
 			end
 
 		ensure
 			component_put: not is_full implies contents.has (new_component)
+		end
+
+	set_contents_count(new_count: INTEGER)
+		do
+			contents_count := new_count
 		end
 
 feature -- Queries
@@ -161,23 +181,25 @@ feature -- Queries
 			loop_counter: INTEGER
 			occupant: ENTITY_ALPHABET
 			empty_space_found: BOOLEAN
+			blank_char: ENTITY_ALPHABET
 		do
-			if contents.count < shared_info.max_capacity then
+			create blank_char.make ('-')
+			if contents_count < shared_info.max_capacity then
 				empty_space_found := TRUE
 			end
 			from
 				loop_counter := 1
 			until
-				loop_counter > contents.count or empty_space_found
+				loop_counter > contents_count or empty_space_found
 			loop
 				occupant := contents [loop_counter]
-				if not attached occupant  then
+				if not attached occupant or (occupant = blank_char)  then
 					empty_space_found := TRUE
 				end
 				loop_counter := loop_counter + 1
 			end
 
-			if contents.count = shared_info.max_capacity and then not empty_space_found then
+			if contents_count = shared_info.max_capacity and then not empty_space_found then
 				Result := TRUE
 			else
 				Result := FALSE
@@ -192,7 +214,7 @@ feature -- Queries
 			from
 				loop_counter := 1
 			until
-				loop_counter > contents.count or Result
+				loop_counter > contents_count or Result
 			loop
 				if attached contents [loop_counter] as temp_item  then
 					Result := temp_item.is_stationary
@@ -201,4 +223,41 @@ feature -- Queries
 			end
 		end
 
+	planets_sorted:ARRAYED_LIST[PLANET] -- Returns a sorted list of the planets in this sector by lowest id to highest (used for land command)
+
+		local
+			i: INTEGER
+			j: INTEGER
+			temp: PLANET
+
+		do
+			create Result.make(4)
+			across planets as curr
+			loop
+				Result.extend (curr.item.deep_twin)
+			end
+
+			from
+				i := 1
+			until
+				i = Result.count
+			loop
+
+				from
+					j := i
+				until
+					j = Result.count + 1
+				loop
+					if Result[j].id < Result[i].id then
+						temp := Result[j].deep_twin
+						Result[j] := Result[i].deep_twin
+						Result[i] := temp
+					end
+
+					j := j + 1
+
+				end
+				i := i + 1
+			end
+		end
 end

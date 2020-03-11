@@ -22,6 +22,7 @@ feature -- Constructor
 			create death_msg.make_empty
 			support_life := false
 			visited := false
+			first_check := true
 		end
 
 feature -- Variables
@@ -35,7 +36,8 @@ feature -- Variables
 	is_alive : BOOLEAN
 	death_msg : STRING
 	gen : RANDOM_GENERATOR_ACCESS
-	visited : BOOLEAN
+	visited : BOOLEAN assign set_visited
+	first_check: BOOLEAN assign set_first_check
 
 feature --queries
 
@@ -75,6 +77,16 @@ feature -- commands
 	set_sector(new_sector: TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER])
 		do
 			sector := new_sector
+		end
+
+	set_first_check(first: BOOLEAN)
+		do
+			first_check := first
+		end
+
+	set_visited(is_visited: BOOLEAN)
+		do
+			visited := is_visited
 		end
 
 
