@@ -27,12 +27,14 @@ feature -- Constructor
 			support_life := false
 			visited := false
 			first_check := true
+			in_orbit_icon := 'F'
 		end
 
 feature -- Variables
 
 	turns_left: INTEGER assign set_turns_left
 	in_orbit: BOOLEAN assign set_in_orbit
+	in_orbit_icon : CHARACTER
 	support_life: BOOLEAN
 	sector: TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER] assign set_sector
 	is_alive : BOOLEAN
@@ -69,6 +71,9 @@ feature -- commands
 	set_in_orbit(orbit: BOOLEAN)
 		do
 			in_orbit := orbit
+			if in_orbit then
+				in_orbit_icon := 'T'
+			end
 		end
 
 	set_turns_left(turns: INTEGER)

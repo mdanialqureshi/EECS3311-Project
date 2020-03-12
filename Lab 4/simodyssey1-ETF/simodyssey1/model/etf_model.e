@@ -546,6 +546,7 @@ feature -- queries
 			create Result.make_empty
 			Result.append(test_mode_sectors)
 			Result.append (test_mode_descriptions)
+			Result.append (test_mode_deaths)
 		end
 
 	test_mode_sectors : STRING
@@ -600,7 +601,34 @@ feature -- queries
 				Result.append ("%N")
 				counter := counter - 1
 			end -- end from loop
+				Result.append ("    [" + g.explorer.id.out + "," + g.explorer.icon.item.out + "]->fuel:" + g.explorer.fuel.out +
+				"/3, life:" + g.explorer.life.out + "/3, landed?:" + g.explorer.boolean_icon (g.explorer.is_landed) + "%N")
 
+				across g.planets as p loop
+					Result.append ("    [" + p.item.id.out + "," + p.item.icon.item.out + "]->attached?:" +
+					p.item.boolean_icon (p.item.in_orbit) + ", support_life?:" + p.item.boolean_icon (p.item.support_life)
+					+ ", visited?:" + p.item.boolean_icon (p.item.visited) + ", turns_left:")
+					if not (p.item.in_orbit) then
+						Result.append (p.item.turns_left.out)
+					else
+						Result.append ("N/A")
+					end
+					Result.append ("%N")
+				end
+		end
+
+	test_mode_deaths : STRING
+		do
+			create Result.make_empty
+			Result.append ("    Deaths This Turn:")
+			if g.dead_planets.is_empty then
+				Result.append ("none")
+			else
+				across g.dead_planets as p loo
+
+				end
+
+			end
 		end
 
 	play_string : STRING

@@ -10,7 +10,7 @@ class
 create
 	makedummy, make_entity
 
-feature -- contructor
+feature -- contructors
 
 	make_entity (in_icon : ENTITY_ALPHABET; in_id : INTEGER)
 		do
@@ -42,5 +42,17 @@ feature -- attributes of an entity
 	is_explorer : BOOLEAN
 	is_blackhole : BOOLEAN
 	is_stationary_entity : BOOLEAN
+
+feature -- queries
+
+	boolean_icon (b : BOOLEAN) : STRING
+		do
+			create Result.make_empty
+			if b then
+				Result.append("T")
+			else
+				Result.append("F")
+			end
+		end
 
 end
