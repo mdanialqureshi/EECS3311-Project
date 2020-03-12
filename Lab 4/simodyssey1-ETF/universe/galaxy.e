@@ -116,7 +116,7 @@ feature -- query
 				end
 
 
-				if (curr.item.turns_left = 0) and not curr.item.in_orbit then
+				if (curr.item.turns_left = 0) and not curr.item.in_orbit and curr.item.is_alive then
 					move_msg.append ("[" + curr.item.id.out + ",P]:[" + curr.item.sector.row.out + "," + curr.item.sector.col.out + "," + curr.item.sector.quadrant.out + "]")
 					if move_planet(curr.item) then
 						move_msg.append ("->[" + curr.item.sector.row.out + "," + curr.item.sector.col.out + "," + curr.item.sector.quadrant.out + "]")
@@ -244,9 +244,11 @@ feature {NONE} -- command
 				grid[planet_dest.row,planet_dest.col].planets.extend (p) -- add planet to the planets list in SECTOR
 				p.sector := planet_dest
 				p.behave (grid[p.sector.row,p.sector.col].contents)
---				if not p.is_alive then
---					planet_died(p)
---				end
+				if not p.is_alive then
+					dead_planets.extend (p)
+					grid[3,3].contents.prune_all (p.icon)
+				--	planet_died(p)
+				end
 				Result := true
 
 			else
