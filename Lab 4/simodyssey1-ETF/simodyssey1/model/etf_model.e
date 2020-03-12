@@ -331,7 +331,7 @@ feature -- model operations
 
 			if is_valid then
 				next_state (true)
-				wormhole_msg.append ("[" + "0,E]:[" + g.explorer.sector.row.out + "," + g.explorer.sector.col.out + "," + g.explorer.sector.quadrant.out + "]->[")
+				wormhole_msg.append ("[" + "0,E]:[" + g.explorer.sector.row.out + "," + g.explorer.sector.col.out + "," + g.explorer.sector.quadrant.out + "]")
 				from
 					added := false
 				until
@@ -346,16 +346,19 @@ feature -- model operations
 						create explorer_dest.default_create
 						temp_index := g.grid[temp_row,temp_col].contents.index_of (g.explorer.icon,1) -- index of first occurance of E in quadrants
 						explorer_dest := [temp_row,temp_col,temp_index] -- assign to explorer sector the row col and quadrant index
+						if not (explorer_dest = g.explorer.sector) then
 						g.explorer.sector := explorer_dest
-						wormhole_msg.append (g.explorer.sector.row.out + "," + g.explorer.sector.col.out + "," + g.explorer.sector.quadrant.out + "]")
+						wormhole_msg.append ("->[" + g.explorer.sector.row.out + "," + g.explorer.sector.col.out + "," + g.explorer.sector.quadrant.out + "]")
+						end
 						movements.extend (wormhole_msg)
 						added := true
+						across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
+							movements.extend (curr.item)
+						end
 
 					end
 				end
-				across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
-					movements.extend (curr.item)
-				end
+
 			end
 		end
 
@@ -531,7 +534,9 @@ feature -- queries
 				if movements.is_empty then
 					Result.append ("  Movement:none" )
 				else
-					Result.append (planet_death_string)
+				--@@@@@NOTE@@@@@
+				-- need to verify if planet devoured message needs to be printed or not	
+				--	Result.append (planet_death_string)
 					Result.append ("  Movement:" )
 					across movements as curr loop
 						if count ~ 1 then

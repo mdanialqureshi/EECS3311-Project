@@ -241,9 +241,9 @@ feature {NONE} -- command
 				grid[planet_dest.row,planet_dest.col].planets.extend (p) -- add planet to the planets list in SECTOR
 				p.sector := planet_dest
 				p.behave (grid[p.sector.row,p.sector.col].contents)
-				if not p.is_alive then
-					planet_died(p)
-				end
+--				if not p.is_alive then
+--					planet_died(p)
+--				end
 				Result := true
 
 			else
@@ -253,15 +253,25 @@ feature {NONE} -- command
 		end
 
 	planet_died(p: PLANET)
+		local
+			count: INTEGER
 		do
-			across planets as curr
+			count := 1
+			from
+				planets.start
+			until
+				planets.exhausted
 			loop
-				if curr.item.id ~ curr.item.id then
-					dead_planets.extend (curr.item)
+				if planets.item.id ~ p.id then
+					dead_planets.extend (planets.item)
 					grid[3,3].contents.prune_all (p.icon)
 					planets.remove
+				else
+					planets.forth
 				end
+				count := count + 1
 			end
+
 
 		end
 
