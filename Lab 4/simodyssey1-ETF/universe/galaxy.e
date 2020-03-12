@@ -247,6 +247,7 @@ feature {NONE} -- command
 				if not p.is_alive then
 					dead_planets.extend (p)
 					grid[3,3].contents.prune_all (p.icon)
+					grid[3,3].contents_count := grid[3,3].contents_count - 1
 				--	planet_died(p)
 				end
 				Result := true
