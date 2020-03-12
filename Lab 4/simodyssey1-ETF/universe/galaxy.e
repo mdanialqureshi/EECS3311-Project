@@ -167,6 +167,7 @@ feature --commands
 					check_sector.entities.extend (item)
 					stationary_count := stationary_count - 1
 					grid[temp_row,temp_column].put (icon,true)
+					grid[temp_row,temp_column].contents_count := grid[temp_row,temp_column].contents.count
 					loop_counter := loop_counter + 1
 				end -- if
 			end -- loop
@@ -239,29 +240,32 @@ feature {NONE} -- command
 				grid[p.sector.row,p.sector.col].contents_count := grid[p.sector.row,p.sector.col].contents_count - 1
 
 				grid[planet_dest.row,planet_dest.col].put(p.icon,false) --add planet to sectors available quadrant position
-				grid[planet_dest.row,planet_dest.col].entities.extend (p) --add the planet to entities list
+
 				planet_dest.quadrant := grid[planet_dest.row,planet_dest.col].recently_added
-				grid[planet_dest.row,planet_dest.col].planets.extend (p) -- add planet to the planets list in SECTOR
+				--grid[planet_dest.row,planet_dest.col].planets.extend (p) -- add planet to the planets list in SECTOR
 				p.sector := planet_dest
+			--	print(planet_dest)
+			--	print("%N")
+				grid[planet_dest.row,planet_dest.col].planets.extend (p) -- add planet to the planets list in SECTOR
+				grid[planet_dest.row,planet_dest.col].entities.extend (p) --add the planet to entities list
 				p.behave (grid[p.sector.row,p.sector.col].contents)
 				if not p.is_alive then
 					dead_planets.extend (p)
 					grid[3,3].contents.prune_all (p.icon)
-				--	planet_died(p)
+					grid[3,3].contents_count := grid[3,3].contents_count - 1
+--					planet_died(p)
 				end
 				Result := true
 
 			else
 				Result := false
 			end
-
 		end
 
 	planet_died(p: PLANET)
-		local
-			count: INTEGER
+
 		do
-			count := 1
+
 			from
 				planets.start
 			until
@@ -274,7 +278,6 @@ feature {NONE} -- command
 				else
 					planets.forth
 				end
-				count := count + 1
 			end
 
 
