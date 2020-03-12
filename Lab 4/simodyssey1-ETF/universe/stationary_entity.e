@@ -7,6 +7,9 @@ note
 class
 	STATIONARY_ENTITY
 
+inherit
+    ENTITY
+
 create
 	make
 
@@ -16,12 +19,11 @@ feature -- constructor
 		do
 			id := id_num
 			create icon.make(char)
+			is_stationary_entity := true
 		end
 
 
 feature -- variables
-	id: INTEGER
-	icon: ENTITY_ALPHABET
 	is_star: BOOLEAN assign set_is_star
 	luminosity: INTEGER assign set_luminosity
 

@@ -7,6 +7,9 @@ note
 class
 	PLANET
 
+inherit
+	ENTITY
+
 create
 	make
 
@@ -15,6 +18,7 @@ feature -- Constructor
 	make(id_num:INTEGER;turns: INTEGER;location: TUPLE[INTEGER,INTEGER,INTEGER])
 		do
 			create icon.make('P')
+			is_planet := true
 			id := id_num
 			sector := location
 			turns_left := turns
@@ -27,8 +31,6 @@ feature -- Constructor
 
 feature -- Variables
 
-	icon: ENTITY_ALPHABET
-	id: INTEGER
 	turns_left: INTEGER assign set_turns_left
 	in_orbit: BOOLEAN assign set_in_orbit
 	support_life: BOOLEAN

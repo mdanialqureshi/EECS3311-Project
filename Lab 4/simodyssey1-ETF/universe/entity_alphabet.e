@@ -24,7 +24,6 @@ feature -- Constructor
     make (a_char: CHARACTER)
         do
             item := a_char
-
         end
 
 feature -- Attributes
