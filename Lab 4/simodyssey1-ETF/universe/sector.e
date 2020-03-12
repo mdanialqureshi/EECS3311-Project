@@ -34,6 +34,8 @@ feature -- attributes
 
 	recently_added: INTEGER -- index of most recently added entity
 
+	entities : ARRAYED_LIST[ENTITY]
+
 
 
 feature -- constructor
@@ -44,6 +46,8 @@ feature -- constructor
 			valid_column: (column_input >= 1) and (column_input <= shared_info.number_columns)
 		do
 			create planets.make(4)
+			create entities.make (4)
+			entities.compare_objects
 			contents_count := 0
 			planet_id := planet_id_num
 			row := row_input
@@ -52,9 +56,12 @@ feature -- constructor
 			contents.compare_objects
 			if (row = 3) and (column = 3) then
 				put (create {ENTITY_ALPHABET}.make ('O'),true) -- If this is the sector in the middle of the board, place a black hole
+				entities.extend (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('O')
+				, -1))
 			else
 				if (row = 1) and (column = 1) then
 					put (a_explorer,true) -- If this is the top left corner sector, place the explorer there
+					entities.extend (create {ENTITY}.make_entity (a_explorer, 0))
 				end
 				populate -- Run the populate command to complete setup
 			end -- if
@@ -67,6 +74,8 @@ feature -- commands
 			create contents.make (shared_info.max_capacity)
 			create planets.make (4)
 			contents.compare_objects
+			create entities.make(4)
+			entities.compare_objects
 		end
 
 	populate
@@ -78,7 +87,6 @@ feature -- commands
 			loop_counter: INTEGER
 			component: ENTITY_ALPHABET
 			planet: PLANET
-
 		do
 
 			number_items := gen.rchoose (1, shared_info.max_capacity-1)  -- MUST decrease max_capacity by 1 to leave space for Explorer (so a max of 3)
@@ -103,6 +111,10 @@ feature -- commands
 						planets.extend (p)
 					end
 					put (entity,true) -- add new entity to the contents list
+					if attached {ENTITY} planet as add then
+						entities.extend (add)
+					end
+
 
 					--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 				--	turn:=gen.rchoose (0, 2) -- Hint: Use this number for assigning turn values to the planet created

@@ -7,6 +7,9 @@ note
 class
 	EXPLORER
 
+inherit
+    ENTITY
+
 create
 	make
 
@@ -15,6 +18,7 @@ feature -- Constructor
 	make
 		do
 			create icon.make('E')
+			is_explorer := true
 			id := 0
 			sector := [1,1,1]
 			fuel := 3
@@ -26,8 +30,6 @@ feature -- Constructor
 
 
 feature -- variables
-	id: INTEGER
-	icon: ENTITY_ALPHABET
 	fuel: INTEGER
 	life: INTEGER
 	sector: TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER] assign set_sector

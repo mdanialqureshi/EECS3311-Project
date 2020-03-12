@@ -36,7 +36,6 @@ feature -- attributes
 	dead_planets: LINKED_LIST[PLANET]
 	explorer: EXPLORER
 	test_mode : BOOLEAN
-
 	directions: ARRAY[TUPLE[row:INTEGER;col:INTEGER]]
 		do
 			Result := <<[-1,0],[-1,1],[0,1],[1,1],[1,0],[1,-1],[0,-1],[-1,-1]>>
@@ -144,6 +143,7 @@ feature --commands
 			icon: ENTITY_ALPHABET
 			item: STATIONARY_ENTITY
 		do
+			stationary_items.extend (create {STATIONARY_ENTITY}.make (-1, 'O'))
 			from
 				loop_counter := 1
 			until
@@ -164,6 +164,7 @@ feature --commands
 						item.luminosity := 5
 					end
 					stationary_items.extend (item)
+					check_sector.entities.extend (item)
 					stationary_count := stationary_count - 1
 					grid[temp_row,temp_column].put (icon,true)
 					loop_counter := loop_counter + 1
@@ -234,9 +235,11 @@ feature {NONE} -- command
 					end
 				end
 				grid[p.sector.row,p.sector.col].contents[p.sector.quadrant] := create {ENTITY_ALPHABET}.make ('-') -- remove planet from previous sector
+				grid[p.sector.row,p.sector.col].entities.prune (p) -- remove from entities list
 				grid[p.sector.row,p.sector.col].contents_count := grid[p.sector.row,p.sector.col].contents_count - 1
 
 				grid[planet_dest.row,planet_dest.col].put(p.icon,false) --add planet to sectors available quadrant position
+				grid[planet_dest.row,planet_dest.col].entities.extend (p) --add the planet to entities list
 				planet_dest.quadrant := grid[planet_dest.row,planet_dest.col].recently_added
 				grid[planet_dest.row,planet_dest.col].planets.extend (p) -- add planet to the planets list in SECTOR
 				p.sector := planet_dest

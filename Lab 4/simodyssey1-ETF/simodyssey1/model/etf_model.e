@@ -168,8 +168,10 @@ feature -- model operations
 					next_state (true)
 
 					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents[g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.index_of(g.explorer.icon,1)] := create {ENTITY_ALPHABET}.make ('-') -- remove explorer from previous sector
+					g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.prune (create {ENTITY}.make_entity (g.explorer.icon, 0)) -- remove the explorer from old sectors entities list
 					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents_count := g.grid[g.explorer.sector.row,g.explorer.sector.col].contents_count - 1
 					g.grid[explorer_dest.row,explorer_dest.col].put(g.explorer.icon,false) --add explorer to sectors available quadrant position
+					g.grid[explorer_dest.row,explorer_dest.col].entities.extend (g.explorer) --add explorer tosectors entities list
 					temp_index := g.grid[explorer_dest.row,explorer_dest.col].contents.index_of (g.explorer.icon,1) -- index of first occurance of E in quadrants
 					explorer_dest.quadrant := temp_index
 					move_msg.append ("[" + "0,E]:[" + g.explorer.sector.row.out + "," + g.explorer.sector.col.out + "," + g.explorer.sector.quadrant.out + "]->[")
@@ -228,7 +230,6 @@ feature -- model operations
 			end
 
 			if is_valid then
-				next_state(true)
 				across g.grid[row,col].planets_sorted as i loop
 					if not (i.item.visited) and i.item.in_orbit and not_found then
 						all_visited := false
@@ -251,7 +252,9 @@ feature -- model operations
 				end
 				if all_visited then
 					land_err.append ("Negative on that request:no unvisited attached planet at Sector:" + row.out + ":" + col.out)
+					next_state(false)
 				else
+					next_state(true)
 					if in_game then
 						across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
 								movements.extend (curr.item)
@@ -341,8 +344,10 @@ feature -- model operations
 					temp_col := g.gen.rchoose (1,5)
 					if not (g.grid[temp_row,temp_col].is_full) then
 						g.grid[row,col].contents[g.grid[row,col].contents.index_of(g.explorer.icon,1)] := create {ENTITY_ALPHABET}.make ('-') -- remove explorer from previous sector
+						g.grid[row,col].entities.prune (g.explorer) -- remove the explorer from old sectors entities list
 						g.grid[row,col].contents_count := g.grid[row,col].contents_count - 1
 						g.grid[temp_row,temp_col].put (g.explorer.icon,false) --add explorer to sectors available quadrant position
+						g.grid[temp_row,temp_col].entities.extend (g.explorer) --add explorer tosectors entities list
 						create explorer_dest.default_create
 						temp_index := g.grid[temp_row,temp_col].contents.index_of (g.explorer.icon,1) -- index of first occurance of E in quadrants
 						explorer_dest := [temp_row,temp_col,temp_index] -- assign to explorer sector the row col and quadrant index
@@ -460,7 +465,7 @@ feature -- queries
 				if not (test_mode) then
 					Result.append (play_mode_in_game_output)
 				else
-
+					Result.append (test_mode_in_game_output)
 				end
 
 			else -- not in a game
@@ -514,7 +519,92 @@ feature -- queries
 			end
 		end
 
+	test_mode_in_game_output : STRING
+		do
+			create Result.make_empty
+			if not (land_err.is_empty) or not (land_msg.is_empty) then -- land messages
 
+			elseif not (play_err.is_empty) then -- user requested play while in a game
+
+			elseif not (liftoff_err.is_empty) or not (liftoff_msg.is_empty) then -- handle liftoff outputs (errors and success messages)
+
+			elseif not (wormhole_err.is_empty) or not (wormhole_msg.is_empty) then -- handle wormhole outputs (errors and success messages)
+
+			elseif not (status_err.is_empty) or not (status_msg.is_empty) then -- handle status outputs (errors and success messages)
+
+			elseif not (abort_err.is_empty) or not (abort_msg.is_empty) then -- handle abort outputs (errors and success messages)
+
+			elseif not (move_err.is_empty) then -- handle move outputs (errors and success messages)
+
+			elseif not(g.explorer.death_msg.is_empty) then -- handle explorer death outputs (erros and success messages)
+
+			else
+				Result.append (test_string)
+				Result.append(g.out) -- print the board out
+			end
+		end
+
+	test_string : STRING
+		do
+			create Result.make_empty
+			Result.append(test_mode_sectors)
+			Result.append (test_mode_descriptions)
+		end
+
+	test_mode_sectors : STRING
+		local
+			temp_entities : ARRAYED_LIST[ENTITY]
+			curr_sector : SECTOR
+		do
+			create Result.make_empty
+			create temp_entities.make(4)
+			Result.append ("state:" + state1.out + "." + state2.out + ", mode:test, ok%N")
+			Result.append(play_string)
+			Result.append("%N  Sectors:%N")
+			across 1 |..| info.number_rows as i loop  --rows
+				across 1 |..| info.number_columns as j loop   --coloumns
+					curr_sector := g.grid[i.item,j.item]
+					Result.append("    [" + curr_sector.row.out + "," + curr_sector.column.out
+					 + "]->")
+					 temp_entities := curr_sector.entities
+					 across 1 |..| temp_entities.count as k loop
+
+							if  attached temp_entities[k.item] as entity_item then
+								Result.append("[" + entity_item.id.out +
+								"," + entity_item.icon.item.out + "]")
+							else
+								Result.append("-")
+							end -- if
+						if not (k.item ~ temp_entities.count) then
+							Result.append (",")
+						end
+					 end -- end across 3
+					 -- add a newline at the end of each sectors outputs
+					 Result.append ("%N")
+				end --end across 2
+			end -- end across 1
+		end
+
+	test_mode_descriptions : STRING
+		local
+			counter : INTEGER
+		do
+			create Result.make_empty
+			Result.append ("  Descriptions:%N")
+			from
+				counter := g.stationary_items.count
+			until
+				counter = 0
+			loop
+				Result.append("    [" + g.stationary_items[counter].id.out + "," + g.stationary_items[counter].icon.item.out + "]->")
+				if g.stationary_items[counter].is_star then
+					Result.append("Luminosity:" + g.stationary_items[counter].luminosity.out)
+				end
+				Result.append ("%N")
+				counter := counter - 1
+			end -- end from loop
+
+		end
 
 	play_string : STRING
 		local
@@ -522,7 +612,7 @@ feature -- queries
 		do
 			create Result.make_empty
 			count := 1
-			if g.explorer.death_msg.is_empty then
+			if g.explorer.death_msg.is_empty and not (test_mode) then
 				Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, ok%N")
 			end
 			if not (land_msg.is_empty) then -- landed but no life found on planet
@@ -551,6 +641,7 @@ feature -- queries
 					end
 				end
 		end
+
 
 	land_string : STRING
 		do
@@ -656,17 +747,6 @@ feature -- queries
 					g.dead_planets.remove
 				end
 			end
-		end
-
-
-	pass_string: STRING
-		do
-			create Result.make_empty
-		end
-
-	test_string : STRING
-		do
-			create Result.make_empty
 		end
 
 
