@@ -116,7 +116,7 @@ feature -- query
 				end
 
 
-				if (curr.item.turns_left = 0) and not curr.item.in_orbit then
+				if (curr.item.turns_left = 0) and not curr.item.in_orbit and curr.item.is_alive then
 					move_msg.append ("[" + curr.item.id.out + ",P]:[" + curr.item.sector.row.out + "," + curr.item.sector.col.out + "," + curr.item.sector.quadrant.out + "]")
 					if move_planet(curr.item) then
 						move_msg.append ("->[" + curr.item.sector.row.out + "," + curr.item.sector.col.out + "," + curr.item.sector.quadrant.out + "]")
@@ -245,7 +245,9 @@ feature {NONE} -- command
 				p.sector := planet_dest
 				p.behave (grid[p.sector.row,p.sector.col].contents)
 				if not p.is_alive then
-					planet_died(p)
+					dead_planets.extend (p)
+					grid[3,3].contents.prune_all (p.icon)
+				--	planet_died(p)
 				end
 				Result := true
 
@@ -256,15 +258,25 @@ feature {NONE} -- command
 		end
 
 	planet_died(p: PLANET)
+		local
+			count: INTEGER
 		do
-			across planets as curr
+			count := 1
+			from
+				planets.start
+			until
+				planets.exhausted
 			loop
-				if curr.item.id ~ curr.item.id then
-					dead_planets.extend (curr.item)
+				if planets.item.id ~ p.id then
+					dead_planets.extend (planets.item)
 					grid[3,3].contents.prune_all (p.icon)
 					planets.remove
+				else
+					planets.forth
 				end
+				count := count + 1
 			end
+
 
 		end
 
