@@ -627,7 +627,7 @@ feature -- queries
 			if g.dead_planets.is_empty then
 				Result.append ("none")
 			else
-				across g.dead_planets as p loo
+				across g.dead_planets as p loop
 
 				end
 
