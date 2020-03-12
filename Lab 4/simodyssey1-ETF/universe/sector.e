@@ -48,7 +48,6 @@ feature -- constructor
 			create planets.make(4)
 			create entities.make (4)
 			entities.compare_objects
-			contents_count := 0
 			planet_id := planet_id_num
 			row := row_input
 			column := column_input
@@ -158,7 +157,8 @@ feature --command
 					contents[contents.index_of (blank_char, 1)] := new_component
 				else
 					contents.extend (new_component)
-					recently_added := contents.count
+					recently_added := contents_count + 1
+
 				end
 				contents_count := contents_count + 1
 				if new_component ~ (create {ENTITY_ALPHABET}.make ('P')) and check_first then
