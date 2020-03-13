@@ -654,32 +654,22 @@ feature -- queries
 					 temp_entities := curr_sector.entities
 					 across 1 |..| 4 as k loop
 
-						if not (k.item > curr_sector.contents.count) and not (counter > curr_sector.entities.count) then
-							if attached curr_sector.contents[k.item] as ae then
-
-								if  curr_sector.contents[k.item].item ~ ('-') then
-									Result.append ("-")
-								else
-									Result.append("[" + curr_sector.entities[counter].id.out +
-									"," + curr_sector.entities[counter].icon.item.out + "]")
-									counter := counter + 1
-								end
-							else
-								Result.append ("-")
-							end
+						if  curr_sector.entities[k.item].icon.item ~ ('-') then
+							Result.append ("-")
 						else
-							Result.append("-")
+							Result.append("[" + curr_sector.entities[k.item].id.out +
+							"," + curr_sector.entities[k.item].icon.item.out + "]")
 						end
+
 						if not (k.item ~ 4) then
 							Result.append (",")
 						end
-					 end -- end across 3
 					 -- add a newline at the end of each sectors outputs
 					 Result.append ("%N")
-					 counter := 1
-				end --end across 2
-			end -- end across 1
-		end
+				end
+			end --end across 2
+		end -- end across 1
+	end
 
 	test_mode_descriptions : STRING
 		local

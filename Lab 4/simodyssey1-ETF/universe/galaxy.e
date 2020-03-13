@@ -218,9 +218,10 @@ feature {NONE} -- command
 			vector: TUPLE[row:INTEGER;col:INTEGER]
 			rand_dir: RANDOM_GENERATOR_ACCESS
 			planet_dest : TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER] --planet's sector field to be updated
+			added : BOOLEAN
 
 		do
-
+			added := false
 			vector := directions[(rand_dir.rchoose (1, 8))]
 			planet_dest := [p.sector.row + vector.row, p.sector.col + vector.col,0]
 
@@ -287,10 +288,11 @@ feature {NONE} -- command
 					from
 						grid[planet_dest.row,planet_dest.col].entities.start
 					until
-						grid[planet_dest.row,planet_dest.col].entities.exhausted
+						added
 					loop
 						if grid[planet_dest.row,planet_dest.col].entities.item.icon.item ~ '-'  then
 							grid[planet_dest.row,planet_dest.col].entities.replace (p)
+							added := true
 						end
 						grid[planet_dest.row,planet_dest.col].entities.forth
 					end
