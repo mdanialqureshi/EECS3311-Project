@@ -195,6 +195,10 @@ feature -- model operations
 			-- *NOTE* after we move the explorer do the explorer check to see if still alive and if not handle it accordingly
 			-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			g.explorer.update_explorer(g.grid[g.explorer.sector.row,g.explorer.sector.col].contents, false) -- update explorer (fuel life etc)
+			if not g.explorer.death_msg.is_empty then
+				g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.prune(g.explorer.icon)
+				g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.prune (g.explorer)
+			end
 
 		end
 
@@ -365,6 +369,11 @@ feature -- model operations
 				end
 				across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
 					movements.extend (curr.item)
+				end
+				g.explorer.update_explorer(g.grid[g.explorer.sector.row,g.explorer.sector.col].contents, true) -- update explorer (fuel life etc)
+				if not g.explorer.death_msg.is_empty then
+					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.prune(g.explorer.icon)
+					g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.prune (g.explorer)
 				end
 
 			end
