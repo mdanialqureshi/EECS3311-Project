@@ -49,7 +49,7 @@ feature -- constructor
 		do
 			create planets.make(4)
 			create entities.make (4)
-			across entities as curr
+			across 1|..| 4  as i
 			loop
 				entities.extend (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('-'), 150))
 			end
@@ -62,14 +62,14 @@ feature -- constructor
 			contents.compare_objects
 			if (row = 3) and (column = 3) then
 				put (create {ENTITY_ALPHABET}.make ('O'),true) -- If this is the sector in the middle of the board, place a black hole
-				entities.replace (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('O'),-1))
+				entities[1] := create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('O'),-1)
 
 --				entities.extend (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('O')
 --				, -1))
 
 				if (row = 1) and (column = 1) then
 					put (a_explorer.icon,true) -- If this is the top left corner sector, place the explorer there
-					entities.replace (a_explorer)
+					entities[1] := a_explorer
 
 				--	entities.extend (a_explorer)
 				end

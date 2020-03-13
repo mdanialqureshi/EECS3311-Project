@@ -665,8 +665,8 @@ feature -- queries
 							Result.append (",")
 						end
 					 -- add a newline at the end of each sectors outputs
-					 Result.append ("%N")
 				end
+				 Result.append ("%N")
 			end --end across 2
 		end -- end across 1
 	end
