@@ -241,7 +241,17 @@ feature {NONE} -- command
 					end
 				end
 				grid[p.sector.row,p.sector.col].contents[p.sector.quadrant] := create {ENTITY_ALPHABET}.make ('-') -- remove planet from previous sector
-				grid[p.sector.row,p.sector.col].entities.prune (p) -- remove from entities list
+				from
+					grid[p.sector.row,p.sector.col].entities.start
+				until
+					grid[p.sector.row,p.sector.col].entities.exhausted
+				loop
+					if grid[p.sector.row,p.sector.col].entities.item = p then
+						grid[p.sector.row,p.sector.col].entities.replace (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('-'), 150))
+					end
+					grid[p.sector.row,p.sector.col].entities.forth
+				end
+			--	grid[p.sector.row,p.sector.col].entities. .prune (p) -- remove from entities list
 				grid[p.sector.row,p.sector.col].contents_count := grid[p.sector.row,p.sector.col].contents_count - 1
 
 				grid[planet_dest.row,planet_dest.col].put(p.icon,false) --add planet to sectors available quadrant position
@@ -260,7 +270,18 @@ feature {NONE} -- command
 					grid[3,3].contents_count := grid[3,3].contents_count - 1
 				else
 					grid[planet_dest.row,planet_dest.col].planets.extend (p) -- add planet to the planets list in SECTOR
-					grid[planet_dest.row,planet_dest.col].entities.extend (p) --add the planet to entities list
+
+					from
+						grid[planet_dest.row,planet_dest.col].entities.start
+					until
+						grid[planet_dest.row,planet_dest.col].entities.exhausted
+					loop
+						if grid[planet_dest.row,planet_dest.col].entities.item.icon.item ~ '-'  then
+							grid[planet_dest.row,planet_dest.col].entities.replace (p)
+						end
+						grid[planet_dest.row,planet_dest.col].entities.forth
+					end
+					--grid[planet_dest.row,planet_dest.col].entities.extend (p) --add the planet to entities list
 				end
 				Result := true
 			elseif not p.in_orbit then

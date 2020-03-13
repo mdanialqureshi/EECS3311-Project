@@ -16,14 +16,19 @@ feature -- contructors
 		do
 			icon := in_icon
 			id := in_id
-			if in_id ~ -1 then
-				is_blackhole := true
-			elseif in_id < -1 then
-				is_stationary_entity := true
-			elseif in_id ~ 0 then
-				is_explorer := true
-			elseif in_id > 0 then
-				is_planet := true
+			if in_icon.item ~ ('-') then
+				is_blank := true
+			else
+				is_blank := false
+				if in_id ~ -1 then
+					is_blackhole := true
+				elseif in_id < -1 then
+					is_stationary_entity := true
+				elseif in_id ~ 0 then
+					is_explorer := true
+				elseif in_id > 0 then
+					is_planet := true
+				end
 			end
 		end
 	makedummy
@@ -42,6 +47,7 @@ feature -- attributes of an entity
 	is_explorer : BOOLEAN
 	is_blackhole : BOOLEAN
 	is_stationary_entity : BOOLEAN
+	is_blank : BOOLEAN
 
 feature -- queries
 
