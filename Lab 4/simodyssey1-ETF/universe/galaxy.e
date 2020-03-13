@@ -177,6 +177,7 @@ feature --commands
 						end
 						grid[temp_row,temp_column].entities.forth
 					end
+					added := false
 				--	check_sector.entities.extend (item)
 					stationary_count := stationary_count - 1
 					grid[temp_row,temp_column].put (icon,true)

@@ -49,7 +49,11 @@ feature -- constructor
 		do
 			create planets.make(4)
 			create entities.make (4)
+<<<<<<< HEAD
 			across 1|..| 4  as i
+=======
+			across 1|..| 4 as curr
+>>>>>>> 23039e89aaa4da8856d4275214467a2bddfc33ef
 			loop
 				entities.extend (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('-'), 150))
 			end
@@ -63,13 +67,21 @@ feature -- constructor
 			if (row = 3) and (column = 3) then
 				put (create {ENTITY_ALPHABET}.make ('O'),true) -- If this is the sector in the middle of the board, place a black hole
 				entities[1] := create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('O'),-1)
+<<<<<<< HEAD
 
+=======
+			else
+>>>>>>> 23039e89aaa4da8856d4275214467a2bddfc33ef
 --				entities.extend (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('O')
 --				, -1))
 
 				if (row = 1) and (column = 1) then
 					put (a_explorer.icon,true) -- If this is the top left corner sector, place the explorer there
+<<<<<<< HEAD
 					entities[1] := a_explorer
+=======
+					entities[1] := (a_explorer)
+>>>>>>> 23039e89aaa4da8856d4275214467a2bddfc33ef
 
 				--	entities.extend (a_explorer)
 				end
@@ -134,6 +146,7 @@ feature -- commands
 							end
 							entities.forth
 						end
+						added := false
 						--entities.extend (add)
 					end
 

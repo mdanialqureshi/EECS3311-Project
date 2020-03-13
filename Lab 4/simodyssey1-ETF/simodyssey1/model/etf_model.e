@@ -657,16 +657,27 @@ feature -- queries
 						if  curr_sector.entities[k.item].icon.item ~ ('-') then
 							Result.append ("-")
 						else
-							Result.append("[" + curr_sector.entities[k.item].id.out +
-							"," + curr_sector.entities[k.item].icon.item.out + "]")
+							if not g.explorer.death_msg.is_empty and curr_sector.entities[k.item].icon.item ~ 'E' then
+								Result.append("-")
+							else
+								Result.append("[" + curr_sector.entities[k.item].id.out +
+								"," + curr_sector.entities[k.item].icon.item.out + "]")
+							end
+
 						end
 
 						if not (k.item ~ 4) then
 							Result.append (",")
 						end
 					 -- add a newline at the end of each sectors outputs
+<<<<<<< HEAD
 				end
 				 Result.append ("%N")
+=======
+
+				end
+				Result.append ("%N")
+>>>>>>> 23039e89aaa4da8856d4275214467a2bddfc33ef
 			end --end across 2
 		end -- end across 1
 	end
