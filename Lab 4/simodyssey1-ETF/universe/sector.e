@@ -1,7 +1,7 @@
 note
 	description: "Represents a sector in the galaxy."
-	author: ""
-	date: "$Date$"
+	author: "Ameer Bacchus and Muhammad Danial Qureshi"
+	date: "2020-03-13"
 	revision: "$Revision$"
 
 class

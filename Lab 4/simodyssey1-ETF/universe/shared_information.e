@@ -3,8 +3,8 @@ note
 		Common variables such as threshold for planet
 		and constants such as number of stationary items for generation of the board.
 		]"
-	author: ""
-	date: "$Date$"
+	author: "Ameer Bacchus and Muhammad Danial Qureshi"
+	date: "2020-03-13"
 	revision: "$Revision$"
 
 class

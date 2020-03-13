@@ -1,14 +1,14 @@
 note
 	description: "Singleton access to the default business model."
-	author: "Jackie Wang"
-	date: "$Date$"
+	author: "Ameer Bacchus and Muhammad Danial Qureshi"
+	date: "2020-03-13"
 	revision: "$Revision$"
 
 expanded class
-	ETF_MODEL_ACCESS
+	GAME_ACCESS
 
 feature
-	m: ETF_MODEL
+	m: GAME
 		once
 			create Result.make
 		end

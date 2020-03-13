@@ -1,11 +1,11 @@
 note
-	description: "A default business model."
-	author: "Jackie Wang"
-	date: "$Date$"
+	description: "A game that simulates if corona virus gets out of hand, and we need to explore the universe to find a new habitable planet"
+	author: "Ameer Bacchus and Muhammad Danial Qureshi"
+	date: "2020-03-13"
 	revision: "$Revision$"
 
 class
-	ETF_MODEL
+	GAME
 
 inherit
 	ANY
@@ -13,7 +13,7 @@ inherit
 			out
 		end
 
-create {ETF_MODEL_ACCESS}
+create {GAME_ACCESS}
 	make
 
 feature {NONE} -- Initialization
