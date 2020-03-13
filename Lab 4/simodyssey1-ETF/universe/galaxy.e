@@ -99,7 +99,6 @@ feature -- query
 	check_planets:LINKED_LIST[STRING]  -- Returns a List of the movements from planets i.e [8,P]:[4,1,2]->[5,5,1]
 		local
 			move_msg : STRING
-			num: INTEGER
 		do
 			create Result.make
 			create move_msg.make_empty
