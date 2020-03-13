@@ -340,9 +340,10 @@ feature -- model operations
 				until
 					added
 				loop
+					
 					temp_row := g.gen.rchoose (1,5)
 					temp_col := g.gen.rchoose (1,5)
-					if not (g.grid[temp_row,temp_col].is_full) then
+					if not (g.grid[temp_row,temp_col].is_full) or ((g.explorer.sector.row ~ temp_row) and (g.explorer.sector.col ~ temp_col)) then
 						g.grid[row,col].contents[g.grid[row,col].contents.index_of(g.explorer.icon,1)] := create {ENTITY_ALPHABET}.make ('-') -- remove explorer from previous sector
 						g.grid[row,col].entities.prune (g.explorer) -- remove the explorer from old sectors entities list
 						g.grid[row,col].contents_count := g.grid[row,col].contents_count - 1
