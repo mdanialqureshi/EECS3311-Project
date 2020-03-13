@@ -61,7 +61,8 @@ feature --queries
 						support_life := true
 					end
 				end
-			else
+			elseif is_alive then
+
 				turns_left := gen.rchoose (0, 2)
 			end
 

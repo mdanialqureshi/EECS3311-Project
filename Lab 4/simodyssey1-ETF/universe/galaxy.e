@@ -99,6 +99,7 @@ feature -- query
 	check_planets:LINKED_LIST[STRING]  -- Returns a List of the movements from planets i.e [8,P]:[4,1,2]->[5,5,1]
 		local
 			move_msg : STRING
+			num: INTEGER
 		do
 			create Result.make
 			create move_msg.make_empty
@@ -107,9 +108,9 @@ feature -- query
 
 				if (curr.item.turns_left = 0) and curr.item.first_check  then
 
-					if grid[curr.item.sector.row,curr.item.sector.col].contents.has(create {ENTITY_ALPHABET}.make ('Y')) and curr.item.first_check then
+					if grid[curr.item.sector.row,curr.item.sector.col].contents.has(create {ENTITY_ALPHABET}.make ('Y')) then
 						curr.item.behave (grid[curr.item.sector.row,curr.item.sector.col].contents)
-					elseif grid[curr.item.sector.row,curr.item.sector.col].contents.has(create {ENTITY_ALPHABET}.make ('*')) and curr.item.first_check then
+					elseif grid[curr.item.sector.row,curr.item.sector.col].contents.has(create {ENTITY_ALPHABET}.make ('*')) then
 						curr.item.behave (grid[curr.item.sector.row,curr.item.sector.col].contents)
 					end
 					curr.item.first_check := false
@@ -251,16 +252,21 @@ feature {NONE} -- command
 				p.sector := planet_dest
 			--	print(planet_dest)
 			--	print("%N")
-				grid[planet_dest.row,planet_dest.col].planets.extend (p) -- add planet to the planets list in SECTOR
-				grid[planet_dest.row,planet_dest.col].entities.extend (p) --add the planet to entities list
+--				grid[planet_dest.row,planet_dest.col].planets.extend (p) -- add planet to the planets list in SECTOR
+--				grid[planet_dest.row,planet_dest.col].entities.extend (p) --add the planet to entities list
 				p.behave (grid[p.sector.row,p.sector.col].contents)
 				if not p.is_alive then
 					dead_planets.extend (p)
 					grid[3,3].contents.prune_all (p.icon)
 					grid[3,3].contents_count := grid[3,3].contents_count - 1
+				else
+					grid[planet_dest.row,planet_dest.col].planets.extend (p) -- add planet to the planets list in SECTOR
+					grid[planet_dest.row,planet_dest.col].entities.extend (p) --add the planet to entities list
 				end
 				Result := true
+			elseif not p.in_orbit then
 
+				p.behave (grid[p.sector.row,p.sector.col].contents)
 			else
 				Result := false
 			end

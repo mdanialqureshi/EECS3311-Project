@@ -341,7 +341,7 @@ feature -- model operations
 				until
 					added
 				loop
-					
+
 					temp_row := g.gen.rchoose (1,5)
 					temp_col := g.gen.rchoose (1,5)
 					if not (g.grid[temp_row,temp_col].is_full) or ((g.explorer.sector.row ~ temp_row) and (g.explorer.sector.col ~ temp_col)) then
@@ -359,11 +359,12 @@ feature -- model operations
 						end
 						movements.extend (wormhole_msg)
 						added := true
-						across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
-							movements.extend (curr.item)
-						end
 
 					end
+
+				end
+				across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
+					movements.extend (curr.item)
 				end
 
 			end
