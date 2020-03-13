@@ -142,7 +142,9 @@ feature --commands
 			temp_column: INTEGER
 			icon: ENTITY_ALPHABET
 			item: STATIONARY_ENTITY
+			added: BOOLEAN
 		do
+			added := false
 			stationary_items.extend (create {STATIONARY_ENTITY}.make (-1, 'O'))
 			from
 				loop_counter := 1
@@ -164,7 +166,18 @@ feature --commands
 						item.luminosity := 5
 					end
 					stationary_items.extend (item)
-					check_sector.entities.extend (item)
+					from
+						grid[temp_row,temp_column].entities.start
+					until
+						added
+					loop
+						if grid[temp_row,temp_column].entities.item.icon.item ~ '-'  then
+							grid[temp_row,temp_column].entities.replace (item)
+							added := true
+						end
+						grid[temp_row,temp_column].entities.forth
+					end
+				--	check_sector.entities.extend (item)
 					stationary_count := stationary_count - 1
 					grid[temp_row,temp_column].put (icon,true)
 					grid[temp_row,temp_column].contents_count := grid[temp_row,temp_column].contents.count

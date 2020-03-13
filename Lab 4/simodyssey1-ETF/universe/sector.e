@@ -38,6 +38,8 @@ feature -- attributes
 
 
 
+
+
 feature -- constructor
 	make(row_input: INTEGER; column_input: INTEGER; a_explorer:EXPLORER;planet_id_num:INTEGER)
 		--initialization
@@ -47,6 +49,11 @@ feature -- constructor
 		do
 			create planets.make(4)
 			create entities.make (4)
+			across entities as curr
+			loop
+				entities.extend (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('-'), 150))
+			end
+
 			entities.compare_objects
 			planet_id := planet_id_num
 			row := row_input
@@ -55,12 +62,16 @@ feature -- constructor
 			contents.compare_objects
 			if (row = 3) and (column = 3) then
 				put (create {ENTITY_ALPHABET}.make ('O'),true) -- If this is the sector in the middle of the board, place a black hole
-				entities.extend (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('O')
-				, -1))
-			else
+				entities.replace (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('O'),-1))
+
+--				entities.extend (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('O')
+--				, -1))
+
 				if (row = 1) and (column = 1) then
 					put (a_explorer.icon,true) -- If this is the top left corner sector, place the explorer there
-					entities.extend (a_explorer)
+					entities.replace (a_explorer)
+
+				--	entities.extend (a_explorer)
 				end
 				populate -- Run the populate command to complete setup
 			end -- if
@@ -86,8 +97,9 @@ feature -- commands
 			loop_counter: INTEGER
 			component: ENTITY_ALPHABET
 			planet: PLANET
+			added: BOOLEAN
 		do
-
+			added := false
 			number_items := gen.rchoose (1, shared_info.max_capacity-1)  -- MUST decrease max_capacity by 1 to leave space for Explorer (so a max of 3)
 			from
 				loop_counter := 1
@@ -111,7 +123,18 @@ feature -- commands
 					end
 					put (entity,true) -- add new entity to the contents list
 					if attached {ENTITY} planet as add then
-						entities.extend (add)
+						from
+							entities.start
+						until
+							added
+						loop
+							if entities.item.icon.item ~ '-'  then
+								entities.replace (add)
+								added := true
+							end
+							entities.forth
+						end
+						--entities.extend (add)
 					end
 
 
@@ -155,6 +178,7 @@ feature --command
 				if contents.has (blank_char) then
 					recently_added := contents.index_of (blank_char, 1)
 					contents[contents.index_of (blank_char, 1)] := new_component
+
 				else
 					contents.extend (new_component)
 					recently_added := contents_count + 1

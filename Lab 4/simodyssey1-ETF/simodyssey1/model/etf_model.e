@@ -130,8 +130,10 @@ feature -- model operations
 			explorer_dest : TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER] --explorers sector field to be updated
 			temp_index : INTEGER -- index of where explorer is placed in quarant of a sector
 			is_valid : BOOLEAN
+			added: BOOLEAN
 		do
 			clear_messages
+			added := false
 			is_valid := true
 			vector := g.directions[dir]
 			explorer_dest := [g.explorer.sector.row + vector.row, g.explorer.sector.col + vector.col, 0]
@@ -168,10 +170,31 @@ feature -- model operations
 					next_state (true)
 
 					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents[g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.index_of(g.explorer.icon,1)] := create {ENTITY_ALPHABET}.make ('-') -- remove explorer from previous sector
-					g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.prune (g.explorer) -- remove the explorer from old sectors entities list
+				--	g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.prune (g.explorer) -- remove the explorer from old sectors entities list
+					from
+						g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.start
+					until
+						g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.exhausted
+					loop
+						if g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.item ~ g.explorer then
+							g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.replace (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('-'), 150))
+						end
+						g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.forth
+					end
 					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents_count := g.grid[g.explorer.sector.row,g.explorer.sector.col].contents_count - 1
 					g.grid[explorer_dest.row,explorer_dest.col].put(g.explorer.icon,false) --add explorer to sectors available quadrant position
-					g.grid[explorer_dest.row,explorer_dest.col].entities.extend (g.explorer) --add explorer tosectors entities list
+					--g.grid[explorer_dest.row,explorer_dest.col].entities.extend (g.explorer) --add explorer tosectors entities list
+					from
+						g.grid[explorer_dest.row,explorer_dest.col].entities.start
+					until
+						added
+					loop
+						if g.grid[explorer_dest.row,explorer_dest.col].entities.item.icon ~ '-' then
+							g.grid[explorer_dest.row,explorer_dest.col].entities.replace (g.explorer)
+							added := true
+						end
+						g.grid[explorer_dest.row,explorer_dest.col].entities.forth
+					end
 					temp_index := g.grid[explorer_dest.row,explorer_dest.col].contents.index_of (g.explorer.icon,1) -- index of first occurance of E in quadrants
 					explorer_dest.quadrant := temp_index
 					move_msg.append ("[" + "0,E]:[" + g.explorer.sector.row.out + "," + g.explorer.sector.col.out + "," + g.explorer.sector.quadrant.out + "]->[")
@@ -317,9 +340,12 @@ feature -- model operations
 			temp_row : INTEGER
 			temp_col : INTEGER
 			explorer_dest : TUPLE[INTEGER,INTEGER,INTEGER] --explorers sector field to be updated
-			temp_index : INTEGER -- index of where explorer is placed in quarant of a sector	
+			temp_index : INTEGER -- index of where explorer is placed in quarant of a sector
+			added_ent: BOOLEAN
 		do
 			clear_messages
+			added := false
+			added_ent := false
 			is_valid := true
 			row := g.explorer.sector.row
 			col := g.explorer.sector.col
@@ -352,10 +378,31 @@ feature -- model operations
 					temp_col := g.gen.rchoose (1,5)
 					if not (g.grid[temp_row,temp_col].is_full) or ((g.explorer.sector.row ~ temp_row) and (g.explorer.sector.col ~ temp_col)) then
 						g.grid[row,col].contents[g.grid[row,col].contents.index_of(g.explorer.icon,1)] := create {ENTITY_ALPHABET}.make ('-') -- remove explorer from previous sector
-						g.grid[row,col].entities.prune (g.explorer) -- remove the explorer from old sectors entities list
+						--g.grid[row,col].entities.prune (g.explorer) -- remove the explorer from old sectors entities list
+						from
+							g.grid[row,col].entities.start
+						until
+							g.grid[row,col].entities.exhausted
+						loop
+							if g.grid[row,col].entities.item ~ g.explorer then
+								g.grid[row,col].entities.replace (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('-'), 150))
+							end
+							g.grid[row,col].entities.forth
+						end
 						g.grid[row,col].contents_count := g.grid[row,col].contents_count - 1
 						g.grid[temp_row,temp_col].put (g.explorer.icon,false) --add explorer to sectors available quadrant position
-						g.grid[temp_row,temp_col].entities.extend (g.explorer) --add explorer to sectors entities list
+					--	g.grid[temp_row,temp_col].entities.extend (g.explorer) --add explorer to sectors entities list
+						from
+							g.grid[temp_row,temp_col].entities.start
+						until
+							added_ent
+						loop
+							if g.grid[temp_row,temp_col].entities.item.icon.item ~ '-' then
+								g.grid[temp_row,temp_col].entities.replace (g.explorer)
+								added_ent := true
+							end
+							g.grid[temp_row,temp_col].entities.forth
+						end
 						create explorer_dest.default_create
 						temp_index := g.grid[temp_row,temp_col].contents.index_of (g.explorer.icon,1) -- index of first occurance of E in quadrants
 						explorer_dest := [temp_row,temp_col,temp_index] -- assign to explorer sector the row col and quadrant index
@@ -375,7 +422,17 @@ feature -- model operations
 				g.explorer.update_explorer(g.grid[g.explorer.sector.row,g.explorer.sector.col].contents, true) -- update explorer (fuel life etc)
 				if not g.explorer.death_msg.is_empty then
 					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.prune(g.explorer.icon)
-					g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.prune (g.explorer)
+					from
+						g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.start
+					until
+						g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.exhausted
+					loop
+						if g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.item ~ g.explorer then
+							g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.replace (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('-'), 150))
+						end
+						g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.forth
+					end
+				--	g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.prune (g.explorer)
 				end
 
 			end
