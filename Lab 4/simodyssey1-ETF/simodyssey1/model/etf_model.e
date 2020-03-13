@@ -564,9 +564,11 @@ feature -- queries
 		local
 			temp_entities : ARRAYED_LIST[ENTITY]
 			curr_sector : SECTOR
+			counter : INTEGER
 		do
 			create Result.make_empty
 			create temp_entities.make(4)
+			counter := 1
 			Result.append ("state:" + state1.out + "." + state2.out + ", mode:test, ok%N")
 			if not(g.explorer.death_msg.is_empty) then
 				Result.append ("  " + g.explorer.death_msg + "%N")
@@ -580,20 +582,31 @@ feature -- queries
 					Result.append("    [" + curr_sector.row.out + "," + curr_sector.column.out
 					 + "]->")
 					 temp_entities := curr_sector.entities
-					 across 1 |..| temp_entities.count as k loop
+					 across 1 |..| 4 as k loop
 
-							if  attached temp_entities[k.item] as entity_item then
-								Result.append("[" + entity_item.id.out +
-								"," + entity_item.icon.item.out + "]")
+						if not (k.item > curr_sector.contents.count) and not (counter > curr_sector.entities.count) then
+							if attached curr_sector.contents[k.item] as ae then
+
+								if  curr_sector.contents[k.item].item ~ ('-') then
+									Result.append ("-")
+								else
+									Result.append("[" + curr_sector.entities[counter].id.out +
+									"," + curr_sector.entities[counter].icon.item.out + "]")
+									counter := counter + 1
+								end
 							else
-								Result.append("-")
-							end -- if
-						if not (k.item ~ temp_entities.count) then
+								Result.append ("-")
+							end
+						else
+							Result.append("-")
+						end
+						if not (k.item ~ 4) then
 							Result.append (",")
 						end
 					 end -- end across 3
 					 -- add a newline at the end of each sectors outputs
 					 Result.append ("%N")
+					 counter := 1
 				end --end across 2
 			end -- end across 1
 		end
@@ -635,7 +648,7 @@ feature -- queries
 	test_mode_deaths : STRING
 		do
 			create Result.make_empty
-			Result.append ("    Deaths This Turn:")
+			Result.append ("  Deaths This Turn:")
 			if g.dead_planets.is_empty and g.explorer.death_msg.is_empty then
 				Result.append ("none")
 			else
@@ -826,9 +839,11 @@ feature -- queries
 					Result.append ("    [" + g.dead_planets[p.item].id.out + "," + g.dead_planets[p.item].icon.item.out + "]->attached?:" +
 					g.dead_planets[p.item].boolean_icon (g.dead_planets[p.item].in_orbit) + ", support_life?:" + g.dead_planets[p.item].boolean_icon (g.dead_planets[p.item].support_life)
 					+ ", visited?:" + g.dead_planets[p.item].boolean_icon (g.dead_planets[p.item].visited) + ", turns_left:N/A,%N      " + g.dead_planets[p.item].death_msg)
-					Result.append ("%N")
-					g.dead_planets.remove
+					if not (p.item ~ num_dead_planets) then
+						Result.append ("%N")
+					end
 				end
+				g.clear_dead_planets
 			end
 		end
 

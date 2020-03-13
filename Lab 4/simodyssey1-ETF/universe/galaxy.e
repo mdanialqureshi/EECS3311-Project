@@ -191,6 +191,11 @@ feature --commands
 			end -- inspect
 		end
 
+	clear_dead_planets
+		do
+			create dead_planets.make
+		end
+
 feature {NONE} -- command
 
 
