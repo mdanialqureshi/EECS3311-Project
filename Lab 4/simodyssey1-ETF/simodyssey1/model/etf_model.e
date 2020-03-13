@@ -110,6 +110,7 @@ feature -- model operations
 
 	test (p_threshold : INTEGER)
 		do
+			clear_messages
 			if in_game then -- in play mode
 				next_state (false)
 				test_err.append ("To start a new mission, please abort the current one first.")
@@ -348,7 +349,7 @@ feature -- model operations
 						g.grid[row,col].entities.prune (g.explorer) -- remove the explorer from old sectors entities list
 						g.grid[row,col].contents_count := g.grid[row,col].contents_count - 1
 						g.grid[temp_row,temp_col].put (g.explorer.icon,false) --add explorer to sectors available quadrant position
-						g.grid[temp_row,temp_col].entities.extend (g.explorer) --add explorer tosectors entities list
+						g.grid[temp_row,temp_col].entities.extend (g.explorer) --add explorer to sectors entities list
 						create explorer_dest.default_create
 						temp_index := g.grid[temp_row,temp_col].contents.index_of (g.explorer.icon,1) -- index of first occurance of E in quadrants
 						explorer_dest := [temp_row,temp_col,temp_index] -- assign to explorer sector the row col and quadrant index
@@ -451,6 +452,8 @@ feature -- model operations
 			create move_err.make_empty
 			create move_msg.make_empty
 			create movements.make
+			create play_err.make_empty
+			create test_err.make_empty
 			g.explorer.death_msg.make_empty
 		end
 
@@ -461,7 +464,6 @@ feature -- queries
 		do
 			create Result.make_from_string ("  ")
 			-- empty both strings since this land situation has been dealt with in output
-
 			if in_game then
 				if not (test_mode) then
 					Result.append (play_mode_in_game_output)
@@ -501,7 +503,9 @@ feature -- queries
 			elseif not (play_err.is_empty) then -- user requested play while in a game
 				Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, error%N")
 				Result.append ("  " + play_err)
-				create play_err.make_empty -- make it empty after we finish
+			elseif not(test_err.is_empty) then -- user requested test while in a game
+				Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, error%N")
+				Result.append ("  " + test_err)
 			elseif not (liftoff_err.is_empty) or not (liftoff_msg.is_empty) then -- handle liftoff outputs (errors and success messages)
 				Result.append (lift_off_string)
 			elseif not (wormhole_err.is_empty) or not (wormhole_msg.is_empty) then -- handle wormhole outputs (errors and success messages)
@@ -524,21 +528,25 @@ feature -- queries
 		do
 			create Result.make_empty
 			if not (land_err.is_empty) or not (land_msg.is_empty) then -- land messages
-
+				Result.append(land_string)
 			elseif not (play_err.is_empty) then -- user requested play while in a game
-
+				Result.append ("state:" + state1.out + "." + state2.out + ", mode:test, error%N")
+				Result.append ("  " + play_err)
+			elseif not(test_err.is_empty) then -- user requested test while in a game
+				Result.append ("state:" + state1.out + "." + state2.out + ", mode:test, error%N")
+				Result.append ("  " + test_err)
 			elseif not (liftoff_err.is_empty) or not (liftoff_msg.is_empty) then -- handle liftoff outputs (errors and success messages)
-
+				Result.append (lift_off_string)
 			elseif not (wormhole_err.is_empty) or not (wormhole_msg.is_empty) then -- handle wormhole outputs (errors and success messages)
-
+				Result.append (wormhole_string)
 			elseif not (status_err.is_empty) or not (status_msg.is_empty) then -- handle status outputs (errors and success messages)
-
+				Result.append (status_string)
 			elseif not (abort_err.is_empty) or not (abort_msg.is_empty) then -- handle abort outputs (errors and success messages)
-
+				Result.append (abort_string)
 			elseif not (move_err.is_empty) then -- handle move outputs (errors and success messages)
-
+				Result.append (move_string)
 			elseif not(g.explorer.death_msg.is_empty) then -- handle explorer death outputs (erros and success messages)
-
+				Result.append (explorer_death_string)
 			else
 				Result.append (test_string)
 				Result.append(g.out) -- print the board out
@@ -557,10 +565,16 @@ feature -- queries
 		local
 			temp_entities : ARRAYED_LIST[ENTITY]
 			curr_sector : SECTOR
+			counter : INTEGER
 		do
 			create Result.make_empty
 			create temp_entities.make(4)
+			counter := 1
 			Result.append ("state:" + state1.out + "." + state2.out + ", mode:test, ok%N")
+			if not(g.explorer.death_msg.is_empty) then
+				Result.append ("  " + g.explorer.death_msg + "%N")
+				Result.append ("  The game has ended. You can start a new game.%N")
+			end
 			Result.append(play_string)
 			Result.append("%N  Sectors:%N")
 			across 1 |..| info.number_rows as i loop  --rows
@@ -569,20 +583,31 @@ feature -- queries
 					Result.append("    [" + curr_sector.row.out + "," + curr_sector.column.out
 					 + "]->")
 					 temp_entities := curr_sector.entities
-					 across 1 |..| temp_entities.count as k loop
+					 across 1 |..| 4 as k loop
 
-							if  attached temp_entities[k.item] as entity_item then
-								Result.append("[" + entity_item.id.out +
-								"," + entity_item.icon.item.out + "]")
+						if not (k.item > curr_sector.contents.count) and not (counter > curr_sector.entities.count) then
+							if attached curr_sector.contents[k.item] as ae then
+
+								if  curr_sector.contents[k.item].item ~ ('-') then
+									Result.append ("-")
+								else
+									Result.append("[" + curr_sector.entities[counter].id.out +
+									"," + curr_sector.entities[counter].icon.item.out + "]")
+									counter := counter + 1
+								end
 							else
-								Result.append("-")
-							end -- if
-						if not (k.item ~ temp_entities.count) then
+								Result.append ("-")
+							end
+						else
+							Result.append("-")
+						end
+						if not (k.item ~ 4) then
 							Result.append (",")
 						end
 					 end -- end across 3
 					 -- add a newline at the end of each sectors outputs
 					 Result.append ("%N")
+					 counter := 1
 				end --end across 2
 			end -- end across 1
 		end
@@ -624,14 +649,16 @@ feature -- queries
 	test_mode_deaths : STRING
 		do
 			create Result.make_empty
-			Result.append ("    Deaths This Turn:")
-			if g.dead_planets.is_empty then
+			Result.append ("  Deaths This Turn:")
+			if g.dead_planets.is_empty and g.explorer.death_msg.is_empty then
 				Result.append ("none")
 			else
-				across g.dead_planets as p loop
-
+				if not(g.explorer.death_msg.is_empty) then
+					Result.append ("%N" + explorer_death_string_helper)
 				end
-
+				if not (g.dead_planets.is_empty) then
+					Result.append("%N" + planet_death_string)
+				end
 			end
 		end
 
@@ -653,9 +680,6 @@ feature -- queries
 				if movements.is_empty then
 					Result.append ("  Movement:none" )
 				else
-				--@@@@@NOTE@@@@@
-				-- need to verify if planet devoured message needs to be printed or not	
-				--	Result.append (planet_death_string)
 					Result.append ("  Movement:" )
 					across movements as curr loop
 						if count ~ 1 then
@@ -676,14 +700,29 @@ feature -- queries
 		do
 			create Result.make_empty
 			if land_msg.out.is_equal ("Tranquility base here - we've got a life!") then
-				Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, ok%N")
-				Result.append("  " + land_msg)
+				if test_mode then
+					Result.append ("state:" + state1.out + "." + state2.out + ", mode:test, ok%N")
+					Result.append("  " + land_msg)
+				else
+					Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, ok%N")
+					Result.append("  " + land_msg)
+				end
 			elseif not (land_msg.is_empty) then -- no life found after landing
-				Result.append (play_string)
-				Result.append(g.out) -- print the board out
+				if test_mode then
+					Result.append (test_string)
+					Result.append(g.out) -- print the board out
+				else
+					Result.append (play_string)
+					Result.append(g.out) -- print the board out
+				end
 			elseif not (land_err.is_empty) then
-				Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, error%N")
-				Result.append ("  " + land_err)
+				if test_mode then
+					Result.append ("state:" + state1.out + "." +  state2.out + ", mode:test, error%N")
+					Result.append ("  " + land_err)
+				else
+					Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, error%N")
+					Result.append ("  " + land_err)
+				end
 			end
 
 		end
@@ -693,10 +732,15 @@ feature -- queries
 		do
 			create Result.make_empty
 			if not (liftoff_err.is_empty) then
-				Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, error%N")
-				Result.append ("  " + liftoff_err)
+				if test_mode then
+					Result.append ("state:" + state1.out + "." +  state2.out + ", mode:test, error%N")
+					Result.append ("  " + liftoff_err)
+				else
+					Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, error%N")
+					Result.append ("  " + liftoff_err)
+				end
 			elseif not (liftoff_msg.is_empty) then
-				Result.append (play_string)
+				Result.append (test_string)
 				Result.append(g.out) -- print the board out
 			end
 		end
@@ -718,8 +762,13 @@ feature -- queries
 		do
 			create Result.make_empty
 			if in_game then
-				Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, ok%N")
-				Result.append ("  " + status_msg)
+				if test_mode then
+					Result.append ("state:" + state1.out + "." + state2.out + ", mode:test, ok%N")
+					Result.append ("  " + status_msg)
+				else
+					Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, ok%N")
+					Result.append ("  " + status_msg)
+				end
 			end
 
 		end
@@ -728,9 +777,12 @@ feature -- queries
 		do
 			create Result.make_empty
 			if in_game then
-				Result.append ("state:" + state1.out + "." + state2.out + ", ok%N")
-				Result.append("  " + abort_msg)
+					Result.append ("state:" + state1.out + "." + state2.out + ", ok%N")
+					Result.append("  " + abort_msg)
 				in_game := false -- done using this value so set it to false
+				if test_mode then -- if in test mode exit it
+					test_mode := false
+				end
 			else
 				Result.append ("state:" + state1.out + "." + state2.out + ", error%N")
 				Result.append ("  " + abort_err)
@@ -741,22 +793,39 @@ feature -- queries
 		do
 			create Result.make_empty
 			if g.explorer.is_landed then
-				Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, error%N")
-				Result.append("  " + move_err)
+				if test_mode then
+					Result.append ("state:" + state1.out + "." +  state2.out + ", mode:test, error%N")
+					Result.append("  " + move_err)
+				else
+					Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, error%N")
+					Result.append("  " + move_err)
+				end
 			else
-				Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, error%N")
-				Result.append ("  " + move_err)
+				if test_mode then
+					Result.append ("state:" + state1.out + "." +  state2.out + ", mode:test, error%N")
+					Result.append ("  " + move_err)
+				else
+					Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, error%N")
+					Result.append ("  " + move_err)
+				end
 			end
 		end
 
 	explorer_death_string : STRING
 		do
 			create Result.make_empty
-			Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, ok%N")
-			Result.append ("  " + g.explorer.death_msg + "%N")
-			Result.append ("  The game has ended. You can start a new game.%N")
-			Result.append (play_string)
-			Result.append (g.out)
+			if test_mode then
+				Result.append (test_string)
+				Result.append (g.out + "%N")
+				Result.append ("  " + g.explorer.death_msg + "%N")
+				Result.append ("  The game has ended. You can start a new game.")
+			else
+				Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, ok%N")
+				Result.append ("  " + g.explorer.death_msg + "%N")
+				Result.append ("  The game has ended. You can start a new game.%N")
+				Result.append (play_string)
+				Result.append (g.out)
+			end
 			in_game := false -- end the game since the explorer is dead
 		end
 
@@ -764,21 +833,28 @@ feature -- queries
 		local
 			num_dead_planets : INTEGER
 		do
-			create Result.make_empty
 			num_dead_planets := g.dead_planets.count
-			g.dead_planets.start
+			create Result.make_empty
 			if not(g.dead_planets.is_empty) then
-				across 1 |..| num_dead_planets as i loop
-					Result.append ("  " + g.dead_planets[i.item].death_msg)
-					if not(i.item = num_dead_planets) then
+				across 1 |..| num_dead_planets as p loop
+					Result.append ("    [" + g.dead_planets[p.item].id.out + "," + g.dead_planets[p.item].icon.item.out + "]->attached?:" +
+					g.dead_planets[p.item].boolean_icon (g.dead_planets[p.item].in_orbit) + ", support_life?:" + g.dead_planets[p.item].boolean_icon (g.dead_planets[p.item].support_life)
+					+ ", visited?:" + g.dead_planets[p.item].boolean_icon (g.dead_planets[p.item].visited) + ", turns_left:N/A,%N      " + g.dead_planets[p.item].death_msg)
+					if not (p.item ~ num_dead_planets) then
 						Result.append ("%N")
 					end
-					g.dead_planets.remove
 				end
+				g.clear_dead_planets
 			end
 		end
 
-
+	explorer_death_string_helper : STRING
+		do
+			create Result.make_empty
+			Result.append ("    [" + g.explorer.id.out + "," + g.explorer.icon.item.out + "]->fuel:" + g.explorer.fuel.out +
+				"/3, life:" + g.explorer.life.out + "/3, landed?:" + g.explorer.boolean_icon (g.explorer.is_landed) + ",%N")
+			Result.append("      " + g.explorer.death_msg)
+		end
 end
 
 

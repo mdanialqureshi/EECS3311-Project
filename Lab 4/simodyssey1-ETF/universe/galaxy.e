@@ -191,6 +191,11 @@ feature --commands
 			end -- inspect
 		end
 
+	clear_dead_planets
+		do
+			create dead_planets.make
+		end
+
 feature {NONE} -- command
 
 
@@ -253,34 +258,12 @@ feature {NONE} -- command
 					dead_planets.extend (p)
 					grid[3,3].contents.prune_all (p.icon)
 					grid[3,3].contents_count := grid[3,3].contents_count - 1
---					planet_died(p)
 				end
 				Result := true
 
 			else
 				Result := false
 			end
-		end
-
-	planet_died(p: PLANET)
-
-		do
-
-			from
-				planets.start
-			until
-				planets.exhausted
-			loop
-				if planets.item.id ~ p.id then
-					dead_planets.extend (planets.item)
-					grid[3,3].contents.prune_all (p.icon)
-					planets.remove
-				else
-					planets.forth
-				end
-			end
-
-
 		end
 
 feature -- query
