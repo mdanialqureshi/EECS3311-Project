@@ -189,7 +189,7 @@ feature -- model operations
 					until
 						added
 					loop
-						if g.grid[explorer_dest.row,explorer_dest.col].entities.item.icon ~ '-' then
+						if g.grid[explorer_dest.row,explorer_dest.col].entities.item.icon.item ~ '-' then
 							g.grid[explorer_dest.row,explorer_dest.col].entities.replace (g.explorer)
 							added := true
 						end

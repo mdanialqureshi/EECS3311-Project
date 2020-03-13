@@ -8,7 +8,7 @@ class
 	PLANET
 
 inherit
-	ENTITY
+	MOVABLE_ENTITY
 
 create
 	make
@@ -17,6 +17,7 @@ feature -- Constructor
 
 	make(id_num:INTEGER;turns: INTEGER;location: TUPLE[INTEGER,INTEGER,INTEGER])
 		do
+			make_movable_entity ('P')
 			create icon.make('P')
 			is_planet := true
 			id := id_num
@@ -36,7 +37,6 @@ feature -- Variables
 	in_orbit: BOOLEAN assign set_in_orbit
 	in_orbit_icon : CHARACTER
 	support_life: BOOLEAN
-	sector: TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER] assign set_sector
 	is_alive : BOOLEAN
 	death_msg : STRING
 	gen : RANDOM_GENERATOR_ACCESS
@@ -80,11 +80,6 @@ feature -- commands
 	set_turns_left(turns: INTEGER)
 		do
 			turns_left := turns
-		end
-
-	set_sector(new_sector: TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER])
-		do
-			sector := new_sector
 		end
 
 	set_first_check(first: BOOLEAN)

@@ -8,7 +8,7 @@ class
 	EXPLORER
 
 inherit
-    ENTITY
+    MOVABLE_ENTITY
 
 create
 	make
@@ -17,6 +17,7 @@ feature -- Constructor
 
 	make
 		do
+			make_movable_entity ('E')
 			create icon.make('E')
 			is_explorer := true
 			id := 0
@@ -32,7 +33,6 @@ feature -- Constructor
 feature -- variables
 	fuel: INTEGER
 	life: INTEGER
-	sector: TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER] assign set_sector
 	is_landed: BOOLEAN assign set_landed
 	death_msg : STRING
 
@@ -42,11 +42,6 @@ feature --commands
 		do
 			is_landed := land
 		end
-
-	set_sector(sec :TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER])
-			do
-				sector := sec
-			end
 
 feature --queries
 
