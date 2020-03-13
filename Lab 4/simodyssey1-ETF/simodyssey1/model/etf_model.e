@@ -44,6 +44,7 @@ feature {NONE} -- Initialization
 			create test_msg.make_empty
 			create abort_err.make_empty
 			create abort_msg.make_empty
+			create mode.make_empty
 			test_mode := false
 
 
@@ -75,15 +76,11 @@ feature -- model attributes
 	abort_err : STRING
 	abort_msg : STRING
 	test_mode : BOOLEAN
+	mode : STRING
 
 
 
 feature -- model operations
-	default_update
-			-- Perform update to the model state.
-		do
-
-		end
 
 	reset
 			-- Reset model state.
@@ -101,6 +98,7 @@ feature -- model operations
 	        	info.set_planet_threshold(30)
 	         	create g.make(false)
 	         	next_state (true)
+	         	create mode.make_from_string ("play")
 	        else
 				next_state (false)
 				play_err.append("To start a new mission, please abort the current one first.")
@@ -120,6 +118,7 @@ feature -- model operations
 				info.set_planet_threshold (p_threshold)
 				create g.make(true)
 				next_state (true)
+				create mode.make_from_string ("test")
 			end
 
 		end
@@ -238,6 +237,9 @@ feature -- model operations
 						if i.item.support_life then
 							land_msg.append ("Tranquility base here - we've got a life!")
 							in_game := false
+							if test_mode then
+								test_mode := false
+							end
 						else
 							land_msg.append ("Explorer found no life as we know it at Sector:" + row.out + ":" + col.out)
 						end
@@ -479,7 +481,7 @@ feature -- queries
 					Result.append ("state:" + state1.out + "." + state2.out + ", error%N")
 					Result.append ("  Negative on that request:no mission in progress.")
 				elseif land_msg.out.is_equal ("Tranquility base here - we've got a life!") then
-					Result.append ("state:" + state1.out + "." + state2.out + ", mode:play, ok%N")
+					Result.append ("state:" + state1.out + "." + state2.out + ", mode:" + mode + ", ok%N")
 					Result.append("  " + land_msg)
 				elseif not (g.explorer.death_msg.is_empty) then
 					Result.append (explorer_death_string)
@@ -631,9 +633,10 @@ feature -- queries
 				Result.append ("%N")
 				counter := counter - 1
 			end -- end from loop
-				Result.append ("    [" + g.explorer.id.out + "," + g.explorer.icon.item.out + "]->fuel:" + g.explorer.fuel.out +
-				"/3, life:" + g.explorer.life.out + "/3, landed?:" + g.explorer.boolean_icon (g.explorer.is_landed) + "%N")
-
+				if g.explorer.death_msg.is_empty then
+					Result.append ("    [" + g.explorer.id.out + "," + g.explorer.icon.item.out + "]->fuel:" + g.explorer.fuel.out +
+					"/3, life:" + g.explorer.life.out + "/3, landed?:" + g.explorer.boolean_icon (g.explorer.is_landed) + "%N")
+				end
 				across g.planets as p loop
 					Result.append ("    [" + p.item.id.out + "," + p.item.icon.item.out + "]->attached?:" +
 					p.item.boolean_icon (p.item.in_orbit) + ", support_life?:" + p.item.boolean_icon (p.item.support_life)
@@ -750,11 +753,22 @@ feature -- queries
 		do
 			create Result.make_empty
 			if not (wormhole_err.is_empty) then
-				Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, error%N")
-				Result.append ("  " + wormhole_err)
+				if test_mode then
+					Result.append ("state:" + state1.out + "." +  state2.out + ", mode:test, error%N")
+					Result.append ("  " + wormhole_err)
+				else
+					Result.append ("state:" + state1.out + "." +  state2.out + ", mode:play, error%N")
+					Result.append ("  " + wormhole_err)
+				end
 			elseif not (wormhole_msg.is_empty) then
-				Result.append (play_string)
-				Result.append (g.out)
+				if test_mode then
+					Result.append (test_string)
+					Result.append (g.out)
+
+				else
+					Result.append (play_string)
+					Result.append (g.out)
+				end
 			end
 
 		end
