@@ -39,7 +39,7 @@ feature -- attributes
 
 
 feature -- constructor
-	make(row_input: INTEGER; column_input: INTEGER; a_explorer:ENTITY_ALPHABET;planet_id_num:INTEGER)
+	make(row_input: INTEGER; column_input: INTEGER; a_explorer:EXPLORER;planet_id_num:INTEGER)
 		--initialization
 		require
 			valid_row: (row_input >= 1) and (row_input <= shared_info.number_rows)
@@ -59,8 +59,8 @@ feature -- constructor
 				, -1))
 			else
 				if (row = 1) and (column = 1) then
-					put (a_explorer,true) -- If this is the top left corner sector, place the explorer there
-					entities.extend (create {ENTITY}.make_entity (a_explorer, 0))
+					put (a_explorer.icon,true) -- If this is the top left corner sector, place the explorer there
+					entities.extend (a_explorer)
 				end
 				populate -- Run the populate command to complete setup
 			end -- if

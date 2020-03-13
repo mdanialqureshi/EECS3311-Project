@@ -79,7 +79,7 @@ feature --constructor
 				until
 					column > shared_info.number_columns
 				loop
-					grid[row,column] := create {SECTOR}.make(row,column,explorer.icon,(planets.count + 1))
+					grid[row,column] := create {SECTOR}.make(row,column,explorer,(planets.count + 1))
 
 					across grid[row,column].planets as curr
 					loop

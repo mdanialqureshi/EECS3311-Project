@@ -168,7 +168,7 @@ feature -- model operations
 					next_state (true)
 
 					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents[g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.index_of(g.explorer.icon,1)] := create {ENTITY_ALPHABET}.make ('-') -- remove explorer from previous sector
-					g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.prune (create {ENTITY}.make_entity (g.explorer.icon, 0)) -- remove the explorer from old sectors entities list
+					g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.prune (g.explorer) -- remove the explorer from old sectors entities list
 					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents_count := g.grid[g.explorer.sector.row,g.explorer.sector.col].contents_count - 1
 					g.grid[explorer_dest.row,explorer_dest.col].put(g.explorer.icon,false) --add explorer to sectors available quadrant position
 					g.grid[explorer_dest.row,explorer_dest.col].entities.extend (g.explorer) --add explorer tosectors entities list
