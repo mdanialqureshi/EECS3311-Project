@@ -806,7 +806,11 @@ feature -- queries
 					Result.append ("  " + liftoff_err)
 				end
 			elseif not (liftoff_msg.is_empty) then
-				Result.append (test_string)
+				if test_mode then
+					Result.append (test_string)
+				else
+					Result.append(play_string)
+				end
 				Result.append(g.out) -- print the board out
 			end
 		end

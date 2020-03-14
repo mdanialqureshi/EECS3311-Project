@@ -1,0 +1,14 @@
+test(30)
+move(S)
+move(S)
+land
+move(S)
+move(N)
+status
+liftoff
+pass
+pass
+pass
+pass
+land
+

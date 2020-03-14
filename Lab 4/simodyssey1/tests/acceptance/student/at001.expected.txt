@@ -1,0 +1,382 @@
+  state:0.0, ok
+  Welcome! Try test(30)
+->test(30)
+  state:1.0, mode:test, ok
+  Movement:none
+  Sectors:
+    [1,1]->[0,E],-,-,-
+    [1,2]->[-8,*],-,-,-
+    [1,3]->[1,P],-,-,-
+    [1,4]->-,-,-,-
+    [1,5]->[2,P],[3,P],-,-
+    [2,1]->-,-,-,-
+    [2,2]->-,-,-,-
+    [2,3]->[-5,W],-,-,-
+    [2,4]->-,-,-,-
+    [2,5]->[4,P],-,-,-
+    [3,1]->[5,P],[-6,Y],-,-
+    [3,2]->-,-,-,-
+    [3,3]->[-1,O],-,-,-
+    [3,4]->[6,P],[-11,W],-,-
+    [3,5]->-,-,-,-
+    [4,1]->[-2,W],-,-,-
+    [4,2]->[7,P],[-7,*],-,-
+    [4,3]->[8,P],-,-,-
+    [4,4]->[9,P],[-4,*],-,-
+    [4,5]->-,-,-,-
+    [5,1]->[10,P],[-3,W],-,-
+    [5,2]->-,-,-,-
+    [5,3]->[-10,*],-,-,-
+    [5,4]->-,-,-,-
+    [5,5]->[11,P],[-9,W],-,-
+  Descriptions:
+    [-11,W]->
+    [-10,*]->Luminosity:5
+    [-9,W]->
+    [-8,*]->Luminosity:5
+    [-7,*]->Luminosity:5
+    [-6,Y]->Luminosity:2
+    [-5,W]->
+    [-4,*]->Luminosity:5
+    [-3,W]->
+    [-2,W]->
+    [-1,O]->
+    [0,E]->fuel:3/3, life:3/3, landed?:F
+    [1,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [2,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [3,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [4,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [5,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [6,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [7,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [8,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [9,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [10,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [11,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+  Deaths This Turn:none
+    (1:1)  (1:2)  (1:3)  (1:4)  (1:5)  
+    E---   *---   P---   ----   PP--   
+    (2:1)  (2:2)  (2:3)  (2:4)  (2:5)  
+    ----   ----   W---   ----   P---   
+    (3:1)  (3:2)  (3:3)  (3:4)  (3:5)  
+    PY--   ----   O---   PW--   ----   
+    (4:1)  (4:2)  (4:3)  (4:4)  (4:5)  
+    W---   P*--   P---   P*--   ----   
+    (5:1)  (5:2)  (5:3)  (5:4)  (5:5)  
+    PW--   ----   *---   ----   PW--   
+->move(N)
+  state:2.0, mode:test, ok
+  Movement:
+    [0,E]:[1,1,1]->[5,1,3]
+    [3,P]:[1,5,2]->[5,4,1]
+    [8,P]:[4,3,1]->[3,2,1]
+  Sectors:
+    [1,1]->-,-,-,-
+    [1,2]->[-8,*],-,-,-
+    [1,3]->[1,P],-,-,-
+    [1,4]->-,-,-,-
+    [1,5]->[2,P],-,-,-
+    [2,1]->-,-,-,-
+    [2,2]->-,-,-,-
+    [2,3]->[-5,W],-,-,-
+    [2,4]->-,-,-,-
+    [2,5]->[4,P],-,-,-
+    [3,1]->[5,P],[-6,Y],-,-
+    [3,2]->[8,P],-,-,-
+    [3,3]->[-1,O],-,-,-
+    [3,4]->[6,P],[-11,W],-,-
+    [3,5]->-,-,-,-
+    [4,1]->[-2,W],-,-,-
+    [4,2]->[7,P],[-7,*],-,-
+    [4,3]->-,-,-,-
+    [4,4]->[9,P],[-4,*],-,-
+    [4,5]->-,-,-,-
+    [5,1]->[10,P],[-3,W],[0,E],-
+    [5,2]->-,-,-,-
+    [5,3]->[-10,*],-,-,-
+    [5,4]->[3,P],-,-,-
+    [5,5]->[11,P],[-9,W],-,-
+  Descriptions:
+    [-11,W]->
+    [-10,*]->Luminosity:5
+    [-9,W]->
+    [-8,*]->Luminosity:5
+    [-7,*]->Luminosity:5
+    [-6,Y]->Luminosity:2
+    [-5,W]->
+    [-4,*]->Luminosity:5
+    [-3,W]->
+    [-2,W]->
+    [-1,O]->
+    [0,E]->fuel:2/3, life:3/3, landed?:F
+    [1,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [2,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [3,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [4,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [5,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [6,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [7,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [8,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [9,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [10,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [11,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+  Deaths This Turn:none
+    (1:1)  (1:2)  (1:3)  (1:4)  (1:5)  
+    ----   *---   P---   ----   P---   
+    (2:1)  (2:2)  (2:3)  (2:4)  (2:5)  
+    ----   ----   W---   ----   P---   
+    (3:1)  (3:2)  (3:3)  (3:4)  (3:5)  
+    PY--   P---   O---   PW--   ----   
+    (4:1)  (4:2)  (4:3)  (4:4)  (4:5)  
+    W---   P*--   ----   P*--   ----   
+    (5:1)  (5:2)  (5:3)  (5:4)  (5:5)  
+    PWE-   ----   *---   P---   PW--   
+->wormhole
+  state:3.0, mode:test, ok
+  Movement:
+    [0,E]:[5,1,3]->[2,2,1]
+    [8,P]:[3,2,1]->[4,3,1]
+    [10,P]:[5,1,1]->[1,5,2]
+  Sectors:
+    [1,1]->-,-,-,-
+    [1,2]->[-8,*],-,-,-
+    [1,3]->[1,P],-,-,-
+    [1,4]->-,-,-,-
+    [1,5]->[2,P],[10,P],-,-
+    [2,1]->-,-,-,-
+    [2,2]->[0,E],-,-,-
+    [2,3]->[-5,W],-,-,-
+    [2,4]->-,-,-,-
+    [2,5]->[4,P],-,-,-
+    [3,1]->[5,P],[-6,Y],-,-
+    [3,2]->-,-,-,-
+    [3,3]->[-1,O],-,-,-
+    [3,4]->[6,P],[-11,W],-,-
+    [3,5]->-,-,-,-
+    [4,1]->[-2,W],-,-,-
+    [4,2]->[7,P],[-7,*],-,-
+    [4,3]->[8,P],-,-,-
+    [4,4]->[9,P],[-4,*],-,-
+    [4,5]->-,-,-,-
+    [5,1]->-,[-3,W],-,-
+    [5,2]->-,-,-,-
+    [5,3]->[-10,*],-,-,-
+    [5,4]->[3,P],-,-,-
+    [5,5]->[11,P],[-9,W],-,-
+  Descriptions:
+    [-11,W]->
+    [-10,*]->Luminosity:5
+    [-9,W]->
+    [-8,*]->Luminosity:5
+    [-7,*]->Luminosity:5
+    [-6,Y]->Luminosity:2
+    [-5,W]->
+    [-4,*]->Luminosity:5
+    [-3,W]->
+    [-2,W]->
+    [-1,O]->
+    [0,E]->fuel:2/3, life:3/3, landed?:F
+    [1,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [2,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [3,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [4,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [5,P]->attached?:T, support_life?:T, visited?:F, turns_left:N/A
+    [6,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [7,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [8,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [9,P]->attached?:T, support_life?:F, visited?:F, turns_left:N/A
+    [10,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [11,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+  Deaths This Turn:none
+    (1:1)  (1:2)  (1:3)  (1:4)  (1:5)  
+    ----   *---   P---   ----   PP--   
+    (2:1)  (2:2)  (2:3)  (2:4)  (2:5)  
+    ----   E---   W---   ----   P---   
+    (3:1)  (3:2)  (3:3)  (3:4)  (3:5)  
+    PY--   ----   O---   PW--   ----   
+    (4:1)  (4:2)  (4:3)  (4:4)  (4:5)  
+    W---   P*--   P---   P*--   ----   
+    (5:1)  (5:2)  (5:3)  (5:4)  (5:5)  
+    -W--   ----   *---   P---   PW--   
+->move(SW)
+  state:4.0, mode:test, ok
+  Movement:
+    [0,E]:[2,2,1]->[3,1,3]
+    [1,P]:[1,3,1]->[2,4,1]
+    [2,P]:[1,5,1]->[2,5,2]
+    [4,P]:[2,5,1]->[2,4,2]
+    [6,P]:[3,4,1]->[2,3,2]
+    [10,P]:[1,5,2]->[2,4,3]
+    [11,P]:[5,5,1]->[5,4,2]
+  Sectors:
+    [1,1]->-,-,-,-
+    [1,2]->[-8,*],-,-,-
+    [1,3]->-,-,-,-
+    [1,4]->-,-,-,-
+    [1,5]->-,-,-,-
+    [2,1]->-,-,-,-
+    [2,2]->-,-,-,-
+    [2,3]->[-5,W],[6,P],-,-
+    [2,4]->[1,P],[4,P],[10,P],-
+    [2,5]->-,[2,P],-,-
+    [3,1]->[5,P],[-6,Y],[0,E],-
+    [3,2]->-,-,-,-
+    [3,3]->[-1,O],-,-,-
+    [3,4]->-,[-11,W],-,-
+    [3,5]->-,-,-,-
+    [4,1]->[-2,W],-,-,-
+    [4,2]->[7,P],[-7,*],-,-
+    [4,3]->[8,P],-,-,-
+    [4,4]->[9,P],[-4,*],-,-
+    [4,5]->-,-,-,-
+    [5,1]->-,[-3,W],-,-
+    [5,2]->-,-,-,-
+    [5,3]->[-10,*],-,-,-
+    [5,4]->[3,P],[11,P],-,-
+    [5,5]->-,[-9,W],-,-
+  Descriptions:
+    [-11,W]->
+    [-10,*]->Luminosity:5
+    [-9,W]->
+    [-8,*]->Luminosity:5
+    [-7,*]->Luminosity:5
+    [-6,Y]->Luminosity:2
+    [-5,W]->
+    [-4,*]->Luminosity:5
+    [-3,W]->
+    [-2,W]->
+    [-1,O]->
+    [0,E]->fuel:3/3, life:3/3, landed?:F
+    [1,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [2,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [3,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [4,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [5,P]->attached?:T, support_life?:T, visited?:F, turns_left:N/A
+    [6,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [7,P]->attached?:T, support_life?:F, visited?:F, turns_left:N/A
+    [8,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [9,P]->attached?:T, support_life?:F, visited?:F, turns_left:N/A
+    [10,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [11,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+  Deaths This Turn:none
+    (1:1)  (1:2)  (1:3)  (1:4)  (1:5)  
+    ----   *---   ----   ----   ----   
+    (2:1)  (2:2)  (2:3)  (2:4)  (2:5)  
+    ----   ----   WP--   PPP-   -P--   
+    (3:1)  (3:2)  (3:3)  (3:4)  (3:5)  
+    PYE-   ----   O---   -W--   ----   
+    (4:1)  (4:2)  (4:3)  (4:4)  (4:5)  
+    W---   P*--   P---   P*--   ----   
+    (5:1)  (5:2)  (5:3)  (5:4)  (5:5)  
+    -W--   ----   *---   PP--   -W--   
+->land
+  state:5.0, mode:test, ok
+  Tranquility base here - we've got a life!
+->land
+  state:5.1, error
+  Negative on that request:no mission in progress.
+->abort
+  state:5.2, error
+  Negative on that request:no mission in progress.
+->test(100)
+  state:6.0, mode:test, ok
+  Movement:none
+  Sectors:
+    [1,1]->[0,E],[1,P],[2,P],[3,P]
+    [1,2]->[4,P],[-8,W],-,-
+    [1,3]->[5,P],[6,P],[7,P],[-3,Y]
+    [1,4]->[8,P],-,-,-
+    [1,5]->[9,P],[10,P],-,-
+    [2,1]->[11,P],[12,P],[13,P],-
+    [2,2]->[14,P],[15,P],[-6,Y],-
+    [2,3]->[16,P],[17,P],[-10,Y],-
+    [2,4]->[18,P],[19,P],-,-
+    [2,5]->[20,P],[21,P],-,-
+    [3,1]->[22,P],[23,P],-,-
+    [3,2]->[24,P],[25,P],[-4,*],-
+    [3,3]->[-1,O],-,-,-
+    [3,4]->[26,P],[27,P],[28,P],[-7,Y]
+    [3,5]->[29,P],-,-,-
+    [4,1]->[30,P],-,-,-
+    [4,2]->[31,P],-,-,-
+    [4,3]->[32,P],[-2,*],-,-
+    [4,4]->[33,P],[34,P],-,-
+    [4,5]->[35,P],[36,P],-,-
+    [5,1]->[37,P],[38,P],[-11,Y],-
+    [5,2]->[39,P],[40,P],[-5,*],-
+    [5,3]->[41,P],[42,P],[-9,W],-
+    [5,4]->[43,P],[44,P],[45,P],-
+    [5,5]->[46,P],-,-,-
+  Descriptions:
+    [-11,Y]->Luminosity:2
+    [-10,Y]->Luminosity:2
+    [-9,W]->
+    [-8,W]->
+    [-7,Y]->Luminosity:2
+    [-6,Y]->Luminosity:2
+    [-5,*]->Luminosity:5
+    [-4,*]->Luminosity:5
+    [-3,Y]->Luminosity:2
+    [-2,*]->Luminosity:5
+    [-1,O]->
+    [0,E]->fuel:3/3, life:3/3, landed?:F
+    [1,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [2,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [3,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [4,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [5,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [6,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [7,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [8,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [9,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [10,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [11,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [12,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [13,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [14,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [15,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [16,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [17,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [18,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [19,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [20,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [21,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [22,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [23,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [24,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [25,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [26,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [27,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [28,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [29,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [30,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [31,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [32,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [33,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [34,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [35,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [36,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [37,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [38,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [39,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [40,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [41,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [42,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [43,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [44,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [45,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [46,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+  Deaths This Turn:none
+    (1:1)  (1:2)  (1:3)  (1:4)  (1:5)  
+    EPPP   PW--   PPPY   P---   PP--   
+    (2:1)  (2:2)  (2:3)  (2:4)  (2:5)  
+    PPP-   PPY-   PPY-   PP--   PP--   
+    (3:1)  (3:2)  (3:3)  (3:4)  (3:5)  
+    PP--   PP*-   O---   PPPY   P---   
+    (4:1)  (4:2)  (4:3)  (4:4)  (4:5)  
+    P---   P---   P*--   PP--   PP--   
+    (5:1)  (5:2)  (5:3)  (5:4)  (5:5)  
+    PPY-   PP*-   PPW-   PPP-   P---   
+->abort
+  state:6.1, ok
+  Mission aborted. Try test(30)

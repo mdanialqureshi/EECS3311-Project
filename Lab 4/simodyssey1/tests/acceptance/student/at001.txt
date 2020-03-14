@@ -4,11 +4,8 @@ move(N)
 wormhole
 move(SW)
 land
-
-
-
-
-
-
 land
+abort
+test(100)
+abort
 
