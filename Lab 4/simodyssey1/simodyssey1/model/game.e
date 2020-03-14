@@ -166,7 +166,6 @@ feature -- model operations
 
 				if not g.grid[explorer_dest.row,explorer_dest.col].is_full then
 					next_state (true)
-
 					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents[g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.index_of(g.explorer.icon,1)] := create {ENTITY_ALPHABET}.make ('-') -- remove explorer from previous sector
 				--	g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.prune (g.explorer) -- remove the explorer from old sectors entities list
 					from
@@ -203,6 +202,7 @@ feature -- model operations
 					across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
 						movements.extend (curr.item)
 					end
+					g.explorer.update_explorer(g.grid[g.explorer.sector.row,g.explorer.sector.col].contents, false) -- update explorer (fuel life etc)
 
 				else
 					move_err.append("Cannot transfer to new location as it is full." )
@@ -214,9 +214,9 @@ feature -- model operations
 			-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			-- *NOTE* after we move the explorer do the explorer check to see if still alive and if not handle it accordingly
 			-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-			g.explorer.update_explorer(g.grid[g.explorer.sector.row,g.explorer.sector.col].contents, false) -- update explorer (fuel life etc)
+		--	g.explorer.update_explorer(g.grid[g.explorer.sector.row,g.explorer.sector.col].contents, false) -- update explorer (fuel life etc)
 			if not g.explorer.death_msg.is_empty then
-				g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.prune(g.explorer.icon)
+				g.grid[g.explorer.sector.row,g.explorer.sector.col].contents[g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.index_of (g.explorer.icon, 1)] := create {ENTITY_ALPHABET}.make ('-')
 				g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.prune (g.explorer)
 			end
 
@@ -406,6 +406,7 @@ feature -- model operations
 						explorer_dest := [temp_row,temp_col,temp_index] -- assign to explorer sector the row col and quadrant index
 						if not (explorer_dest ~ g.explorer.sector) then
 						g.explorer.sector := explorer_dest
+						g.explorer.update_explorer(g.grid[g.explorer.sector.row,g.explorer.sector.col].contents, true) -- update explorer (fuel life etc)
 						wormhole_msg.append ("->[" + g.explorer.sector.row.out + "," + g.explorer.sector.col.out + "," + g.explorer.sector.quadrant.out + "]")
 						end
 						movements.extend (wormhole_msg)
@@ -417,9 +418,8 @@ feature -- model operations
 				across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
 					movements.extend (curr.item)
 				end
-				g.explorer.update_explorer(g.grid[g.explorer.sector.row,g.explorer.sector.col].contents, true) -- update explorer (fuel life etc)
 				if not g.explorer.death_msg.is_empty then
-					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.prune(g.explorer.icon)
+					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents[g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.index_of (g.explorer.icon, 1)] := create {ENTITY_ALPHABET}.make ('-')
 					from
 						g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.start
 					until
