@@ -1,31 +1,31 @@
 #!/usr/bin/env python3
 
-# Specify the directory (relative or absolute) where the acceptance test 
+# Specify the directory (relative or absolute) where the acceptance test
 # files are. If nothing is added, current directory is used.
 # WARNING: While absolute paths are suported, the oracle may not play nicely
 # with them.
 root = "../tests/acceptance/"
 
-# Specify files or directories (relative to root) of the acceptance tests. 
-# NOTE: Tests can not be named test.expected.txt 
+# Specify files or directories (relative to root) of the acceptance tests.
+# NOTE: Tests can not be named test.expected.txt
 # NOTE: To run all tests in root directory, uses [""] as the test.
 # WARNING: Does not support partial file names with wildcards ie at*.txt
-acceptance_tests = ["instructor"]
+acceptance_tests = ["instructor", "student"]
 
 # Should regression testing continue on warnings? If this is set to False,
 # regression testing will exit.
 ignore_warnings = True
 
-# Should the regression testing proceed with a list of expected files, or the 
-# oracle?	
-# When this flag is set True, the the value of 'oracle' is ignored. 
-is_expected = True
+# Should the regression testing proceed with a list of expected files, or the
+# oracle?
+# When this flag is set True, the the value of 'oracle' is ignored.
+is_expected = False
 
 # Specify where you put the oracle.
-oracle = ""
+oracle = "../oracle.exe"
 
 # Specify the path of the executable built from your project.
-executable = "../oracle.exe"
+executable = "../EIFGENs/simodyssey1/W_code/simodyssey1"
 # The above is a Linux executable
 
 # Should the program only print tests that do not pass
@@ -36,7 +36,7 @@ print_only_errors = False
 # If left blank will format output in a generic way
 format_for_diff = "meld"
 
-# Set true if you want the comparison to be tolerant on white spaces and empty 
+# Set true if you want the comparison to be tolerant on white spaces and empty
 # lines.
 # WARNING: While every attempt has been made to make the output return the same
 # result as the grading script, there are no guarantees. It is strongly advised

@@ -1,0 +1,5 @@
+move(E)
+land
+move(SW)
+move(W)
+move(N)
