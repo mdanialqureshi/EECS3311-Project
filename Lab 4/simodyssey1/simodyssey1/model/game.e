@@ -404,7 +404,7 @@ feature -- model operations
 						create explorer_dest.default_create
 						temp_index := g.grid[temp_row,temp_col].contents.index_of (g.explorer.icon,1) -- index of first occurance of E in quadrants
 						explorer_dest := [temp_row,temp_col,temp_index] -- assign to explorer sector the row col and quadrant index
-						if not (explorer_dest = g.explorer.sector) then
+						if not (explorer_dest ~ g.explorer.sector) then
 						g.explorer.sector := explorer_dest
 						wormhole_msg.append ("->[" + g.explorer.sector.row.out + "," + g.explorer.sector.col.out + "," + g.explorer.sector.quadrant.out + "]")
 						end
