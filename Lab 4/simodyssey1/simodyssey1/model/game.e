@@ -697,15 +697,18 @@ feature -- queries
 					"/3, life:" + g.explorer.life.out + "/3, landed?:" + g.explorer.boolean_icon (g.explorer.is_landed) + "%N")
 				end
 				across g.planets as p loop
+					if p.item.is_alive then
+
 					Result.append ("    [" + p.item.id.out + "," + p.item.icon.item.out + "]->attached?:" +
-					p.item.boolean_icon (p.item.in_orbit) + ", support_life?:" + p.item.boolean_icon (p.item.support_life)
-					+ ", visited?:" + p.item.boolean_icon (p.item.visited) + ", turns_left:")
-					if not (p.item.in_orbit) then
-						Result.append (p.item.turns_left.out)
-					else
-						Result.append ("N/A")
+						p.item.boolean_icon (p.item.in_orbit) + ", support_life?:" + p.item.boolean_icon (p.item.support_life)
+						+ ", visited?:" + p.item.boolean_icon (p.item.visited) + ", turns_left:")
+						if not (p.item.in_orbit) then
+							Result.append (p.item.turns_left.out)
+						else
+							Result.append ("N/A")
+						end
+						Result.append ("%N")
 					end
-					Result.append ("%N")
 				end
 		end
 
