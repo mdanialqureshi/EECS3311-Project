@@ -43,7 +43,7 @@ feature -- Variables
 	visited : BOOLEAN assign set_visited
 	first_check: BOOLEAN assign set_first_check
 
-feature --queries
+feature --commands
 
 	behave(contents : ARRAYED_LIST [ENTITY_ALPHABET])
 

@@ -53,12 +53,11 @@ feature {NONE} -- Initialization
 feature -- model attributes
 	state1 : INTEGER
 	state2 : INTEGER
-	old_state1 : INTEGER
-	old_state2 : INTEGER
 	g : GALAXY
 	info : SHARED_INFORMATION
 	in_game : BOOLEAN
 	movements: LINKED_LIST[STRING]
+	test_mode : BOOLEAN
 	land_err :STRING
 	land_msg : STRING
 	liftoff_err : STRING
@@ -75,7 +74,6 @@ feature -- model attributes
 	test_msg : STRING
 	abort_err : STRING
 	abort_msg : STRING
-	test_mode : BOOLEAN
 	mode : STRING
 
 

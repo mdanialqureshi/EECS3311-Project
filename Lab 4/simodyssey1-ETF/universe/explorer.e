@@ -43,7 +43,7 @@ feature --commands
 			is_landed := land
 		end
 
-feature --queries
+feature --commands
 
 	update_explorer(contents : ARRAYED_LIST [ENTITY_ALPHABET]; used_wormhole : BOOLEAN)
 		do
