@@ -10,7 +10,7 @@ root = "../tests/acceptance/"
 # NOTE: Tests can not be named test.expected.txt
 # NOTE: To run all tests in root directory, uses [""] as the test.
 # WARNING: Does not support partial file names with wildcards ie at*.txt
-acceptance_tests = ["instructor", "student"]
+acceptance_tests = ["./instructor", "./student"]
 
 # Should regression testing continue on warnings? If this is set to False,
 # regression testing will exit.
