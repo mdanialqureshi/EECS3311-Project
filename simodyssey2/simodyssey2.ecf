@@ -47,6 +47,10 @@
 				<exclude>^model/universe$</exclude>
 			</file_rule>
 		</cluster>
-		<cluster name="universe" location=".\universe\" recursive="true"/>
+		<cluster name="universe" location=".\universe\" recursive="true">
+			<file_rule>
+				<exclude>^movable_entities$</exclude>
+			</file_rule>
+		</cluster>
 	</target>
 </system>

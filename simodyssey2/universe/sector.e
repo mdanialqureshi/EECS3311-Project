@@ -28,9 +28,11 @@ feature -- attributes
 
 	column: INTEGER
 
-	planet_id: INTEGER
+	movable_entity_id: INTEGER
 
 	planets: ARRAYED_LIST[PLANET]
+
+	benigns : ARRAYED_LIST[BENIGN]
 
 	recently_added: INTEGER -- index of most recently added entity
 
@@ -41,7 +43,7 @@ feature -- attributes
 
 
 feature -- constructor
-	make(row_input: INTEGER; column_input: INTEGER; a_explorer:EXPLORER;planet_id_num:INTEGER)
+	make(row_input: INTEGER; column_input: INTEGER; a_explorer:EXPLORER;movable_entity_num:INTEGER)
 		--initialization
 		require
 			valid_row: (row_input >= 1) and (row_input <= shared_info.number_rows)
@@ -49,6 +51,7 @@ feature -- constructor
 		do
 			create planets.make(4)
 			create entities.make (4)
+			create benigns.make (4)
 
 			across 1|..| 4  as i
 			loop
@@ -56,7 +59,7 @@ feature -- constructor
 			end
 
 			entities.compare_objects
-			planet_id := planet_id_num
+			movable_entity_id := movable_entity_num
 			row := row_input
 			column := column_input
 			create contents.make (shared_info.max_capacity) -- Each sector should have 4 quadrants
@@ -66,13 +69,9 @@ feature -- constructor
 				entities[1] := create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('O'),-1)
 			else
 
---				entities.extend (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('O')
---				, -1))
-
 				if (row = 1) and (column = 1) then
 					put (a_explorer.icon,true) -- If this is the top left corner sector, place the explorer there
 					entities[1] := (a_explorer)
-
 				--	entities.extend (a_explorer)
 				end
 				populate -- Run the populate command to complete setup
@@ -88,6 +87,7 @@ feature -- commands
 			contents.compare_objects
 			create entities.make(4)
 			entities.compare_objects
+			create benigns.make (4)
 		end
 
 	populate
@@ -99,7 +99,9 @@ feature -- commands
 			loop_counter: INTEGER
 			component: ENTITY_ALPHABET
 			planet: PLANET
+			benign : BENIGN
 			added: BOOLEAN
+			turn : INTEGER -- temporary for matching rchoose to oracle for now
 		do
 			added := false
 			number_items := gen.rchoose (1, shared_info.max_capacity-1)  -- MUST decrease max_capacity by 1 to leave space for Explorer (so a max of 3)
@@ -113,20 +115,28 @@ feature -- commands
 
 				if threshold < shared_info.asteroid_threshold then
 					create component.make('A')
+					turn:=gen.rchoose (0, 2)
+					movable_entity_id := movable_entity_id + 1
 				else
 					if threshold < shared_info.janitaur_threshold then
 						create component.make('J')
+						turn:=gen.rchoose (0, 2)
+						movable_entity_id := movable_entity_id + 1
 					else
 						if (threshold < shared_info.malevolent_threshold) then
 							create component.make('M')
+							turn:=gen.rchoose (0, 2)
+							movable_entity_id := movable_entity_id + 1
 						else
 							if (threshold < shared_info.benign_threshold) then
-								create component.make('B')
+								create benign.make (movable_entity_id, gen.rchoose (0, 2), [row,column,0])
+								movable_entity_id := movable_entity_id + 1
+								component := benign.icon
 							else
 								if threshold < shared_info.planet_threshold then
-									create planet.make (planet_id,gen.rchoose (0, 2),[row,column,0])
-											planet_id := planet_id + 1
-											component := planet.icon
+									create planet.make (movable_entity_id,gen.rchoose (0, 2),[row,column,0])
+									movable_entity_id := movable_entity_id + 1
+									component := planet.icon
 								end
 							end
 						end
@@ -139,9 +149,29 @@ feature -- commands
 					if attached planet as p then
 						planets.extend (p)
 					end
+
+					if attached benign as b then
+						benigns.extend (b)
+					end
 					put (entity,true) -- add new entity to the contents list
-					
+
 					if attached {ENTITY} planet as add then
+						from
+							entities.start
+						until
+							added
+						loop
+							if entities.item.icon.item ~ '-'  then
+								entities.replace (add)
+								added := true
+							end
+							entities.forth
+						end
+						added := false
+						--entities.extend (add)
+					end
+
+					if attached {ENTITY} benign as add then
 						from
 							entities.start
 						until
@@ -207,6 +237,8 @@ feature --command
 				contents_count := contents_count + 1
 				if new_component ~ (create {ENTITY_ALPHABET}.make ('P')) and check_first then
 					planets[planets.count].sector.quadrant := contents_count
+				elseif new_component ~ (create {ENTITY_ALPHABET}.make ('B')) and check_first then
+					benigns[benigns.count].sector.quadrant := contents_count
 				end
 
 			end

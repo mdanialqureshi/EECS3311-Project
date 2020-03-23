@@ -27,14 +27,14 @@ feature -- contructors
 				elseif in_id ~ 0 then
 					is_explorer := true
 				elseif in_id > 0 then
-					is_planet := true
+					is_moveable_entity := true
 				end
 			end
 		end
 	makedummy
 		do
 			create icon.make('d')
-			is_planet := false
+			is_moveable_entity := false
 			is_explorer := false
 			is_blackhole := false
 			is_stationary_entity := false
@@ -43,11 +43,13 @@ feature -- contructors
 feature -- attributes of an entity
 	icon: ENTITY_ALPHABET
 	id: INTEGER
-	is_planet : BOOLEAN
+	is_moveable_entity : BOOLEAN
 	is_explorer : BOOLEAN
 	is_blackhole : BOOLEAN
 	is_stationary_entity : BOOLEAN
 	is_blank : BOOLEAN
+	gen: RANDOM_GENERATOR_ACCESS -- random generator to be used
+	-- by child classes
 
 feature -- queries
 

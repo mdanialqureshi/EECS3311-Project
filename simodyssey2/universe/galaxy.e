@@ -28,11 +28,10 @@ feature -- attributes
 		attribute
 			Result:= shared_info_access.shared_info
 		end
-
 	stationary_items: LINKED_LIST[STATIONARY_ENTITY]
 	stationary_count: INTEGER
 	planets: LINKED_LIST[PLANET]
-	planet_count: INTEGER
+	benigns: LINKED_LIST[BENIGN]
 	dead_planets: LINKED_LIST[PLANET]
 	explorer: EXPLORER
 	test_mode : BOOLEAN
@@ -40,6 +39,8 @@ feature -- attributes
 		do
 			Result := <<[-1,0],[-1,1],[0,1],[1,1],[1,0],[1,-1],[0,-1],[-1,-1]>>
 		end
+	max_movable_entity_id : INTEGER -- the current largest movable entity id
+
 
 feature --constructor
 
@@ -50,6 +51,7 @@ feature --constructor
 			create stationary_items.make
 			create explorer.make
 			create dead_planets.make
+			create benigns.make
 		end
 
 
@@ -65,6 +67,7 @@ feature --constructor
 			create explorer.make
 			create dead_planets.make
 			create stationary_items.make
+			create benigns.make
 			test_mode := is_test_mode
 			stationary_count := -2
 
@@ -79,12 +82,19 @@ feature --constructor
 				until
 					column > shared_info.number_columns
 				loop
-					grid[row,column] := create {SECTOR}.make(row,column,explorer,(planets.count + 1))
+					max_movable_entity_id := planets.count + benigns.count
+					grid[row,column] := create {SECTOR}.make(row,column,explorer,(max_movable_entity_id + 1))
 
 					across grid[row,column].planets as curr
 					loop
 						planets.extend (curr.item)
 					end
+
+					across grid[row,column].benigns as curr
+					loop
+						benigns.extend (curr.item)
+					end
+
 					column:= column + 1;
 
 				end

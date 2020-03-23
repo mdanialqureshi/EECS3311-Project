@@ -18,8 +18,8 @@ feature -- Constructor
 	make(id_num:INTEGER;turns: INTEGER;location: TUPLE[INTEGER,INTEGER,INTEGER])
 		do
 			make_movable_entity ('P')
-			create icon.make('P')
-			is_planet := true
+--			create icon.make('P')
+			is_moveable_entity := true
 			id := id_num
 			sector := location
 			turns_left := turns
@@ -39,7 +39,6 @@ feature -- Variables
 	support_life: BOOLEAN
 	is_alive : BOOLEAN
 	death_msg : STRING
-	gen : RANDOM_GENERATOR_ACCESS
 	visited : BOOLEAN assign set_visited
 	first_check: BOOLEAN assign set_first_check
 

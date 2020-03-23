@@ -92,7 +92,11 @@ feature -- model operations
 			if not (in_game) then
 				in_game := true
 				test_mode := false
-				-- set threshold to be 30 for play
+				-- set threshold for play mode
+				info.set_asteroid_threshold (3)
+				info.set_janitaur_threshold (5)
+				info.set_malevolent_threshold (7)
+				info.set_benign_threshold (15)
 	        	info.set_planet_threshold(30)
 	         	create g.make(false)
 	         	next_state (true)
