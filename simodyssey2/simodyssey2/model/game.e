@@ -273,13 +273,14 @@ feature -- model operations
 							land_msg.append ("Explorer found no life as we know it at Sector:" + row.out + ":" + col.out)
 						end
 						not_found := false
-						across g.grid[row,col].planets as curr
+						across g.grid[row,col].movable_entities as m_entity
 						loop
-							if curr.item.id ~ i.item.id then
-								curr.item.visited := true
+							if attached{PLANET}m_entity.item as curr then
+								if curr.id ~ i.item.id then
+									curr.visited := true
+								end
 							end
 						end
-
 					end
 				end
 				if all_visited then
@@ -700,20 +701,22 @@ feature -- queries
 					Result.append ("    [" + g.explorer.id.out + "," + g.explorer.icon.item.out + "]->fuel:" + g.explorer.fuel.out +
 					"/3, life:" + g.explorer.life.out + "/3, landed?:" + g.explorer.boolean_icon (g.explorer.is_landed) + "%N")
 				end
-				across g.planets as p loop
-					if p.item.is_alive then
+				across g.movable_entities as m_entity loop
+					if attached{PLANET}m_entity.item as p then
+						if p.is_alive then
 
-					Result.append ("    [" + p.item.id.out + "," + p.item.icon.item.out + "]->attached?:" +
-						p.item.boolean_icon (p.item.in_orbit) + ", support_life?:" + p.item.boolean_icon (p.item.support_life)
-						+ ", visited?:" + p.item.boolean_icon (p.item.visited) + ", turns_left:")
-						if not (p.item.in_orbit) then
-							Result.append (p.item.turns_left.out)
-						else
-							Result.append ("N/A")
+						Result.append ("    [" + p.id.out + "," + p.icon.item.out + "]->attached?:" +
+							p.boolean_icon (p.in_orbit) + ", support_life?:" + p.boolean_icon (p.support_life)
+							+ ", visited?:" + p.boolean_icon (p.visited) + ", turns_left:")
+							if not (p.in_orbit) then
+								Result.append (p.turns_left.out)
+							else
+								Result.append ("N/A")
+							end
+							Result.append ("%N")
 						end
-						Result.append ("%N")
-					end
-				end
+					end -- end attached if
+				end -- end across
 		end
 
 	test_mode_deaths : STRING

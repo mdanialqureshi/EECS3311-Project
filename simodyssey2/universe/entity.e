@@ -30,6 +30,13 @@ feature -- contructors
 					is_moveable_entity := true
 				end
 			end
+			-- all are false and set to true in their
+			-- own constructors
+			is_planet := false
+			is_benign := false
+			is_asteroid := false
+			is_janitaur := false
+			is_malevolent := false
 		end
 	makedummy
 		do
@@ -38,6 +45,13 @@ feature -- contructors
 			is_explorer := false
 			is_blackhole := false
 			is_stationary_entity := false
+			-- all are false and set to true in their
+			-- own constructors
+			is_planet := false
+			is_benign := false
+			is_asteroid := false
+			is_janitaur := false
+			is_malevolent := false
 		end
 
 feature -- attributes of an entity
@@ -50,6 +64,11 @@ feature -- attributes of an entity
 	is_blank : BOOLEAN
 	gen: RANDOM_GENERATOR_ACCESS -- random generator to be used
 	-- by child classes
+	is_planet : BOOLEAN
+	is_benign : BOOLEAN
+	is_asteroid : BOOLEAN
+	is_janitaur : BOOLEAN
+	is_malevolent : BOOLEAN
 
 feature -- queries
 

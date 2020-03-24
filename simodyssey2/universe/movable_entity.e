@@ -23,12 +23,24 @@ feature --constructor
 feature -- attributes of a movable entity
 
 	sector: TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER] assign set_sector
+	turns_left: INTEGER assign set_turns_left
+	is_alive : BOOLEAN assign set_is_alive
 
 feature --commands
 
 	set_sector(sec :TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER])
-			do
-				sector := sec
-			end
+		do
+			sector := sec
+		end
+
+	set_turns_left(turns: INTEGER)
+		do
+			turns_left := turns
+		end
+
+	set_is_alive(alive : BOOLEAN)
+		do
+			is_alive := alive
+		end
 
 end

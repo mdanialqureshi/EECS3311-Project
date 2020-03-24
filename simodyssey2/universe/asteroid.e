@@ -18,25 +18,19 @@ feature -- constructor
 	make(id_num:INTEGER;turns: INTEGER;location: TUPLE[INTEGER,INTEGER,INTEGER])
 		do
 			make_movable_entity ('A')
+			is_asteroid := true
 			id := id_num
 			turns_left := turns
 			sector := location
 			create death_msg.make_empty
-			is_destroyed := false
+			is_alive := false
 		end
 
 feature -- variables
 
-	turns_left: INTEGER assign set_turns_left
 	death_msg : STRING
-	is_destroyed : BOOLEAN
 
 feature -- commands
-
-	set_turns_left(turns: INTEGER)
-		do
-			turns_left := turns
-		end
 
 	check_asteroid(cur_sector : SECTOR;moved : BOOLEAN)
 		local
@@ -46,7 +40,7 @@ feature -- commands
 
 
 			if contents.has (create {ENTITY_ALPHABET}.make ('O')) then
-				is_destroyed := TRUE
+				is_alive := TRUE
 				death_msg.append ("Asteroid got devoured by blackhole (id: -1) at Sector:3:3")
 			end
 			-- add janitaur condition

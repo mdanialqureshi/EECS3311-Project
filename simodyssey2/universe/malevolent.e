@@ -18,31 +18,25 @@ feature -- constructor
 	make(id_num:INTEGER;turns: INTEGER;location: TUPLE[INTEGER,INTEGER,INTEGER])
 		do
 			make_movable_entity ('M')
+			is_malevolent := true
 			id := id_num
 			turns_left := turns
 			sector := location
 			fuel := 3
 			actions_left_until_reproduction := 1
 			create death_msg.make_empty
-			is_destroyed := false
+			is_alive := false
 		end
 
 feature -- variables
 
-	turns_left: INTEGER assign set_turns_left
 	fuel: INTEGER
 	death_msg : STRING
 	actions_left_until_reproduction : INTEGER
-	is_destroyed : BOOLEAN
 
 feature -- commands
 
-	set_turns_left(turns: INTEGER)
-		do
-			turns_left := turns
-		end
-
-	update_malevolent(cur_sector : SECTOR; used_wormhole : BOOLEAN; moved : BOOLEAN; next_movable_id: INTEGER)
+	update_malevolent(cur_sector : SECTOR; used_wormhole : BOOLEAN; moved : BOOLEAN)
 		local
 			contents : ARRAYED_LIST [ENTITY_ALPHABET]
 		do
@@ -62,20 +56,14 @@ feature -- commands
 			end
 
 			if fuel = 0 then
-				is_destroyed := TRUE
+				is_alive := TRUE
 				death_msg.append ("Malevolent got lost in space - out of fuel at Sector:" + sector.row.out + ":" + sector.col.out)
 			elseif contents.has (create {ENTITY_ALPHABET}.make ('O')) then
-				is_destroyed := TRUE
+				is_alive := TRUE
 				death_msg.append ("Malevolent got devoured by blackhole (id: -1) at Sector:3:3")
 			end
 			-- add astroid condition
 			-- benign also kills it
-
-			if not (actions_left_until_reproduction = 0) then
-				actions_left_until_reproduction := actions_left_until_reproduction - 1
-			else
-				reproduce(cur_sector,next_movable_id)
-			end
 
 		end
 

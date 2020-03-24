@@ -30,9 +30,7 @@ feature -- attributes
 
 	movable_entity_id: INTEGER
 
-	planets: ARRAYED_LIST[PLANET]
-
-	benigns : ARRAYED_LIST[BENIGN]
+	movable_entities : ARRAYED_LIST[MOVABLE_ENTITY]
 
 	recently_added: INTEGER -- index of most recently added entity
 
@@ -49,9 +47,8 @@ feature -- constructor
 			valid_row: (row_input >= 1) and (row_input <= shared_info.number_rows)
 			valid_column: (column_input >= 1) and (column_input <= shared_info.number_columns)
 		do
-			create planets.make(4)
+			create movable_entities.make (4)
 			create entities.make (4)
-			create benigns.make (4)
 
 			across 1|..| 4  as i
 			loop
@@ -76,6 +73,7 @@ feature -- constructor
 				end
 				populate -- Run the populate command to complete setup
 			end -- if
+			movable_entities.compare_objects
 		end
 
 feature -- commands
@@ -83,11 +81,11 @@ feature -- commands
 		--initialization without creating entities in quadrants
 		do
 			create contents.make (shared_info.max_capacity)
-			create planets.make (4)
+			create movable_entities.make(4)
 			contents.compare_objects
 			create entities.make(4)
 			entities.compare_objects
-			create benigns.make (4)
+			movable_entities.compare_objects
 		end
 
 	populate
@@ -100,8 +98,10 @@ feature -- commands
 			component: ENTITY_ALPHABET
 			planet: PLANET
 			benign : BENIGN
+			janitaur : JANITAUR
+			asteroid : ASTEROID
+			malevolent : MALEVOLENT
 			added: BOOLEAN
-			turn : INTEGER -- temporary for matching rchoose to oracle for now
 		do
 			added := false
 			number_items := gen.rchoose (1, shared_info.max_capacity-1)  -- MUST decrease max_capacity by 1 to leave space for Explorer (so a max of 3)
@@ -114,19 +114,19 @@ feature -- commands
 
 
 				if threshold < shared_info.asteroid_threshold then
-					create component.make('A')
-					turn:=gen.rchoose (0, 2)
+					create asteroid.make (movable_entity_id, gen.rchoose (0, 2), [row,column,0])
 					movable_entity_id := movable_entity_id + 1
+					component := asteroid.icon
 				else
 					if threshold < shared_info.janitaur_threshold then
-						create component.make('J')
-						turn:=gen.rchoose (0, 2)
+						create janitaur.make (movable_entity_id, gen.rchoose (0, 2), [row,column,0])
 						movable_entity_id := movable_entity_id + 1
+						component := janitaur.icon
 					else
 						if (threshold < shared_info.malevolent_threshold) then
-							create component.make('M')
-							turn:=gen.rchoose (0, 2)
-							movable_entity_id := movable_entity_id + 1
+								create malevolent.make (movable_entity_id, gen.rchoose (0, 2), [row,column,0])
+								movable_entity_id := movable_entity_id + 1
+								component := malevolent.icon
 						else
 							if (threshold < shared_info.benign_threshold) then
 								create benign.make (movable_entity_id, gen.rchoose (0, 2), [row,column,0])
@@ -146,59 +146,78 @@ feature -- commands
 
 				if attached component as entity then
 
-					if attached planet as p then
-						planets.extend (p)
+
+					if attached asteroid as a then
+						movable_entities.extend (a)
+					end
+
+					if attached janitaur as j then
+						movable_entities.extend (j)
+					end
+
+					if attached malevolent as m then
+						movable_entities.extend (m)
 					end
 
 					if attached benign as b then
-						benigns.extend (b)
+						movable_entities.extend (b)
 					end
-					put (entity,true) -- add new entity to the contents list
 
-					if attached {ENTITY} planet as add then
-						from
-							entities.start
-						until
-							added
-						loop
-							if entities.item.icon.item ~ '-'  then
-								entities.replace (add)
-								added := true
-							end
-							entities.forth
-						end
-						added := false
-						--entities.extend (add)
+					if attached planet as p then
+						movable_entities.extend (p)
+					end
+
+					put (entity,true) -- add new entity to the contents list
+					-- add new entity to entites array
+					if attached {ENTITY} asteroid as add then
+						add_to_entities_list (add)
+					end
+
+					if attached {ENTITY} janitaur as add then
+						add_to_entities_list (add)
+					end
+
+					if attached {ENTITY} malevolent as add then
+						add_to_entities_list (add)
 					end
 
 					if attached {ENTITY} benign as add then
-						from
-							entities.start
-						until
-							added
-						loop
-							if entities.item.icon.item ~ '-'  then
-								entities.replace (add)
-								added := true
-							end
-							entities.forth
-						end
-						added := false
-						--entities.extend (add)
+						add_to_entities_list (add)
 					end
 
+					if attached {ENTITY} planet as add then
+						add_to_entities_list (add)
+					end
 
 					--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 				--	turn:=gen.rchoose (0, 2) -- Hint: Use this number for assigning turn values to the planet created
 					-- The turn value of the planet created (except explorer) suggests the number of turns left before it can move.
 					--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
 				--	planet.turns_left := turn
 					component := void -- reset component object
 				end
 
 				loop_counter := loop_counter + 1
 			end
+		end
+
+	add_to_entities_list(ent : ENTITY)
+		local
+			added : BOOLEAN
+		do
+			added := false
+			from
+				entities.start
+			until
+				added
+			loop
+				if entities.item.icon.item ~ '-'  then
+					entities.replace (ent)
+					added := true
+				end
+				entities.forth
+			end
+			added := false
 		end
 
 feature --command
@@ -236,9 +255,7 @@ feature --command
 				end
 				contents_count := contents_count + 1
 				if new_component ~ (create {ENTITY_ALPHABET}.make ('P')) and check_first then
-					planets[planets.count].sector.quadrant := contents_count
-				elseif new_component ~ (create {ENTITY_ALPHABET}.make ('B')) and check_first then
-					benigns[benigns.count].sector.quadrant := contents_count
+					movable_entities[movable_entities.count].sector.quadrant := contents_count
 				end
 
 			end
@@ -320,9 +337,11 @@ feature -- Queries
 
 		do
 			create Result.make(4)
-			across planets as curr
+			across movable_entities as m_entity
 			loop
-				Result.extend (curr.item.deep_twin)
+				if attached {PLANET}m_entity.item as curr then
+					Result.extend (curr.deep_twin)
+				end
 			end
 
 			from
@@ -348,4 +367,99 @@ feature -- Queries
 				i := i + 1
 			end
 		end
+
+
+	sector_sorted:ARRAYED_LIST[MOVABLE_ENTITY] -- Returns a sorted list of the movable entities in this sector by lowest id to highest
+
+		local
+			i: INTEGER
+			j: INTEGER
+			temp: MOVABLE_ENTITY
+
+		do
+			create Result.make(4)
+			across movable_entities as m_entity
+			loop
+				if attached {MOVABLE_ENTITY}m_entity.item as curr then
+					Result.extend (curr.deep_twin)
+				end
+			end
+
+			from
+				i := 1
+			until
+				i = Result.count
+			loop
+
+				from
+					j := i
+				until
+					j = Result.count + 1
+				loop
+					if Result[j].id < Result[i].id then
+						temp := Result[j].deep_twin
+						Result[j] := Result[i].deep_twin
+						Result[i] := temp
+					end
+
+					j := j + 1
+
+				end
+				i := i + 1
+			end
+		end
+
+	remove_entity(ent : ENTITY)
+		do
+			-- remove from entities
+			from
+				entities.start
+			until
+				entities.exhausted
+			loop
+				if  entities.item.id ~ ent.id then
+					entities.replace (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('-'), 150))
+				end
+				entities.forth
+			end
+
+			-- also remove from movable entities of this sector
+			from	 -- this loop is to remove the planet from it's previous planets list in SECTOR
+				movable_entities.start
+			until
+				movable_entities.exhausted
+			loop
+				if attached{MOVABLE_ENTITY}ent as curr_m_ent  then
+					if curr_m_ent.id ~ movable_entities.item.id then
+						movable_entities.item.is_alive := false -- item is dead
+						movable_entities.remove
+					else
+						movable_entities.forth
+					end
+				end
+			end
+
+			--update the contents list by removal as well
+			if attached{MOVABLE_ENTITY}ent as curr_m_ent then
+				contents[curr_m_ent.sector.quadrant] := create {ENTITY_ALPHABET}.make ('-') --remove from contents of this sector
+				contents_count := contents_count - 1 -- decrement contents count
+			end
+
+		end
+
+	add_entity_to_all_lists(ent : ENTITY)
+		do
+			add_to_entities_list (ent) -- add to entities list
+			if attached{MOVABLE_ENTITY}ent as curr_m_ent then --add to movable entities list
+				movable_entities.extend (curr_m_ent)
+			end
+
+			--update the contents list by addition as well
+			if attached{MOVABLE_ENTITY}ent as curr_m_ent then
+				contents[curr_m_ent.sector.quadrant] := curr_m_ent.icon
+				contents_count := contents_count + 1 -- decrement contents count
+			end
+
+		end
+
 end

@@ -18,31 +18,25 @@ feature -- constructor
 	make(id_num:INTEGER;turns: INTEGER;location: TUPLE[INTEGER,INTEGER,INTEGER])
 		do
 			make_movable_entity ('B')
+			is_benign := true
 			id := id_num
 			turns_left := turns
 			sector := location
 			fuel := 3
 			actions_left_until_reproduction := 1
 			create death_msg.make_empty
-			is_destroyed := false
+			is_alive := false
 		end
 
 feature -- variables
 
-	turns_left: INTEGER assign set_turns_left
 	fuel: INTEGER
 	death_msg : STRING
 	actions_left_until_reproduction : INTEGER
-	is_destroyed : BOOLEAN
 
 feature -- commands
 
-	set_turns_left(turns: INTEGER)
-		do
-			turns_left := turns
-		end
-
-	update_benign(cur_sector : SECTOR; used_wormhole : BOOLEAN; moved : BOOLEAN; next_movable_id: INTEGER)
+	check_benign(cur_sector : SECTOR; used_wormhole : BOOLEAN; moved : BOOLEAN)
 		local
 			contents : ARRAYED_LIST [ENTITY_ALPHABET]
 		do
@@ -62,38 +56,89 @@ feature -- commands
 			end
 
 			if fuel = 0 then
-				is_destroyed := TRUE
+				is_alive := true
 				death_msg.append ("Benign got lost in space - out of fuel at Sector:" + sector.row.out + ":" + sector.col.out)
 			elseif contents.has (create {ENTITY_ALPHABET}.make ('O')) then
-				is_destroyed := TRUE
+				is_alive := true
 				death_msg.append ("Benign got devoured by blackhole (id: -1) at Sector:3:3")
 			end
-			-- add astroid condition
-
-			if not (actions_left_until_reproduction = 0) then
-				actions_left_until_reproduction := actions_left_until_reproduction - 1
-			else
-				reproduce(cur_sector,next_movable_id)
-			end
+			-- asteroid death handled in asteroid class
 
 		end
 
 
 	reproduce(cur_sector : SECTOR; next_movable_id: INTEGER) --reproduces every 2 turns
+		local
+			new_benign : BENIGN
+			location : TUPLE [INTEGER_32, INTEGER_32, INTEGER_32]
+			quad : INTEGER
+			counter : INTEGER
+			added : BOOLEAN
 		do
-			if not (cur_sector.is_full) then
+			if not (cur_sector.is_full) and actions_left_until_reproduction = 0 then
 				-- impelement
+				create location.default_create
+				added := false
+				counter := sector.quadrant + 1 -- the next quadrant beside this benign
+				from -- find free quadrent after parent benign
+					cur_sector.contents.start
+				until
+					added -- loop must terminate b/c sector isnt full
+				loop
+					if cur_sector.contents[counter].item ~ '-' and counter <= 4 then
+						quad := counter
+						added := true
+					end
+					counter := counter + 1
+					if counter > 4 then
+						counter := 1
+					end
+				end
+				location := [sector.row,sector.col,quad]
+				-- create the reproduced one
+				create new_benign.make (next_movable_id, gen.rchoose (0, 2),location)
+
+				-- add it to all the sectors lists
+				if attached{ENTITY}new_benign as add then
+					cur_sector.add_entity_to_all_lists (add)
+				end
+
+				actions_left_until_reproduction := 1 --reset for next reproduction
+			else -- end if
+				if not (actions_left_until_reproduction = 0) then
+					actions_left_until_reproduction := actions_left_until_reproduction - 1
+				elseif cur_sector.is_full then
+					-- unable to reproduce. reproduce next time entity acts
+				end
 			end
 
 
-			actions_left_until_reproduction := 1 --set it back for next reproduction
 		end
 
 	behave(cur_sector : SECTOR)
+		local
+			sorted_movable_sector_ents : ARRAYED_LIST[MOVABLE_ENTITY]
 		do
 			-- iterate thru sectors contents list and
 			-- kill all the malevolents in order of
 			-- lowest to highest id
+			sorted_movable_sector_ents := cur_sector.sector_sorted -- deep_twin so cant modify this
+			if turns_left = 0 then
+				from
+					sorted_movable_sector_ents.start
+				until
+					sorted_movable_sector_ents.exhausted
+				loop
+					if  sorted_movable_sector_ents.item.is_malevolent then
+						cur_sector.remove_entity(sorted_movable_sector_ents.item) -- removes from all sector lists and
+						-- sets is alive to false if the entity being passed in is movable
+					end
+					sorted_movable_sector_ents.forth
+				end
+
+			end -- end if turnleft = 0
 			turns_left := gen.rchoose(0,2)
 		end
+
+
 end

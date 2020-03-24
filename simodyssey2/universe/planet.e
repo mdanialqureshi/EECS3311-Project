@@ -20,6 +20,7 @@ feature -- Constructor
 			make_movable_entity ('P')
 --			create icon.make('P')
 			is_moveable_entity := true
+			is_planet := true
 			id := id_num
 			sector := location
 			turns_left := turns
@@ -33,11 +34,9 @@ feature -- Constructor
 
 feature -- Variables
 
-	turns_left: INTEGER assign set_turns_left
 	in_orbit: BOOLEAN assign set_in_orbit
 	in_orbit_icon : CHARACTER
 	support_life: BOOLEAN
-	is_alive : BOOLEAN
 	death_msg : STRING
 	visited : BOOLEAN assign set_visited
 	first_check: BOOLEAN assign set_first_check
@@ -74,11 +73,6 @@ feature -- commands
 			if in_orbit then
 				in_orbit_icon := 'T'
 			end
-		end
-
-	set_turns_left(turns: INTEGER)
-		do
-			turns_left := turns
 		end
 
 	set_first_check(first: BOOLEAN)

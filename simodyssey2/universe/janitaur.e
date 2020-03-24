@@ -18,33 +18,27 @@ feature -- constructor
 	make(id_num:INTEGER;turns: INTEGER;location: TUPLE[INTEGER,INTEGER,INTEGER])
 		do
 			make_movable_entity ('J')
+			is_janitaur := true
 			id := id_num
 			turns_left := turns
 			sector := location
 			fuel := 5
 			actions_left_until_reproduction := 2
 			create death_msg.make_empty
-			is_destroyed := false
+			is_alive := false
 			load := 0
 			max_load := 2
 		end
 
 feature -- variables
 
-	turns_left: INTEGER assign set_turns_left
 	fuel: INTEGER
 	death_msg : STRING
 	actions_left_until_reproduction : INTEGER
-	is_destroyed : BOOLEAN
 	load : INTEGER
 	max_load : INTEGER
 
 feature -- commands
-
-	set_turns_left(turns: INTEGER)
-		do
-			turns_left := turns
-		end
 
 	update_janitaur(cur_sector : SECTOR; moved : BOOLEAN; next_movable_id: INTEGER)
 		local
@@ -66,10 +60,10 @@ feature -- commands
 			end
 
 			if fuel = 0 then
-				is_destroyed := TRUE
+				is_alive := TRUE
 				death_msg.append ("Janitaur got lost in space - out of fuel at Sector:" + sector.row.out + ":" + sector.col.out)
 			elseif contents.has (create {ENTITY_ALPHABET}.make ('O')) then
-				is_destroyed := TRUE
+				is_alive := TRUE
 				death_msg.append ("Janitaur got devoured by blackhole (id: -1) at Sector:3:3")
 			end
 			-- add astroid condition

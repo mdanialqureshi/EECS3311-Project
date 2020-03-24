@@ -30,8 +30,7 @@ feature -- attributes
 		end
 	stationary_items: LINKED_LIST[STATIONARY_ENTITY]
 	stationary_count: INTEGER
-	planets: LINKED_LIST[PLANET]
-	benigns: LINKED_LIST[BENIGN]
+	movable_entities : LINKED_LIST[MOVABLE_ENTITY]
 	dead_planets: LINKED_LIST[PLANET]
 	explorer: EXPLORER
 	test_mode : BOOLEAN
@@ -47,11 +46,10 @@ feature --constructor
 	make_dummy
 		do
 			create grid.make_filled (create {SECTOR}.make_dummy, shared_info.number_rows, shared_info.number_columns)
-			create planets.make
+			create movable_entities.make
 			create stationary_items.make
 			create explorer.make
 			create dead_planets.make
-			create benigns.make
 		end
 
 
@@ -63,11 +61,10 @@ feature --constructor
 			column : INTEGER
 		do
 			create grid.make_filled (create {SECTOR}.make_dummy, shared_info.number_rows, shared_info.number_columns)
-			create planets.make
+			create movable_entities.make
 			create explorer.make
 			create dead_planets.make
 			create stationary_items.make
-			create benigns.make
 			test_mode := is_test_mode
 			stationary_count := -2
 
@@ -82,17 +79,12 @@ feature --constructor
 				until
 					column > shared_info.number_columns
 				loop
-					max_movable_entity_id := planets.count + benigns.count
+					max_movable_entity_id := movable_entities.count
 					grid[row,column] := create {SECTOR}.make(row,column,explorer,(max_movable_entity_id + 1))
 
-					across grid[row,column].planets as curr
+					across grid[row,column].movable_entities as curr
 					loop
-						planets.extend (curr.item)
-					end
-
-					across grid[row,column].benigns as curr
-					loop
-						benigns.extend (curr.item)
+						movable_entities.extend (curr.item)
 					end
 
 					column:= column + 1;
@@ -112,31 +104,34 @@ feature -- query
 		do
 			create Result.make
 			create move_msg.make_empty
-			across planets as curr
+
+			across movable_entities as curr_moveable_entity
 			loop
+				if attached {PLANET} curr_moveable_entity.item as curr then
 
-				if (curr.item.turns_left = 0) and curr.item.first_check  then
+					if (curr.turns_left = 0) and curr.first_check  then
 
-					if grid[curr.item.sector.row,curr.item.sector.col].contents.has(create {ENTITY_ALPHABET}.make ('Y')) then
-						curr.item.behave (grid[curr.item.sector.row,curr.item.sector.col].contents)
-					elseif grid[curr.item.sector.row,curr.item.sector.col].contents.has(create {ENTITY_ALPHABET}.make ('*')) then
-						curr.item.behave (grid[curr.item.sector.row,curr.item.sector.col].contents)
+						if grid[curr.sector.row,curr.sector.col].contents.has(create {ENTITY_ALPHABET}.make ('Y')) then
+							curr.behave (grid[curr.sector.row,curr.sector.col].contents)
+						elseif grid[curr.sector.row,curr.sector.col].contents.has(create {ENTITY_ALPHABET}.make ('*')) then
+							curr.behave (grid[curr.sector.row,curr.sector.col].contents)
+						end
+						curr.first_check := false
 					end
-					curr.item.first_check := false
-				end
 
 
-				if (curr.item.turns_left = 0) and not curr.item.in_orbit and curr.item.is_alive then
-					move_msg.append ("[" + curr.item.id.out + ",P]:[" + curr.item.sector.row.out + "," + curr.item.sector.col.out + "," + curr.item.sector.quadrant.out + "]")
-					if move_planet(curr.item) then
-						move_msg.append ("->[" + curr.item.sector.row.out + "," + curr.item.sector.col.out + "," + curr.item.sector.quadrant.out + "]")
+					if (curr.turns_left = 0) and not curr.in_orbit and curr.is_alive then
+						move_msg.append ("[" + curr.id.out + ",P]:[" + curr.sector.row.out + "," + curr.sector.col.out + "," + curr.sector.quadrant.out + "]")
+						if move_planet(curr) then
+							move_msg.append ("->[" + curr.sector.row.out + "," + curr.sector.col.out + "," + curr.sector.quadrant.out + "]")
+						end
+						Result.extend (move_msg)
+						create move_msg.make_empty
+					else
+						curr.turns_left := curr.turns_left - 1
 					end
-					Result.extend (move_msg)
-					create move_msg.make_empty
-				else
-					curr.item.turns_left := curr.item.turns_left - 1
-				end
-			end
+				end -- end if
+			end -- end across
 		end
 
 
@@ -254,15 +249,18 @@ feature {NONE} -- command
 			if not grid[planet_dest.row,planet_dest.col].is_full and (not p.in_orbit)then
 
 
-				from															-- this loop is to remove the planet from it's previous planets list in SECTOR
-					grid[p.sector.row,p.sector.col].planets.start
+				from	 -- this loop is to remove the planet from it's previous planets list in SECTOR
+					grid[p.sector.row,p.sector.col].movable_entities.start
 				until
-					grid[p.sector.row,p.sector.col].planets.exhausted
+					grid[p.sector.row,p.sector.col].movable_entities.exhausted
 				loop
-					if grid[p.sector.row,p.sector.col].planets.item.id ~ p.id then
-						grid[p.sector.row,p.sector.col].planets.remove
-					else
-						grid[p.sector.row,p.sector.col].planets.forth
+					if attached{PLANET}grid[p.sector.row,p.sector.col].movable_entities.item as curr_planet  then
+
+						if curr_planet.id ~ p.id then
+							grid[p.sector.row,p.sector.col].movable_entities.remove
+						else
+							grid[p.sector.row,p.sector.col].movable_entities.forth
+						end
 					end
 				end
 				grid[p.sector.row,p.sector.col].contents[p.sector.quadrant] := create {ENTITY_ALPHABET}.make ('-') -- remove planet from previous sector
@@ -294,7 +292,7 @@ feature {NONE} -- command
 					grid[3,3].contents.prune_all (p.icon)
 					grid[3,3].contents_count := grid[3,3].contents_count - 1
 				else
-					grid[planet_dest.row,planet_dest.col].planets.extend (p) -- add planet to the planets list in SECTOR
+					grid[planet_dest.row,planet_dest.col].movable_entities.extend (p) -- add planet to the planets list in SECTOR
 
 					from
 						grid[planet_dest.row,planet_dest.col].entities.start
