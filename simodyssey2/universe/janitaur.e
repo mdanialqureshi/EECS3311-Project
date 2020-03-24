@@ -25,7 +25,7 @@ feature -- constructor
 			fuel := 5
 			actions_left_until_reproduction := 2
 			create death_msg.make_empty
-			is_alive := false
+			is_alive := true
 			load := 0
 			max_load := 2
 		end
@@ -40,7 +40,7 @@ feature -- variables
 
 feature -- commands
 
-	update_janitaur(cur_sector : SECTOR; moved : BOOLEAN; next_movable_id: INTEGER)
+	check_janitaur(cur_sector : SECTOR; moved : BOOLEAN)
 		local
 			contents : ARRAYED_LIST [ENTITY_ALPHABET]
 		do
@@ -60,44 +60,101 @@ feature -- commands
 			end
 
 			if fuel = 0 then
-				is_alive := TRUE
+				is_alive := false
 				death_msg.append ("Janitaur got lost in space - out of fuel at Sector:" + sector.row.out + ":" + sector.col.out)
 			elseif contents.has (create {ENTITY_ALPHABET}.make ('O')) then
-				is_alive := TRUE
+				is_alive := false
 				death_msg.append ("Janitaur got devoured by blackhole (id: -1) at Sector:3:3")
 			end
-			-- add astroid condition
-
-			if not (actions_left_until_reproduction = 0) then
-				actions_left_until_reproduction := actions_left_until_reproduction - 1
-			else
-				reproduce(cur_sector,next_movable_id)
-			end
+			-- asteroid death handled in asteroid class
 
 		end
 
 
 	reproduce(cur_sector : SECTOR; next_movable_id: INTEGER) --reproduces every 3 turns
+		local
+			new_janitaur : JANITAUR
+			location : TUPLE [INTEGER_32, INTEGER_32, INTEGER_32]
+			quad : INTEGER
+			counter : INTEGER
+			added : BOOLEAN
 		do
-			if not (cur_sector.is_full) then
+			if not (cur_sector.is_full) and actions_left_until_reproduction = 0 then
 				-- impelement
+				create location.default_create
+				added := false
+				counter := sector.quadrant + 1 -- the next quadrant beside this benign
+				from -- find free quadrent after parent benign
+					cur_sector.contents.start
+				until
+					added -- loop must terminate b/c sector isnt full
+				loop
+					if cur_sector.contents[counter].item ~ '-' and counter <= 4 then
+						quad := counter
+						added := true
+					end
+					counter := counter + 1
+					if counter > 4 then
+						counter := 1
+					end
+				end
+				location := [sector.row,sector.col,quad]
+				-- create the reproduced one
+				create new_janitaur.make (next_movable_id, gen.rchoose (0, 2),location)
+
+				-- add it to all the sectors lists
+				if attached{ENTITY}new_janitaur as add then
+					cur_sector.add_entity_to_all_lists (add)
+				end
+
+				actions_left_until_reproduction := 2 --reset for next reproduction
+			else -- end if
+				if not (actions_left_until_reproduction = 0) then
+					actions_left_until_reproduction := actions_left_until_reproduction - 1
+				elseif cur_sector.is_full then
+					-- unable to reproduce. reproduce next time entity acts
+				end
 			end
-
-
-			actions_left_until_reproduction := 1 --set it back for next reproduction
 		end
 
 	behave(cur_sector : SECTOR)
+		local
+			sorted_movable_sector_ents : ARRAYED_LIST[MOVABLE_ENTITY]
 		do
 --		    Unless its maximum_load_level has been reached,
 --			looks for asteroids to implode and haul away
 --			(where it destroys all the asteroids in that sector
 --			and incrementing the load level by the number of asteroids destroyed).
 --			If there are multiple asteroids and not enough room in the janitaur,
---			lower id asteroids are targeted first. If a wormhole is in the current
+--			lower id asteroids are targeted first.
+
+			sorted_movable_sector_ents := cur_sector.sector_sorted -- deep_twin so cant modify this
+			if turns_left = 0 then
+				if load < max_load then
+					from
+						sorted_movable_sector_ents.start
+					until
+						sorted_movable_sector_ents.exhausted
+					loop
+						if  sorted_movable_sector_ents.item.is_asteroid and load < max_load then
+							cur_sector.remove_entity(sorted_movable_sector_ents.item) -- removes from all sector lists and
+							-- sets is alive to false if the entity being passed in is movable
+							load := load + 1 -- killed an asteroid so load increases
+						end
+						sorted_movable_sector_ents.forth
+					end
+				end -- end load condition
+
+			end -- end if turnleft = 0
+
+--			If a wormhole is in the current
 --			sector, it will then throw all the asteroids into it,
 --			clearing the load level. Note the asteroids thrown into
 --			the wormhole do not appear anywhere.
+
+			if cur_sector.contents.has (create {ENTITY_ALPHABET}.make ('W'))  then -- this sector has a wormhole
+				load := 0 -- clear the load if there is a wormhole in this sector
+			end
 
 			turns_left := gen.rchoose(0,2)
 		end

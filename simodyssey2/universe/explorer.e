@@ -32,7 +32,7 @@ feature -- Constructor
 
 feature -- variables
 	fuel: INTEGER
-	life: INTEGER
+	life: INTEGER assign set_life
 	is_landed: BOOLEAN assign set_landed
 	death_msg : STRING
 
@@ -41,6 +41,11 @@ feature --commands
 	set_landed(land:BOOLEAN)
 		do
 			is_landed := land
+		end
+
+	set_life(s_life : INTEGER)
+		do
+			life := s_life
 		end
 
 feature --commands
@@ -61,7 +66,7 @@ feature --commands
 		if fuel > 3 then --check if too much fuel
 			fuel := 3
 		end
-
+		--@@@@ have to add condition for life =0 out of life @@@@---
 		if fuel = 0 then
 			life := 0
 			death_msg.append ("Explorer got lost in space - out of fuel at Sector:" + sector.row.out + ":" + sector.col.out)

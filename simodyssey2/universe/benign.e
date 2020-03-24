@@ -25,7 +25,7 @@ feature -- constructor
 			fuel := 3
 			actions_left_until_reproduction := 1
 			create death_msg.make_empty
-			is_alive := false
+			is_alive := true
 		end
 
 feature -- variables
@@ -56,10 +56,10 @@ feature -- commands
 			end
 
 			if fuel = 0 then
-				is_alive := true
+				is_alive := false
 				death_msg.append ("Benign got lost in space - out of fuel at Sector:" + sector.row.out + ":" + sector.col.out)
 			elseif contents.has (create {ENTITY_ALPHABET}.make ('O')) then
-				is_alive := true
+				is_alive := false
 				death_msg.append ("Benign got devoured by blackhole (id: -1) at Sector:3:3")
 			end
 			-- asteroid death handled in asteroid class
