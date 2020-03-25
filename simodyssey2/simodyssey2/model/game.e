@@ -117,18 +117,29 @@ feature -- model operations
 				next_state (false)
 				test_err.append ("To start a new mission, please abort the current one first.")
 			else
-				test_mode := true
-				in_game := true
-				info.set_planet_threshold (p_threshold)
-				create g.make(true)
-				next_state (true)
-				create mode.make_from_string ("test")
+				if not ( 0 < a_threshold and a_threshold <= j_threshold and j_threshold <= m_threshold
+				and m_threshold <= b_threshold and b_threshold <= p_threshold) then
+					next_state (false)
+					test_err.append ("Thresholds should be non-decreasing order.")
+				else
+					test_mode := true
+					in_game := true
+					info.test (a_threshold, j_threshold, m_threshold, b_threshold, p_threshold)
+					create g.make(true)
+					next_state (true)
+					create mode.make_from_string ("test")
+				end
 			end
 
 		end
 
 	turn(action : STRING;dir : INTEGER)
+			local
+				reproduced : BOOLEAN
+				cur_reproduced : LINKED_LIST[MOVABLE_ENTITY]
 			do
+				create cur_reproduced.make
+				reproduced := false
 				act(action,dir)
 				-- if an error does not occur (turn does not occur)
 				if no_error then
@@ -194,18 +205,27 @@ feature -- model operations
 									if m_entity.item.is_alive then -- if it is alive
 										-- reproduce, need to add reproduced entities to galazy movable entities list
 										if attached {MALEVOLENT}m_entity.item as m then
-											if m.reproduce (g.grid[m.sector.row,m.sector.col], g.next_movable_id) then
+											reproduced := m.reproduce (g.grid[m.sector.row,m.sector.col], g.next_movable_id)
+											if reproduced then
 												g.next_movable_id := g.next_movable_id + 1 --handle case where it does not reproduce
 											end
 										end
 										if attached {BENIGN}m_entity.item as b then
-											if b.reproduce (g.grid[b.sector.row,b.sector.col], g.next_movable_id) then
+											reproduced := b.reproduce (g.grid[b.sector.row,b.sector.col], g.next_movable_id)
+											if reproduced then
 												g.next_movable_id := g.next_movable_id + 1 --handle case where it does not reproduce
 											end
 										end
 										if attached {JANITAUR}m_entity.item as j then
-											if j.reproduce (g.grid[j.sector.row,j.sector.col], g.next_movable_id) then
+											reproduced := j.reproduce (g.grid[j.sector.row,j.sector.col], g.next_movable_id)
+											if reproduced then
 												g.next_movable_id := g.next_movable_id + 1 --handle case where it does not reproduce
+											end
+										end
+
+										if reproduced then -- if there was a reproduced entity then save it so can update movable_entities list
+											across g.grid[m_entity.item.sector.row,m_entity.item.sector.col].movable_entities as q loop
+												cur_reproduced.extend (q.item)
 											end
 										end
 
@@ -223,17 +243,23 @@ feature -- model operations
 											p.new_behave (g.grid[p.sector.row,p.sector.col])
 										end
 
-									end
-								end
+									end -- end entitiy alive check
+								end -- end else
 							else -- end turnsleft = 0 conditional
 								m_entity.item.turns_left := m_entity.item.turns_left - 1
 							end
+							reproduced := false
 						end -- end across movable entities
 					end -- end land msg conditional
 				end -- end no error conditional
 				moved := false -- reset for every entity
 				used_wormhole := false
-				update_movable_entities
+				across cur_reproduced as reprod loop
+					if not (g.movable_entities.has (reprod.item)) then
+						g.movable_entities.extend (reprod.item) -- add new reproduced movable entities from last turn to g.movable_entities
+					end
+				end
+				create cur_reproduced.make -- empty it for next turn
 			end
 
 	update_movable_entities -- update the galaxy movable_entities list incase there was reproduction of entities
@@ -682,9 +708,13 @@ feature -- queries
 			else -- not in a game
 				if not(move_err.is_empty) or not (land_err.is_empty) or not (liftoff_err.is_empty) or
 				not (wormhole_err.is_empty) or not (status_err.is_empty) or not (pass_err.is_empty) or
-				not (abort_err.is_empty) or not (move_err.is_empty) then -- add the rest of the commands after implementation e.g pass
+				not (abort_err.is_empty) or not (move_err.is_empty) or not(test_err.is_empty) then -- add the rest of the commands after implementation e.g pass
 					Result.append ("state:" + state1.out + "." + state2.out + ", error%N")
-					Result.append ("  Negative on that request:no mission in progress.")
+					if test_err.is_equal ("Thresholds should be non-decreasing order.") then
+						Result.append("  " + test_err)
+					else
+						Result.append ("  Negative on that request:no mission in progress.")
+					end
 				elseif land_msg.out.is_equal ("Tranquility base here - we've got a life!") then
 					Result.append ("state:" + state1.out + "." + state2.out + ", mode:" + mode + ", ok%N")
 					Result.append("  " + land_msg)
