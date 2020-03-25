@@ -38,6 +38,7 @@ feature -- contructors
 			is_janitaur := false
 			is_malevolent := false
 		end
+
 	makedummy
 		do
 			create icon.make('d')

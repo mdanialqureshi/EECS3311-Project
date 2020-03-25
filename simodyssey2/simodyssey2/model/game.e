@@ -46,8 +46,8 @@ feature {NONE} -- Initialization
 			create abort_msg.make_empty
 			create mode.make_empty
 			test_mode := false
-
-
+			used_wormhole := false
+			moved := false
 		end
 
 feature -- model attributes
@@ -75,6 +75,8 @@ feature -- model attributes
 	abort_err : STRING
 	abort_msg : STRING
 	mode : STRING
+	used_wormhole : BOOLEAN
+	moved : BOOLEAN
 
 
 
@@ -125,6 +127,188 @@ feature -- model operations
 
 		end
 
+	turn(action : STRING;dir : INTEGER)
+			do
+				act(action,dir)
+				-- if an error does not occur (turn does not occur)
+				if no_error then
+					g.explorer.update_explorer(g.grid[g.explorer.sector.row,g.explorer.sector.col].contents, used_wormhole,moved) -- update explorer (fuel life etc)
+					if not g.explorer.is_alive then --dead explorer
+						g.grid[g.explorer.sector.row,g.explorer.sector.col].remove_entity (g.explorer,true) -- if explorer died, remove
+					end
+
+					if not(land_msg.is_equal ("Tranquility base here - we've got a life!")) then
+						across g.movable_entities as m_entity loop --across all movable entites (except explorer)
+							moved := false -- reset for every entity
+							used_wormhole := false
+							-- When an entity dies, remove it from board
+							-- If it is not an explorer, also remove entity from the movable
+							-- entities being iterated over
+							-- this is handled by the alive check below
+							if m_entity.item.turns_left = 0 and m_entity.item.is_alive then
+								-- special case for planet
+								if m_entity.item.is_planet and (g.grid[m_entity.item.sector.row,m_entity.item.sector.col].contents.has (create {ENTITY_ALPHABET}.make ('Y'))
+									or g.grid[m_entity.item.sector.row,m_entity.item.sector.col].contents.has (create {ENTITY_ALPHABET}.make ('*'))) then
+										if attached {PLANET}m_entity as planet then
+											planet.in_orbit := true
+											if g.grid[planet.sector.row,planet.sector.col].contents.has (create {ENTITY_ALPHABET}.make ('Y')) then
+												if g.gen.rchoose (1, 2) = 2 then
+													planet.support_life := true
+												end
+											end
+										end
+								else--end planet conditional
+
+									if g.grid[m_entity.item.sector.row,m_entity.item.sector.col].contents.has (
+										create {ENTITY_ALPHABET}.make ('W')) and (m_entity.item.is_malevolent
+										or m_entity.item.is_benign) then -- if there is a wormhole in this sector
+										-- if this entity is a malevolent or benign it prefers wormhole
+										if attached {MALEVOLENT}m_entity.item as m then
+											wormhole(m) -- fix this wormhole issue
+										end
+										if attached {BENIGN}m_entity.item as b then
+											wormhole(b) -- fix this wormhole issue
+										end
+
+									else -- end wormhole conditional
+										movement(m_entity.item) -- implement
+									end
+									-- preform checks
+									if attached {MALEVOLENT}m_entity.item as m then
+										m.check_malevolent (g.grid[m.sector.row,m.sector.col], used_wormhole, moved)
+									end
+
+									if attached {BENIGN}m_entity.item as b then
+										b.check_benign (g.grid[b.sector.row,b.sector.col], used_wormhole, moved)
+									end
+									if attached {JANITAUR}m_entity.item as j then
+										j.check_janitaur (g.grid[j.sector.row,j.sector.col], moved)
+									end
+									if attached {ASTEROID}m_entity.item as a then
+										a.check_asteroid (g.grid[a.sector.row,a.sector.col], moved)
+									end
+									if attached {PLANET}m_entity.item as p then
+										p.check_planet (g.grid[p.sector.row,p.sector.col])
+									end
+
+									if m_entity.item.is_alive then -- if it is alive
+										-- reproduce, need to add reproduced entities to galazy movable entities list
+										if attached {MALEVOLENT}m_entity.item as m then
+											if m.reproduce (g.grid[m.sector.row,m.sector.col], g.next_movable_id) then
+												g.next_movable_id := g.next_movable_id + 1 --handle case where it does not reproduce
+											end
+										end
+										if attached {BENIGN}m_entity.item as b then
+											if b.reproduce (g.grid[b.sector.row,b.sector.col], g.next_movable_id) then
+												g.next_movable_id := g.next_movable_id + 1 --handle case where it does not reproduce
+											end
+										end
+										if attached {JANITAUR}m_entity.item as j then
+											if j.reproduce (g.grid[j.sector.row,j.sector.col], g.next_movable_id) then
+												g.next_movable_id := g.next_movable_id + 1 --handle case where it does not reproduce
+											end
+										end
+
+										-- behave
+										if attached {MALEVOLENT}m_entity.item as m then
+											m.behave (g.grid[m.sector.row,m.sector.col],g.explorer)
+										end
+										if attached {BENIGN}m_entity.item as b then
+											b.behave (g.grid[b.sector.row,b.sector.col])
+										end
+										if attached {JANITAUR}m_entity.item as j then
+											j.behave (g.grid[j.sector.row,j.sector.col])
+										end
+										if attached {PLANET}m_entity.item as p then
+											p.new_behave (g.grid[p.sector.row,p.sector.col])
+										end
+
+									end
+								end
+							else -- end turnsleft = 0 conditional
+								m_entity.item.turns_left := m_entity.item.turns_left - 1
+							end
+						end -- end across movable entities
+					end -- end land msg conditional
+				end -- end no error conditional
+				moved := false -- reset for every entity
+				used_wormhole := false
+				update_movable_entities
+			end
+
+	update_movable_entities -- update the galaxy movable_entities list incase there was reproduction of entities
+		do
+			across 1|..| info.number_rows as i loop
+				across 1|..| info.number_columns as j loop
+					across 1|..| g.grid[i.item,j.item].movable_entities.count as k loop
+						if not (g.movable_entities.has (g.grid[i.item,j.item].movable_entities[k.item])) then
+							g.movable_entities.extend (g.grid[i.item,j.item].movable_entities[k.item]) -- add the new entity
+						end
+					end
+
+				end
+			end
+		end
+
+	act(action : STRING;dir : INTEGER)
+		do
+			if action.is_equal ("pass") then
+				pass
+			elseif action.is_equal ("move") then
+				move(dir)
+			elseif action.is_equal ("wormhole") then
+				wormhole(g.explorer)
+			elseif action.is_equal("land") then
+				land
+			elseif action.is_equal ("liftoff") then
+				liftoff
+			end
+
+		end
+
+	movement(m_ent : MOVABLE_ENTITY)
+		local
+			vector: TUPLE[row:INTEGER;col:INTEGER] -- vector of the direction we want to move ex. North is [-1,0]
+			dest : TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER] --entities sector field to be updated
+			added: BOOLEAN
+			dir : INTEGER
+		do
+			added := false
+			dir := g.gen.rchoose (1, 8)
+			vector := g.directions[dir]
+			dest := [m_ent.sector.row + vector.row, m_ent.sector.col + vector.col, 0]
+
+			if dest.row = 0 then
+				dest.row := 5
+
+			elseif dest.row = 6 then
+				dest.row := 1
+			end
+
+			if dest.col = 0 then
+				dest.col := 5
+
+			elseif dest.col = 6 then
+				dest.col := 1
+			end
+
+			if not g.grid[dest.row,dest.col].is_full then
+				moved := true
+				if attached{ENTITY}m_ent as ent then -- remove from all sector lists
+					g.grid[m_ent.sector.row,m_ent.sector.col].remove_entity (ent,false)
+				end
+
+				g.grid[dest.row,dest.col].put (m_ent.icon, false) --add entity to sectors available contents quadrant position
+
+				dest.quadrant := g.grid[dest.row,dest.col].recently_added
+				m_ent.sector := dest
+
+				g.grid[dest.row,dest.col].add_entity_to_all_lists (m_ent) -- add to all sector lists
+
+			end
+
+		end
+
 	move(dir: INTEGER)
 
 		local
@@ -167,35 +351,16 @@ feature -- model operations
 				elseif explorer_dest.col = 6 then
 					explorer_dest.col := 1
 				end
-
 				if not g.grid[explorer_dest.row,explorer_dest.col].is_full then
+					moved := true
 					next_state (true)
-					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents[g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.index_of(g.explorer.icon,1)] := create {ENTITY_ALPHABET}.make ('-') -- remove explorer from previous sector
-				--	g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.prune (g.explorer) -- remove the explorer from old sectors entities list
-					from
-						g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.start
-					until
-						g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.exhausted
-					loop
-						if g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.item ~ g.explorer then
-							g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.replace (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('-'), 150))
-						end
-						g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.forth
-					end
-					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents_count := g.grid[g.explorer.sector.row,g.explorer.sector.col].contents_count - 1
+				-- start moving explorer
+					g.grid[g.explorer.sector.row,g.explorer.sector.col].remove_entity (g.explorer, false)
+
 					g.grid[explorer_dest.row,explorer_dest.col].put(g.explorer.icon,false) --add explorer to sectors available quadrant position
-					--g.grid[explorer_dest.row,explorer_dest.col].entities.extend (g.explorer) --add explorer tosectors entities list
-					from
-						g.grid[explorer_dest.row,explorer_dest.col].entities.start
-					until
-						added
-					loop
-						if g.grid[explorer_dest.row,explorer_dest.col].entities.item.icon.item ~ '-' then
-							g.grid[explorer_dest.row,explorer_dest.col].entities.replace (g.explorer)
-							added := true
-						end
-						g.grid[explorer_dest.row,explorer_dest.col].entities.forth
-					end
+
+					g.grid[explorer_dest.row,explorer_dest.col].add_entity_to_all_lists (g.explorer) --add explorer tosectors  lists
+
 					temp_index := g.grid[explorer_dest.row,explorer_dest.col].contents.index_of (g.explorer.icon,1) -- index of first occurance of E in quadrants
 					explorer_dest.quadrant := temp_index
 					move_msg.append ("[" + "0,E]:[" + g.explorer.sector.row.out + "," + g.explorer.sector.col.out + "," + g.explorer.sector.quadrant.out + "]->[")
@@ -203,26 +368,26 @@ feature -- model operations
 					move_msg.append (g.explorer.sector.row.out + "," + g.explorer.sector.col.out + "," + g.explorer.sector.quadrant.out + "]")
 					movements.extend(move_msg)
 
-					across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
-						movements.extend (curr.item)
-					end
-					g.explorer.update_explorer(g.grid[g.explorer.sector.row,g.explorer.sector.col].contents, false) -- update explorer (fuel life etc)
+
+--					-- move planets
+--					across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
+--						movements.extend (curr.item)
+--					end -- finish moving planets
+--					g.explorer.update_explorer(g.grid[g.explorer.sector.row,g.explorer.sector.col].contents, false) -- update explorer (fuel life etc)
 
 				else
 					move_err.append("Cannot transfer to new location as it is full." )
 					next_state (false)
-				end
+				end 	-- end moving explorer
 			end
-
-
 			-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			-- *NOTE* after we move the explorer do the explorer check to see if still alive and if not handle it accordingly
 			-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		--	g.explorer.update_explorer(g.grid[g.explorer.sector.row,g.explorer.sector.col].contents, false) -- update explorer (fuel life etc)
-			if not g.explorer.death_msg.is_empty then
-				g.grid[g.explorer.sector.row,g.explorer.sector.col].contents[g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.index_of (g.explorer.icon, 1)] := create {ENTITY_ALPHABET}.make ('-')
-				g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.prune (g.explorer)
-			end
+--			if not g.explorer.death_msg.is_empty then
+--				g.grid[g.explorer.sector.row,g.explorer.sector.col].contents[g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.index_of (g.explorer.icon, 1)] := create {ENTITY_ALPHABET}.make ('-')
+--				g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.prune (g.explorer)
+--			end
 
 		end
 
@@ -289,9 +454,9 @@ feature -- model operations
 				else
 					next_state(true)
 					if in_game then
-						across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
-								movements.extend (curr.item)
-						end
+--						across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
+--								movements.extend (curr.item)
+--						end
 					end
 				end
 
@@ -327,14 +492,14 @@ feature -- model operations
 				next_state (true)
 				liftoff_msg.append ("Explorer has lifted off from planet at Sector:" + row.out + ":" + col.out)
 				g.explorer.is_landed := false
-				across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
-					movements.extend (curr.item)
-				end
+--				across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
+--					movements.extend (curr.item)
+--				end
 			end
 
 		end
 
-	wormhole
+	wormhole (m_ent : MOVABLE_ENTITY)
 		local
 			row : INTEGER
 			col : INTEGER
@@ -342,103 +507,67 @@ feature -- model operations
 			added : BOOLEAN -- has the explorer been wormholed successfully
 			temp_row : INTEGER
 			temp_col : INTEGER
-			explorer_dest : TUPLE[INTEGER,INTEGER,INTEGER] --explorers sector field to be updated
-			temp_index : INTEGER -- index of where explorer is placed in quarant of a sector
+			dest : TUPLE[INTEGER,INTEGER,INTEGER] --ent sector field to be updated
+			temp_index : INTEGER -- index of where entity is placed in quarant of a sector
 			added_ent: BOOLEAN
 		do
 			clear_messages
 			added := false
 			added_ent := false
 			is_valid := true
-			row := g.explorer.sector.row
-			col := g.explorer.sector.col
+			row := m_ent.sector.row
+			col := m_ent.sector.col
 			if not (in_game) then -- is it in a game
 				wormhole_err.append ("Negative on that request:no mission in progress.")
 				is_valid := false
-			elseif  g.explorer.is_landed then --is the explorer landed already
+			elseif  g.explorer.is_landed and m_ent.is_explorer then --is the explorer landed already
 				wormhole_err.append ("Negative on that request:you are currently landed at Sector:" + row.out + ":" + col.out)
 				is_valid := false
-			elseif not (g.grid[row,col].contents.has (create {ENTITY_ALPHABET}.make ('W'))) then
+			elseif not (g.grid[row,col].contents.has (create {ENTITY_ALPHABET}.make ('W'))) and m_ent.is_explorer then
 				wormhole_err.append ("Explorer couldn't find wormhole at Sector:"+ row.out + ":" + col.out)
 				is_valid := false
 			end
-
 
 			if not (is_valid) then
 				next_state(false)
 			end
 
 			if is_valid then
-				next_state (true)
-				wormhole_msg.append ("[" + "0,E]:[" + g.explorer.sector.row.out + "," + g.explorer.sector.col.out + "," + g.explorer.sector.quadrant.out + "]")
+
+				if m_ent.is_explorer then
+					next_state (true)
+					wormhole_msg.append ("[" + "0,E]:[" + m_ent.sector.row.out + "," + m_ent.sector.col.out + "," + m_ent.sector.quadrant.out + "]")
+				end
 				from
 					added := false
 				until
 					added
 				loop
-
 					temp_row := g.gen.rchoose (1,5)
 					temp_col := g.gen.rchoose (1,5)
-					if not (g.grid[temp_row,temp_col].is_full) or ((g.explorer.sector.row ~ temp_row) and (g.explorer.sector.col ~ temp_col)) then
-						g.grid[row,col].contents[g.grid[row,col].contents.index_of(g.explorer.icon,1)] := create {ENTITY_ALPHABET}.make ('-') -- remove explorer from previous sector
-						--g.grid[row,col].entities.prune (g.explorer) -- remove the explorer from old sectors entities list
-						from
-							g.grid[row,col].entities.start
-						until
-							g.grid[row,col].entities.exhausted
-						loop
-							if g.grid[row,col].entities.item ~ g.explorer then
-								g.grid[row,col].entities.replace (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('-'), 150))
-							end
-							g.grid[row,col].entities.forth
+					if not (g.grid[temp_row,temp_col].is_full) or ((m_ent.sector.row ~ temp_row) and (m_ent.sector.col ~ temp_col)) then
+						used_wormhole := true
+						if attached{ENTITY}m_ent as ent then
+							g.grid[row,col].remove_entity (ent,false) -- remove from all sectors lists
 						end
-						g.grid[row,col].contents_count := g.grid[row,col].contents_count - 1
-						g.grid[temp_row,temp_col].put (g.explorer.icon,false) --add explorer to sectors available quadrant position
-					--	g.grid[temp_row,temp_col].entities.extend (g.explorer) --add explorer to sectors entities list
-						from
-							g.grid[temp_row,temp_col].entities.start
-						until
-							added_ent
-						loop
-							if g.grid[temp_row,temp_col].entities.item.icon.item ~ '-' then
-								g.grid[temp_row,temp_col].entities.replace (g.explorer)
-								added_ent := true
-							end
-							g.grid[temp_row,temp_col].entities.forth
-						end
-						create explorer_dest.default_create
-						temp_index := g.grid[temp_row,temp_col].contents.index_of (g.explorer.icon,1) -- index of first occurance of E in quadrants
-						explorer_dest := [temp_row,temp_col,temp_index] -- assign to explorer sector the row col and quadrant index
-						if not (explorer_dest ~ g.explorer.sector) then
-						g.explorer.sector := explorer_dest
-						g.explorer.update_explorer(g.grid[g.explorer.sector.row,g.explorer.sector.col].contents, true) -- update explorer (fuel life etc)
-						wormhole_msg.append ("->[" + g.explorer.sector.row.out + "," + g.explorer.sector.col.out + "," + g.explorer.sector.quadrant.out + "]")
+
+						g.grid[temp_row,temp_col].put (m_ent.icon,false) --add entity to sectors available quadrant position
+						g.grid[temp_row,temp_col].add_entity_to_all_lists (m_ent) -- add to all sector lists
+
+						create dest.default_create
+						temp_index := g.grid[temp_row,temp_col].recently_added -- index of recently added ent in quadrants
+						dest := [temp_row,temp_col,temp_index] -- assign to movable entities sector the row col and quadrant index
+
+						if not (dest ~ m_ent.sector) then
+							m_ent.sector := dest
+							wormhole_msg.append ("->[" + m_ent.sector.row.out + "," + m_ent.sector.col.out + "," + m_ent.sector.quadrant.out + "]")
 						end
 						movements.extend (wormhole_msg)
 						added := true
-
 					end
 
-				end
-				across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
-					movements.extend (curr.item)
-				end
-				if not g.explorer.death_msg.is_empty then
-					g.grid[g.explorer.sector.row,g.explorer.sector.col].contents[g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.index_of (g.explorer.icon, 1)] := create {ENTITY_ALPHABET}.make ('-')
-					from
-						g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.start
-					until
-						g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.exhausted
-					loop
-						if g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.item ~ g.explorer then
-							g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.replace (create {ENTITY}.make_entity (create {ENTITY_ALPHABET}.make ('-'), 150))
-						end
-						g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.forth
-					end
-				--	g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.prune (g.explorer)
-				end
-
-			end
+				end -- end from loop
+			end -- end is valid
 		end
 
 	status
@@ -475,9 +604,9 @@ feature -- model operations
 				next_state(false)
 
 			else
-				across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
-					movements.extend (curr.item)
-				end
+--				across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
+--					movements.extend (curr.item)
+--				end
 				next_state(true)
 			end
 
@@ -487,7 +616,7 @@ feature -- model operations
 		do
 			clear_messages
 			if in_game then
-				abort_msg.append ("Mission aborted. Try test(30)")
+				abort_msg.append ("Mission aborted. Try test(3,5,7,15,30)")
 			else
 				abort_err.append ("Negative on that request:no mission in progress.")
 			end
@@ -521,7 +650,6 @@ feature -- model operations
 			create move_err.make_empty
 			create land_err.make_empty
 			create pass_err.make_empty
-			create move_err.make_empty
 			create move_msg.make_empty
 			create movements.make
 			create play_err.make_empty
@@ -529,6 +657,14 @@ feature -- model operations
 			g.explorer.death_msg.make_empty
 		end
 
+feature -- queries
+
+	no_error : BOOLEAN
+		do
+			Result := (land_err.is_empty and liftoff_err.is_empty and wormhole_err.is_empty and status_err.is_empty
+					 and abort_err.is_empty and move_err.is_empty and land_err.is_empty and pass_err.is_empty
+					 and play_err.is_empty and test_err.is_empty)
+		end
 
 feature -- queries
 
@@ -561,7 +697,7 @@ feature -- queries
 					Result.append ("state:" + state1.out + "." + state2.out +", ok%N")
 					Result.append ("  ")
 					if state1 = 0 and state2 = 0 then
-						Result.append ("Welcome! Try test(30)")
+						Result.append ("Welcome! Try test(3,5,7,15,30)")
 					end
 				end
 			end

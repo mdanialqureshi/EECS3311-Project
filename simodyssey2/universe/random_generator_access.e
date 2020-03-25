@@ -31,6 +31,7 @@ feature -- Query
         do
             gen := gen_access.debug_gen
             Result := gen.num\\(high-low + 1) + low
+--            print ("   RAN : " + Result.out)
             gen.forth
         end
 

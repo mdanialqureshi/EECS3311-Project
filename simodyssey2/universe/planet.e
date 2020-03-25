@@ -36,12 +36,48 @@ feature -- Variables
 
 	in_orbit: BOOLEAN assign set_in_orbit
 	in_orbit_icon : CHARACTER
-	support_life: BOOLEAN
+	support_life: BOOLEAN assign set_support_life
 	death_msg : STRING
 	visited : BOOLEAN assign set_visited
 	first_check: BOOLEAN assign set_first_check
 
 feature --commands
+
+	check_planet(cur_sector : SECTOR)
+		local
+			contents : ARRAYED_LIST [ENTITY_ALPHABET]
+		do
+			contents := cur_sector.contents
+
+			if contents.has (create {ENTITY_ALPHABET}.make ('O')) then
+				is_alive := false -- planet is killed by blackhole (Remove from planets array in galaxy and dont place
+								  -- the planet in the new sector after movement from old sector
+				death_msg.append("Planet got devoured by blackhole (id: -1) at Sector:3:3")
+			end
+
+			if not (is_alive) then -- remove from board if its no longer alive
+				cur_sector.remove_entity(Current, true) -- removes from all sector lists and
+			end
+
+		end
+
+	new_behave(cur_sector : SECTOR)
+		local
+			contents : ARRAYED_LIST[ENTITY_ALPHABET]
+		do
+			contents := cur_sector.contents
+
+			if contents.has (create {ENTITY_ALPHABET}.make ('Y')) or contents.has (create {ENTITY_ALPHABET}.make ('*')) then
+				in_orbit := true
+				if contents.has (create {ENTITY_ALPHABET}.make ('Y')) then
+					if gen.rchoose (1, 2) = 2 then
+						support_life := true
+					end
+				end
+			else
+				turns_left := gen.rchoose (0, 2)
+			end
+		end
 
 	behave(contents : ARRAYED_LIST [ENTITY_ALPHABET])
 
@@ -85,6 +121,10 @@ feature -- commands
 			visited := is_visited
 		end
 
+	set_support_life(sup_life: BOOLEAN)
+		do
+			support_life := sup_life
+		end
 
 
 end

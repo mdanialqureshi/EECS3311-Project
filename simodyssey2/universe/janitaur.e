@@ -67,11 +67,15 @@ feature -- commands
 				death_msg.append ("Janitaur got devoured by blackhole (id: -1) at Sector:3:3")
 			end
 			-- asteroid death handled in asteroid class
+			
+			if not (is_alive) then -- remove from board if its no longer alive
+				cur_sector.remove_entity(Current, true) -- removes from all sector lists and
+			end
 
 		end
 
 
-	reproduce(cur_sector : SECTOR; next_movable_id: INTEGER) --reproduces every 3 turns
+	reproduce(cur_sector : SECTOR; next_movable_id: INTEGER) : BOOLEAN --reproduces every 3 turns
 		local
 			new_janitaur : JANITAUR
 			location : TUPLE [INTEGER_32, INTEGER_32, INTEGER_32]
@@ -79,34 +83,21 @@ feature -- commands
 			counter : INTEGER
 			added : BOOLEAN
 		do
+			Result := false
 			if not (cur_sector.is_full) and actions_left_until_reproduction = 0 then
 				-- impelement
 				create location.default_create
-				added := false
-				counter := sector.quadrant + 1 -- the next quadrant beside this benign
-				from -- find free quadrent after parent benign
-					cur_sector.contents.start
-				until
-					added -- loop must terminate b/c sector isnt full
-				loop
-					if cur_sector.contents[counter].item ~ '-' and counter <= 4 then
-						quad := counter
-						added := true
-					end
-					counter := counter + 1
-					if counter > 4 then
-						counter := 1
-					end
-				end
-				location := [sector.row,sector.col,quad]
 				-- create the reproduced one
 				create new_janitaur.make (next_movable_id, gen.rchoose (0, 2),location)
-
+				cur_sector.put (new_janitaur.icon, false) --add entity to sectors available contents quadrant position
+				quad := cur_sector.recently_added
+				location := [sector.row,sector.col,quad]
+				new_janitaur.sector := location
 				-- add it to all the sectors lists
 				if attached{ENTITY}new_janitaur as add then
 					cur_sector.add_entity_to_all_lists (add)
 				end
-
+				Result := true -- successfully reproduced
 				actions_left_until_reproduction := 2 --reset for next reproduction
 			else -- end if
 				if not (actions_left_until_reproduction = 0) then
@@ -137,7 +128,7 @@ feature -- commands
 						sorted_movable_sector_ents.exhausted
 					loop
 						if  sorted_movable_sector_ents.item.is_asteroid and load < max_load then
-							cur_sector.remove_entity(sorted_movable_sector_ents.item) -- removes from all sector lists and
+							cur_sector.remove_entity(sorted_movable_sector_ents.item,true) -- removes from all sector lists and
 							-- sets is alive to false if the entity being passed in is movable
 							load := load + 1 -- killed an asteroid so load increases
 						end

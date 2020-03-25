@@ -39,7 +39,7 @@ feature -- attributes
 			Result := <<[-1,0],[-1,1],[0,1],[1,1],[1,0],[1,-1],[0,-1],[-1,-1]>>
 		end
 	max_movable_entity_id : INTEGER -- the current largest movable entity id
-
+	next_movable_id : INTEGER assign set_next_movable_id
 
 feature --constructor
 
@@ -67,6 +67,7 @@ feature --constructor
 			create stationary_items.make
 			test_mode := is_test_mode
 			stationary_count := -2
+			next_movable_id := 1
 
 			from
 				row := 1
@@ -80,12 +81,13 @@ feature --constructor
 					column > shared_info.number_columns
 				loop
 					max_movable_entity_id := movable_entities.count
-					grid[row,column] := create {SECTOR}.make(row,column,explorer,(max_movable_entity_id + 1))
+					grid[row,column] := create {SECTOR}.make(row,column,explorer,(next_movable_id))
 
 					across grid[row,column].movable_entities as curr
 					loop
 						movable_entities.extend (curr.item)
 					end
+						next_movable_id := movable_entities.count + 1
 
 					column:= column + 1;
 
@@ -213,6 +215,11 @@ feature --commands
 	clear_dead_planets
 		do
 			create dead_planets.make
+		end
+
+	set_next_movable_id(next : INTEGER)
+		do
+			next_movable_id := next
 		end
 
 feature {NONE} -- command

@@ -25,6 +25,7 @@ feature -- Constructor
 			fuel := 3
 			life := 3
 			is_landed := false
+			is_alive := true
 			create death_msg.make_empty
 		end
 
@@ -50,10 +51,10 @@ feature --commands
 
 feature --commands
 
-	update_explorer(contents : ARRAYED_LIST [ENTITY_ALPHABET]; used_wormhole : BOOLEAN)
+	update_explorer(contents : ARRAYED_LIST [ENTITY_ALPHABET]; used_wormhole : BOOLEAN; moved : BOOLEAN)
 		do
 
-		if not(used_wormhole) then
+		if not(used_wormhole) and moved then
 			fuel := fuel - 1
 		end
 
@@ -68,9 +69,11 @@ feature --commands
 		end
 		--@@@@ have to add condition for life =0 out of life @@@@---
 		if fuel = 0 then
+			is_alive := false
 			life := 0
 			death_msg.append ("Explorer got lost in space - out of fuel at Sector:" + sector.row.out + ":" + sector.col.out)
 		elseif contents.has (create {ENTITY_ALPHABET}.make ('O')) then
+			is_alive := false
 			life := 0
 			death_msg.append ("Explorer got devoured by blackhole (id: -1) at Sector:3:3")
 		end

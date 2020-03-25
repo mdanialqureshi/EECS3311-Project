@@ -254,7 +254,9 @@ feature --command
 
 				end
 				contents_count := contents_count + 1
-				if new_component ~ (create {ENTITY_ALPHABET}.make ('P')) and check_first then
+				if (new_component ~ (create {ENTITY_ALPHABET}.make ('P')) or new_component ~ (create {ENTITY_ALPHABET}.make ('J'))
+					or new_component ~ (create {ENTITY_ALPHABET}.make ('B')) or new_component ~ (create {ENTITY_ALPHABET}.make ('M'))
+					or new_component ~ (create {ENTITY_ALPHABET}.make ('A')))  and check_first then
 					movable_entities[movable_entities.count].sector.quadrant := contents_count
 				end
 
@@ -409,7 +411,7 @@ feature -- Queries
 			end
 		end
 
-	remove_entity(ent : ENTITY)
+	remove_entity(ent : ENTITY;kill : BOOLEAN)
 		do
 			-- remove from entities
 			from
@@ -431,7 +433,9 @@ feature -- Queries
 			loop
 				if attached{MOVABLE_ENTITY}ent as curr_m_ent  then
 					if curr_m_ent.id ~ movable_entities.item.id then
-						movable_entities.item.is_alive := false -- item is dead
+						if kill then
+							movable_entities.item.is_alive := false -- item is dead	
+						end
 						movable_entities.remove
 					else
 						movable_entities.forth
@@ -450,16 +454,18 @@ feature -- Queries
 	add_entity_to_all_lists(ent : ENTITY)
 		do
 			add_to_entities_list (ent) -- add to entities list
+
 			if attached{MOVABLE_ENTITY}ent as curr_m_ent then --add to movable entities list
-				movable_entities.extend (curr_m_ent)
+				if not (curr_m_ent.is_explorer) then
+					movable_entities.extend (curr_m_ent)
+				end
 			end
 
-			--update the contents list by addition as well
-			if attached{MOVABLE_ENTITY}ent as curr_m_ent then
-				contents[curr_m_ent.sector.quadrant] := curr_m_ent.icon
-				contents_count := contents_count + 1 -- decrement contents count
-			end
-
+--			--update the contents list by addition as well
+--			if attached{MOVABLE_ENTITY}ent as curr_m_ent then
+--				contents[curr_m_ent.sector.quadrant] := curr_m_ent.icon
+--				contents_count := contents_count + 1 -- increment contents count
+--			end
 		end
 
 end

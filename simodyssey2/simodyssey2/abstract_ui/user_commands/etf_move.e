@@ -16,7 +16,7 @@ feature -- command
 			move_precond(dir)
     	do
 			-- perform some update on the model state
-			model.move(dir)
+			model.turn ("move", dir)
 			etf_cmd_container.on_change.notify ([Current])
     	end
 

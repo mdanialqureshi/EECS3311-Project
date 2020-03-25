@@ -1,0 +1,24 @@
+-- double wormhole case (land in a wormhole from wormhole)
+move(S)
+move(S)
+status
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+status
+pass
+pass
+status
+move(S)
+wormhole
+wormhole
+abort

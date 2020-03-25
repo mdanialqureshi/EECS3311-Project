@@ -14,7 +14,7 @@ feature -- command
 	pass
     	do
 			-- perform some update on the model state
-			model.pass
+			model.turn ("pass", 0)
 			etf_cmd_container.on_change.notify ([Current])
     	end
 

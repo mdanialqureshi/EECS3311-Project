@@ -1,0 +1,24 @@
+-- found life on a planet test case
+play
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+move(S)
+move(S)
+land

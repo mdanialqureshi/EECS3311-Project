@@ -43,7 +43,12 @@ feature -- commands
 				is_alive := false
 				death_msg.append ("Asteroid got devoured by blackhole (id: -1) at Sector:3:3")
 			end
-			-- janitaur condition is handled in janitaur class. 
+			-- janitaur condition is handled in janitaur class.
+			
+			if not (is_alive) then -- remove from board if its no longer alive
+				cur_sector.remove_entity(Current, true) -- removes from all sector lists and
+			end
+
 
 		end
 
@@ -67,10 +72,10 @@ feature -- commands
 						not (sorted_movable_sector_ents.item.is_planet) then
 							if attached{EXPLORER}sorted_movable_sector_ents.item as ex then -- is it an explorer, if so check if its landed
 								if not (ex.is_landed) then
-									cur_sector.remove_entity(sorted_movable_sector_ents.item) -- kill explorer if its not landed, ignore it if it is landed
+									cur_sector.remove_entity(sorted_movable_sector_ents.item,true) -- kill explorer if its not landed, ignore it if it is landed
 								end
 							else
-								cur_sector.remove_entity(sorted_movable_sector_ents.item) -- removes from all sector lists and
+								cur_sector.remove_entity(sorted_movable_sector_ents.item,true) -- removes from all sector lists and
 								-- sets is alive to false if the entity being passed in is movable
 							end
 					end
