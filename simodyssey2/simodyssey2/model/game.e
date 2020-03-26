@@ -90,7 +90,7 @@ feature -- model operations
 
 	play
 		do
-			clear_messages
+			clear_messages(false)
 			if not (in_game) then
 				in_game := true
 				test_mode := false
@@ -112,7 +112,7 @@ feature -- model operations
 
 	test(a_threshold: INTEGER_32 ; j_threshold: INTEGER_32 ; m_threshold: INTEGER_32 ; b_threshold: INTEGER_32 ; p_threshold: INTEGER_32)
 		do
-			clear_messages
+			clear_messages(false)
 			if in_game then -- in play mode
 				next_state (false)
 				test_err.append ("To start a new mission, please abort the current one first.")
@@ -262,20 +262,6 @@ feature -- model operations
 				create cur_reproduced.make -- empty it for next turn
 			end
 
-	update_movable_entities -- update the galaxy movable_entities list incase there was reproduction of entities
-		do
-			across 1|..| info.number_rows as i loop
-				across 1|..| info.number_columns as j loop
-					across 1|..| g.grid[i.item,j.item].movable_entities.count as k loop
-						if not (g.movable_entities.has (g.grid[i.item,j.item].movable_entities[k.item])) then
-							g.movable_entities.extend (g.grid[i.item,j.item].movable_entities[k.item]) -- add the new entity
-						end
-					end
-
-				end
-			end
-		end
-
 	act(action : STRING;dir : INTEGER)
 		do
 			if action.is_equal ("pass") then
@@ -298,7 +284,9 @@ feature -- model operations
 			dest : TUPLE[row:INTEGER;col:INTEGER;quadrant:INTEGER] --entities sector field to be updated
 			added: BOOLEAN
 			dir : INTEGER
+			cur_move_msg : STRING
 		do
+			create cur_move_msg.make_empty
 			added := false
 			dir := g.gen.rchoose (1, 8)
 			vector := g.directions[dir]
@@ -317,7 +305,8 @@ feature -- model operations
 			elseif dest.col = 6 then
 				dest.col := 1
 			end
-
+			cur_move_msg.append ("[" + m_ent.id.out + ","+ m_ent.icon.item.out + "]:[" + m_ent.sector.row.out + ","
+			+ m_ent.sector.col.out + "," + m_ent.sector.quadrant.out + "]")
 			if not g.grid[dest.row,dest.col].is_full then
 				moved := true
 				if attached{ENTITY}m_ent as ent then -- remove from all sector lists
@@ -328,10 +317,11 @@ feature -- model operations
 
 				dest.quadrant := g.grid[dest.row,dest.col].recently_added
 				m_ent.sector := dest
-
+				cur_move_msg.append ("->[" + m_ent.sector.row.out + "," + m_ent.sector.col.out + "," + m_ent.sector.quadrant.out + "]")
 				g.grid[dest.row,dest.col].add_entity_to_all_lists (m_ent) -- add to all sector lists
 
-			end
+			end -- end full check
+			movements.extend (cur_move_msg) -- add the move to string for output
 
 		end
 
@@ -344,7 +334,7 @@ feature -- model operations
 			is_valid : BOOLEAN
 			added: BOOLEAN
 		do
-			clear_messages
+			clear_messages(false)
 			added := false
 			is_valid := true
 			vector := g.directions[dir]
@@ -425,7 +415,7 @@ feature -- model operations
 			all_visited : BOOLEAN -- have all the planets in this sector already been visited?
 			not_found : BOOLEAN
 		do
-			clear_messages
+			clear_messages(false)
 			row := g.explorer.sector.row
 			col := g.explorer.sector.col
 			all_visited := true
@@ -497,7 +487,7 @@ feature -- model operations
 			col : INTEGER
 			is_valid : BOOLEAN
 		do
-			clear_messages
+			clear_messages(false)
 			is_valid := true
 			row := g.explorer.sector.row
 			col := g.explorer.sector.col
@@ -537,7 +527,11 @@ feature -- model operations
 			temp_index : INTEGER -- index of where entity is placed in quarant of a sector
 			added_ent: BOOLEAN
 		do
-			clear_messages
+			if not (m_ent.is_explorer) then
+				clear_messages(true)
+			else
+				clear_messages(false)
+			end
 			added := false
 			added_ent := false
 			is_valid := true
@@ -562,7 +556,6 @@ feature -- model operations
 
 				if m_ent.is_explorer then
 					next_state (true)
-					wormhole_msg.append ("[" + "0,E]:[" + m_ent.sector.row.out + "," + m_ent.sector.col.out + "," + m_ent.sector.quadrant.out + "]")
 				end
 				from
 					added := false
@@ -571,6 +564,8 @@ feature -- model operations
 				loop
 					temp_row := g.gen.rchoose (1,5)
 					temp_col := g.gen.rchoose (1,5)
+					wormhole_msg.append ("[" + m_ent.id.out + ","+ m_ent.icon.item.out + "]:[" + m_ent.sector.row.out + ","
+						+ m_ent.sector.col.out + "," + m_ent.sector.quadrant.out + "]")
 					if not (g.grid[temp_row,temp_col].is_full) or ((m_ent.sector.row ~ temp_row) and (m_ent.sector.col ~ temp_col)) then
 						used_wormhole := true
 						if attached{ENTITY}m_ent as ent then
@@ -583,15 +578,13 @@ feature -- model operations
 						create dest.default_create
 						temp_index := g.grid[temp_row,temp_col].recently_added -- index of recently added ent in quadrants
 						dest := [temp_row,temp_col,temp_index] -- assign to movable entities sector the row col and quadrant index
-
 						if not (dest ~ m_ent.sector) then
 							m_ent.sector := dest
 							wormhole_msg.append ("->[" + m_ent.sector.row.out + "," + m_ent.sector.col.out + "," + m_ent.sector.quadrant.out + "]")
 						end
-						movements.extend (wormhole_msg)
 						added := true
 					end
-
+					movements.extend (wormhole_msg)
 				end -- end from loop
 			end -- end is valid
 		end
@@ -602,7 +595,7 @@ feature -- model operations
 			col : INTEGER
 			quad : INTEGER
 		do
-			clear_messages
+			clear_messages(false)
 			if in_game then -- if its in game
 				row := g.explorer.sector.row
 				col := g.explorer.sector.col
@@ -624,13 +617,14 @@ feature -- model operations
 	pass
 
 		do
-			clear_messages
+			clear_messages(false)
 			if not in_game then
 				pass_err.append("Negative on that request:no mission in progress.")
 				next_state(false)
 
 			else
---				across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
+--				across g.check_planets as curr loop  -- check all the planets to see which ones
+--				need to be moved and iterate through the returned List of strings to append them to our movements List
 --					movements.extend (curr.item)
 --				end
 				next_state(true)
@@ -640,7 +634,7 @@ feature -- model operations
 
 	abort
 		do
-			clear_messages
+			clear_messages(false)
 			if in_game then
 				abort_msg.append ("Mission aborted. Try test(3,5,7,15,30)")
 			else
@@ -661,7 +655,7 @@ feature -- model operations
 
 		end
 
-	clear_messages --clear all error and success messages
+	clear_messages (using_wormhole : BOOLEAN) --clear all error and success messages
 		do
 			create land_err.make_empty
 			create land_msg.make_empty
@@ -677,10 +671,12 @@ feature -- model operations
 			create land_err.make_empty
 			create pass_err.make_empty
 			create move_msg.make_empty
-			create movements.make
 			create play_err.make_empty
 			create test_err.make_empty
 			g.explorer.death_msg.make_empty
+			if not (using_wormhole) then
+				create movements.make -- dont cleat movements if wormhole is being used
+			end
 		end
 
 feature -- queries
@@ -868,9 +864,9 @@ feature -- queries
 					"/3, life:" + g.explorer.life.out + "/3, landed?:" + g.explorer.boolean_icon (g.explorer.is_landed) + "%N")
 				end
 				across g.movable_entities as m_entity loop
-					if attached{PLANET}m_entity.item as p then
-						if p.is_alive then
 
+					if attached {PLANET}m_entity.item as p then
+						if p.is_alive then
 						Result.append ("    [" + p.id.out + "," + p.icon.item.out + "]->attached?:" +
 							p.boolean_icon (p.in_orbit) + ", support_life?:" + p.boolean_icon (p.support_life)
 							+ ", visited?:" + p.boolean_icon (p.visited) + ", turns_left:")
@@ -881,7 +877,41 @@ feature -- queries
 							end
 							Result.append ("%N")
 						end
-					end -- end attached if
+					end -- end attached planet
+
+					if attached {BENIGN}m_entity.item as b then
+						if b.is_alive then
+							Result.append ("    [" + b.id.out + "," + b.icon.item.out + "]->fuel:" +
+								b.fuel.out + "/3," + " actions_left_until_reproduction:" + b.actions_left_until_reproduction.out
+								+ "/1," + " turns_left:" + b.turns_left.out)
+							Result.append ("%N")
+						end
+					end -- end attached benign
+
+					if attached {MALEVOLENT}m_entity.item as m then
+						if m.is_alive then
+							Result.append ("    [" + m.id.out + "," + m.icon.item.out + "]->fuel:" +
+								m.fuel.out + "/3," + " actions_left_until_reproduction:" + m.actions_left_until_reproduction.out
+								+ "/1," + " turns_left:" + m.turns_left.out)
+							Result.append ("%N")
+						end
+					end -- end attached malevolent
+
+					if attached {JANITAUR}m_entity.item as j then
+						if j.is_alive then
+							Result.append ("    [" + j.id.out + "," + j.icon.item.out + "]->fuel:" +
+								j.fuel.out + "/5," + " load:" + j.load.out + "/2, actions_left_until_reproduction:" + j.actions_left_until_reproduction.out
+								+ "/2," + " turns_left:" + j.turns_left.out)
+							Result.append ("%N")
+						end
+					end -- end attached janitaur
+
+					if attached {ASTEROID}m_entity.item as a then
+						if a.is_alive then
+							Result.append ("    [" + a.id.out + "," + a.icon.item.out + "]->turns_left:" + a.turns_left.out)
+							Result.append ("%N")
+						end
+					end -- end attached asteroid
 				end -- end across
 		end
 
