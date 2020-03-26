@@ -1,8 +1,0 @@
-play
-pass
-pass
-pass
-pass
-abort
-
-move(S)

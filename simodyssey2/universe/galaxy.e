@@ -173,18 +173,7 @@ feature --commands
 						item.luminosity := 5
 					end
 					stationary_items.extend (item)
-					from
-						grid[temp_row,temp_column].entities.start
-					until
-						added
-					loop
-						if grid[temp_row,temp_column].entities.item.icon.item ~ '-'  then
-							grid[temp_row,temp_column].entities.replace (item)
-							added := true
-						end
-						grid[temp_row,temp_column].entities.forth
-					end
-					added := false
+					grid[temp_row,temp_column].add_to_entities_list (item)
 				--	check_sector.entities.extend (item)
 					stationary_count := stationary_count - 1
 					grid[temp_row,temp_column].put (icon,true)

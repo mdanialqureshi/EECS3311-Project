@@ -216,6 +216,9 @@ feature -- commands
 					added := true
 				end
 				entities.forth
+				if entities.exhausted then -- list is full
+					added := true
+				end
 			end
 			added := false
 		end
