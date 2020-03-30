@@ -1,0 +1,5 @@
+-- Test running out of fuel in test(1,1,1,1,30) mode
+test(1,1,1,1,30)
+move(S)
+move(E)
+move(E)

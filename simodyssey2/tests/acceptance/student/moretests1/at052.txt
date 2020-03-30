@@ -1,0 +1,7 @@
+-- Test (test(1,1,1,1,30) mode) land, liftoff, move
+test(1,1,1,1,30)
+move(S)
+move(S)
+land
+liftoff
+move(E)

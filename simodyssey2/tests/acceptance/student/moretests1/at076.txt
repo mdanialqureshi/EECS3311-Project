@@ -1,0 +1,27 @@
+-- test long no possible condition
+test(1,1,1,1,30)
+move(N)
+move(W)
+move(NW)
+land
+move(N)
+status
+wormhole
+move(NW)
+liftoff
+move(NW)
+land
+move(E)
+land
+status
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+land
+liftoff
+land

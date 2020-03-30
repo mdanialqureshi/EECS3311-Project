@@ -1,0 +1,29 @@
+-- Test (test(1,1,1,1,30) mode)
+-- move to YD going from 1->0 then 0->2 fuel
+-- pass and go from 2->3 fuel
+-- move out and back in 1->0 then 0->2 fuel
+-- land and go from 2->3 fuel
+-- pass and liftoff for extra checks
+
+test(1,1,1,1,30)
+status
+move(S)
+status
+move(E)
+status
+move(SW)
+status
+pass
+status
+move(E)
+status
+move(N)
+status
+move(SW)
+status
+land
+status
+pass
+status
+liftoff
+status

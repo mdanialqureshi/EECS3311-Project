@@ -1,0 +1,223 @@
+  state:0.0, ok
+  Welcome! Try test(1,1,1,1,30)
+->test(1,1,1,1,30)
+  state:1.0, mode:test(1,1,1,1,30), ok
+  Movement:none
+    (1:1)  (1:2)  (1:3)  (1:4)  (1:5)  
+    E---   *---   P---   ----   PP--   
+    (2:1)  (2:2)  (2:3)  (2:4)  (2:5)  
+    ----   ----   W---   ----   P---   
+    (3:1)  (3:2)  (3:3)  (3:4)  (3:5)  
+    PY--   ----   O---   PW--   ----   
+    (4:1)  (4:2)  (4:3)  (4:4)  (4:5)  
+    W---   P*--   P---   P*--   ----   
+    (5:1)  (5:2)  (5:3)  (5:4)  (5:5)  
+    PW--   ----   *---   ----   PW--   
+->status
+  state:1.1, mode:test(1,1,1,1,30), ok
+  Explorer status report:Travelling at cruise speed at [1,1,1]
+  Life units left:3, Fuel units left:3
+->move(S)
+  state:2.0, mode:test(1,1,1,1,30), ok
+  Movement:
+    [0,E]:[1,1,1]->[2,1,1]
+    [3,P]:[1,5,2]->[5,4,1]
+    [8,P]:[4,3,1]->[3,2,1]
+    (1:1)  (1:2)  (1:3)  (1:4)  (1:5)  
+    ----   *---   P---   ----   P---   
+    (2:1)  (2:2)  (2:3)  (2:4)  (2:5)  
+    E---   ----   W---   ----   P---   
+    (3:1)  (3:2)  (3:3)  (3:4)  (3:5)  
+    PY--   P---   O---   PW--   ----   
+    (4:1)  (4:2)  (4:3)  (4:4)  (4:5)  
+    W---   P*--   ----   P*--   ----   
+    (5:1)  (5:2)  (5:3)  (5:4)  (5:5)  
+    PW--   ----   *---   P---   PW--   
+->status
+  state:2.1, mode:test(1,1,1,1,30), ok
+  Explorer status report:Travelling at cruise speed at [2,1,1]
+  Life units left:3, Fuel units left:2
+->move(E)
+  state:3.0, mode:test(1,1,1,1,30), ok
+  Movement:
+    [0,E]:[2,1,1]->[2,2,1]
+    [8,P]:[3,2,1]->[4,1,2]
+    [10,P]:[5,1,1]->[1,2,2]
+    (1:1)  (1:2)  (1:3)  (1:4)  (1:5)  
+    ----   *P--   P---   ----   P---   
+    (2:1)  (2:2)  (2:3)  (2:4)  (2:5)  
+    ----   E---   W---   ----   P---   
+    (3:1)  (3:2)  (3:3)  (3:4)  (3:5)  
+    PY--   ----   O---   PW--   ----   
+    (4:1)  (4:2)  (4:3)  (4:4)  (4:5)  
+    WP--   P*--   ----   P*--   ----   
+    (5:1)  (5:2)  (5:3)  (5:4)  (5:5)  
+    -W--   ----   *---   P---   PW--   
+->status
+  state:3.1, mode:test(1,1,1,1,30), ok
+  Explorer status report:Travelling at cruise speed at [2,2,1]
+  Life units left:3, Fuel units left:1
+->move(SW)
+  state:4.0, mode:test(1,1,1,1,30), ok
+  Movement:
+    [0,E]:[2,2,1]->[3,1,3]
+    [1,P]:[1,3,1]->[2,4,1]
+    [2,P]:[1,5,1]->[5,1,1]
+    [4,P]:[2,5,1]->[2,1,1]
+    [6,P]:[3,4,1]->[4,4,3]
+    [11,P]:[5,5,1]->[5,4,2]
+    (1:1)  (1:2)  (1:3)  (1:4)  (1:5)  
+    ----   *P--   ----   ----   ----   
+    (2:1)  (2:2)  (2:3)  (2:4)  (2:5)  
+    P---   ----   W---   P---   ----   
+    (3:1)  (3:2)  (3:3)  (3:4)  (3:5)  
+    PYE-   ----   O---   -W--   ----   
+    (4:1)  (4:2)  (4:3)  (4:4)  (4:5)  
+    WP--   P*--   ----   P*P-   ----   
+    (5:1)  (5:2)  (5:3)  (5:4)  (5:5)  
+    PW--   ----   *---   PP--   -W--   
+->status
+  state:4.1, mode:test(1,1,1,1,30), ok
+  Explorer status report:Travelling at cruise speed at [3,1,3]
+  Life units left:3, Fuel units left:2
+->pass
+  state:5.0, mode:test(1,1,1,1,30), ok
+  Movement:
+    [1,P]:[2,4,1]->[1,3,1]
+    [3,P]:[5,4,1]->[1,3,2]
+    [4,P]:[2,1,1]->[2,5,1]
+    [8,P]:[4,1,2]->[5,5,1]
+    (1:1)  (1:2)  (1:3)  (1:4)  (1:5)  
+    ----   *P--   PP--   ----   ----   
+    (2:1)  (2:2)  (2:3)  (2:4)  (2:5)  
+    ----   ----   W---   ----   P---   
+    (3:1)  (3:2)  (3:3)  (3:4)  (3:5)  
+    PYE-   ----   O---   -W--   ----   
+    (4:1)  (4:2)  (4:3)  (4:4)  (4:5)  
+    W---   P*--   ----   P*P-   ----   
+    (5:1)  (5:2)  (5:3)  (5:4)  (5:5)  
+    PW--   ----   *---   -P--   PW--   
+->status
+  state:5.1, mode:test(1,1,1,1,30), ok
+  Explorer status report:Travelling at cruise speed at [3,1,3]
+  Life units left:3, Fuel units left:3
+->move(E)
+  state:6.0, mode:test(1,1,1,1,30), ok
+  Movement:
+    [0,E]:[3,1,3]->[3,2,1]
+    [1,P]:[1,3,1]->[5,3,2]
+    [3,P]:[1,3,2]->[2,2,1]
+    [4,P]:[2,5,1]->[3,5,1]
+    (1:1)  (1:2)  (1:3)  (1:4)  (1:5)  
+    ----   *P--   ----   ----   ----   
+    (2:1)  (2:2)  (2:3)  (2:4)  (2:5)  
+    ----   P---   W---   ----   ----   
+    (3:1)  (3:2)  (3:3)  (3:4)  (3:5)  
+    PY--   E---   O---   -W--   P---   
+    (4:1)  (4:2)  (4:3)  (4:4)  (4:5)  
+    W---   P*--   ----   P*P-   ----   
+    (5:1)  (5:2)  (5:3)  (5:4)  (5:5)  
+    PW--   ----   *P--   -P--   PW--   
+->status
+  state:6.1, mode:test(1,1,1,1,30), ok
+  Explorer status report:Travelling at cruise speed at [3,2,1]
+  Life units left:3, Fuel units left:2
+->move(N)
+  state:7.0, mode:test(1,1,1,1,30), ok
+  Movement:
+    [0,E]:[3,2,1]->[2,2,2]
+    [2,P]:[5,1,1]->[1,2,3]
+    [3,P]:[2,2,1]->[1,1,1]
+    [8,P]:[5,5,1]->[4,1,2]
+    [11,P]:[5,4,2]->[4,3,1]
+    (1:1)  (1:2)  (1:3)  (1:4)  (1:5)  
+    P---   *PP-   ----   ----   ----   
+    (2:1)  (2:2)  (2:3)  (2:4)  (2:5)  
+    ----   -E--   W---   ----   ----   
+    (3:1)  (3:2)  (3:3)  (3:4)  (3:5)  
+    PY--   ----   O---   -W--   P---   
+    (4:1)  (4:2)  (4:3)  (4:4)  (4:5)  
+    WP--   P*--   P---   P*P-   ----   
+    (5:1)  (5:2)  (5:3)  (5:4)  (5:5)  
+    -W--   ----   *P--   ----   -W--   
+->status
+  state:7.1, mode:test(1,1,1,1,30), ok
+  Explorer status report:Travelling at cruise speed at [2,2,2]
+  Life units left:3, Fuel units left:1
+->move(SW)
+  state:8.0, mode:test(1,1,1,1,30), ok
+  Movement:
+    [0,E]:[2,2,2]->[3,1,3]
+    [4,P]:[3,5,1]->[2,5,1]
+    (1:1)  (1:2)  (1:3)  (1:4)  (1:5)  
+    P---   *PP-   ----   ----   ----   
+    (2:1)  (2:2)  (2:3)  (2:4)  (2:5)  
+    ----   ----   W---   ----   P---   
+    (3:1)  (3:2)  (3:3)  (3:4)  (3:5)  
+    PYE-   ----   O---   -W--   ----   
+    (4:1)  (4:2)  (4:3)  (4:4)  (4:5)  
+    WP--   P*--   P---   P*P-   ----   
+    (5:1)  (5:2)  (5:3)  (5:4)  (5:5)  
+    -W--   ----   *P--   ----   -W--   
+->status
+  state:8.1, mode:test(1,1,1,1,30), ok
+  Explorer status report:Travelling at cruise speed at [3,1,3]
+  Life units left:3, Fuel units left:2
+->land
+  state:9.0, mode:test(1,1,1,1,30), ok
+  Explorer found no life as we know it at Sector:3:1
+  Movement:
+    [3,P]:[1,1,1]->[5,5,1]
+    [8,P]:[4,1,2]->[3,1,4]
+    (1:1)  (1:2)  (1:3)  (1:4)  (1:5)  
+    ----   *PP-   ----   ----   ----   
+    (2:1)  (2:2)  (2:3)  (2:4)  (2:5)  
+    ----   ----   W---   ----   P---   
+    (3:1)  (3:2)  (3:3)  (3:4)  (3:5)  
+    PYEP   ----   O---   -W--   ----   
+    (4:1)  (4:2)  (4:3)  (4:4)  (4:5)  
+    W---   P*--   P---   P*P-   ----   
+    (5:1)  (5:2)  (5:3)  (5:4)  (5:5)  
+    -W--   ----   *P--   ----   PW--   
+->status
+  state:9.1, mode:test(1,1,1,1,30), ok
+  Explorer status report:Stationary on planet surface at [3,1,3]
+  Life units left:3, Fuel units left:3
+->pass
+  state:10.0, mode:test(1,1,1,1,30), ok
+  Movement:
+    [3,P]:[5,5,1]->[4,4,4]
+    [11,P]:[4,3,1]->[3,2,1]
+    (1:1)  (1:2)  (1:3)  (1:4)  (1:5)  
+    ----   *PP-   ----   ----   ----   
+    (2:1)  (2:2)  (2:3)  (2:4)  (2:5)  
+    ----   ----   W---   ----   P---   
+    (3:1)  (3:2)  (3:3)  (3:4)  (3:5)  
+    PYEP   P---   O---   -W--   ----   
+    (4:1)  (4:2)  (4:3)  (4:4)  (4:5)  
+    W---   P*--   ----   P*PP   ----   
+    (5:1)  (5:2)  (5:3)  (5:4)  (5:5)  
+    -W--   ----   *P--   ----   -W--   
+->status
+  state:10.1, mode:test(1,1,1,1,30), ok
+  Explorer status report:Stationary on planet surface at [3,1,3]
+  Life units left:3, Fuel units left:3
+->liftoff
+  state:11.0, mode:test(1,1,1,1,30), ok
+  Explorer has lifted off from planet at Sector:3:1
+  Movement:
+    [4,P]:[2,5,1]->[2,4,1]
+    (1:1)  (1:2)  (1:3)  (1:4)  (1:5)  
+    ----   *PP-   ----   ----   ----   
+    (2:1)  (2:2)  (2:3)  (2:4)  (2:5)  
+    ----   ----   W---   P---   ----   
+    (3:1)  (3:2)  (3:3)  (3:4)  (3:5)  
+    PYEP   P---   O---   -W--   ----   
+    (4:1)  (4:2)  (4:3)  (4:4)  (4:5)  
+    W---   P*--   ----   P*PP   ----   
+    (5:1)  (5:2)  (5:3)  (5:4)  (5:5)  
+    -W--   ----   *P--   ----   -W--   
+->status
+  state:11.1, mode:test(1,1,1,1,30), ok
+  Explorer status report:Travelling at cruise speed at [3,1,3]
+  Life units left:3, Fuel units left:3

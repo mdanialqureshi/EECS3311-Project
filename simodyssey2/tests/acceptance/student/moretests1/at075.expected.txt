@@ -1,0 +1,17 @@
+  state:0.0, ok
+  Welcome! Try test(1,1,1,1,30)
+->move(E)
+  state:0.1, error
+  Negative on that request:no mission in progress.
+->land
+  state:0.2, error
+  Negative on that request:no mission in progress.
+->move(SW)
+  state:0.3, error
+  Negative on that request:no mission in progress.
+->move(W)
+  state:0.4, error
+  Negative on that request:no mission in progress.
+->move(N)
+  state:0.5, error
+  Negative on that request:no mission in progress.

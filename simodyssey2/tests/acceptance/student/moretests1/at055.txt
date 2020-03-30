@@ -1,0 +1,8 @@
+-- Test (test(1,1,1,1,30) mode) landed status
+test(1,1,1,1,30)
+move(S)
+move(S)
+land
+status
+liftoff
+move(E)

@@ -1,0 +1,105 @@
+  state:0.0, ok
+  Welcome! Try test(1,1,1,1,30)
+->move(N)
+  state:0.1, error
+  Negative on that request:no mission in progress.
+->abort
+  state:0.2, error
+  Negative on that request:no mission in progress.
+->test(1,1,1,1,30)
+  state:1.0, mode:test(1,1,1,1,30), ok
+  Movement:none
+    (1:1)  (1:2)  (1:3)  (1:4)  (1:5)  
+    E---   *---   P---   ----   PP--   
+    (2:1)  (2:2)  (2:3)  (2:4)  (2:5)  
+    ----   ----   W---   ----   P---   
+    (3:1)  (3:2)  (3:3)  (3:4)  (3:5)  
+    PY--   ----   O---   PW--   ----   
+    (4:1)  (4:2)  (4:3)  (4:4)  (4:5)  
+    W---   P*--   P---   P*--   ----   
+    (5:1)  (5:2)  (5:3)  (5:4)  (5:5)  
+    PW--   ----   *---   ----   PW--   
+->test(1,1,1,1,30)
+  state:1.1, mode:test(1,1,1,1,30), error
+  To start a new mission, please abort the current one first.
+->test(1,1,1,1,20)
+  state:1.2, mode:test(1,1,1,1,30), error
+  To start a new mission, please abort the current one first.
+->test(1,1,1,1,30)
+  state:1.3, mode:test(1,1,1,1,30), error
+  To start a new mission, please abort the current one first.
+->abort
+  state:1.4, ok
+  Mission aborted. Try test(1,1,1,1,30)
+->test(1,1,1,1,20)
+  state:2.0, mode:test, ok
+  Movement:none
+  Sectors:
+    [1,1]->[0,E],[-9,W],-,-
+    [1,2]->[-3,*],-,-,-
+    [1,3]->[1,P],[2,P],-,-
+    [1,4]->[3,P],-,-,-
+    [1,5]->[4,P],-,-,-
+    [2,1]->[-11,Y],-,-,-
+    [2,2]->[-10,W],-,-,-
+    [2,3]->-,-,-,-
+    [2,4]->-,-,-,-
+    [2,5]->[-6,Y],-,-,-
+    [3,1]->-,-,-,-
+    [3,2]->[5,P],-,-,-
+    [3,3]->[-1,O],-,-,-
+    [3,4]->-,-,-,-
+    [3,5]->[-7,Y],-,-,-
+    [4,1]->[-5,Y],-,-,-
+    [4,2]->[-8,*],-,-,-
+    [4,3]->-,-,-,-
+    [4,4]->[-2,*],-,-,-
+    [4,5]->[-4,Y],-,-,-
+    [5,1]->[6,P],-,-,-
+    [5,2]->-,-,-,-
+    [5,3]->-,-,-,-
+    [5,4]->-,-,-,-
+    [5,5]->[7,P],-,-,-
+  Descriptions:
+    [-11,Y]->Luminosity:2
+    [-10,W]->
+    [-9,W]->
+    [-8,*]->Luminosity:5
+    [-7,Y]->Luminosity:2
+    [-6,Y]->Luminosity:2
+    [-5,Y]->Luminosity:2
+    [-4,Y]->Luminosity:2
+    [-3,*]->Luminosity:5
+    [-2,*]->Luminosity:5
+    [-1,O]->
+    [0,E]->fuel:3/3, life:3/3, landed?:F
+    [1,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [2,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [3,P]->attached?:F, support_life?:F, visited?:F, turns_left:2
+    [4,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [5,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+    [6,P]->attached?:F, support_life?:F, visited?:F, turns_left:1
+    [7,P]->attached?:F, support_life?:F, visited?:F, turns_left:0
+  Deaths This Turn:none
+    (1:1)  (1:2)  (1:3)  (1:4)  (1:5)  
+    EW--   *---   PP--   P---   P---   
+    (2:1)  (2:2)  (2:3)  (2:4)  (2:5)  
+    Y---   W---   ----   ----   Y---   
+    (3:1)  (3:2)  (3:3)  (3:4)  (3:5)  
+    ----   P---   O---   ----   Y---   
+    (4:1)  (4:2)  (4:3)  (4:4)  (4:5)  
+    Y---   *---   ----   *---   Y---   
+    (5:1)  (5:2)  (5:3)  (5:4)  (5:5)  
+    P---   ----   ----   ----   P---   
+->test(1,1,1,1,30)
+  state:2.1, mode:test, error
+  To start a new mission, please abort the current one first.
+->test(1,1,1,1,20)
+  state:2.2, mode:test, error
+  To start a new mission, please abort the current one first.
+->test(1,1,1,1,30)
+  state:2.3, mode:test, error
+  To start a new mission, please abort the current one first.
+->abort
+  state:2.4, ok
+  Mission aborted. Try test(1,1,1,1,30)

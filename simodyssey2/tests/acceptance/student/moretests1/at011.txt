@@ -1,0 +1,14 @@
+-- Test refueling.
+test(1,1,1,1,30)
+
+-- full refuel blue giant (1 -> 3)
+move(W)
+move(E)
+move(E)
+
+-- partial refuel yellow dwarf (0 -> 2)
+move(S)
+move(S)
+move(W)
+
+abort

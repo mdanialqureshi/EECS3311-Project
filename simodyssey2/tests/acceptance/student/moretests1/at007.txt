@@ -1,0 +1,15 @@
+-- Test not in game precondition.
+move(N)
+abort
+
+test(1,1,1,1,30)
+test(1,1,1,1,30)
+test(1,1,1,1,20)
+test(1,1,1,1,30)
+abort
+
+test(1,1,1,1,20)
+test(1,1,1,1,30)
+test(1,1,1,1,20)
+test(1,1,1,1,30)
+abort

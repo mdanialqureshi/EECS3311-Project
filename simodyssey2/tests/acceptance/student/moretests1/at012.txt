@@ -1,0 +1,40 @@
+-- Test land preconditions.
+test(1,1,1,1,40)
+
+-- planet but no star
+land
+
+
+
+-- planet but only blue giant (no YD)
+move(E)
+land
+
+-- yellow dwarf near planet not supporting life
+move(S)
+move(S)
+move(W)
+land
+
+-- multiple landing
+land
+land
+
+liftoff
+
+-- yellow dwarf with no planets nearby
+move(S)
+move(S)
+land
+
+-- no unvisited planets left
+move(N)
+move(S)
+land
+liftoff
+land
+
+abort
+
+
+

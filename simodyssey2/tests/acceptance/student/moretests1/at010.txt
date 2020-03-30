@@ -1,0 +1,27 @@
+-- Test wormhole preconditions.
+test(1,1,1,1,30)
+wormhole
+move(E)
+wormhole
+
+--- successful wormhole
+move(E)
+move(S)
+wormhole
+
+-- successful wormhole
+move(E)
+move(S)
+wormhole
+
+wormhole
+
+move(N)
+move(W)
+move(W)
+move(N)
+land
+
+wormhole
+
+abort

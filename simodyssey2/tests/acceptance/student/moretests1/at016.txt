@@ -1,0 +1,6 @@
+-- Test blackhole in test(1,1,1,1,30) mode
+test(1,1,1,1,30)
+move(E)
+move(E)
+move(S)
+move(S)

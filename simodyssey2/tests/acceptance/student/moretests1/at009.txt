@@ -1,0 +1,14 @@
+-- Test move preconditions 2.
+--toggle_RNG_out
+test(1,1,1,1,80)
+pass
+-- try to move into full sector
+move(E)
+-- land on planet
+move(SE)
+land
+
+-- try to move into full sector while landed (test err msg priority)
+move(N)
+
+abort

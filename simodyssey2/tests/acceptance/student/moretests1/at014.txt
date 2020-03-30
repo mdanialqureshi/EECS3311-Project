@@ -1,0 +1,37 @@
+-- Test reset after win and death.
+--toggle_RNG_out
+-- test reset after win
+test(1,1,1,1,30)
+move(N)
+wormhole
+move(SW)
+land -- winning move
+
+abort
+land
+liftoff
+move(N)
+move(W)
+pass
+wormhole
+status
+
+-- test reset after death
+test(1,1,1,1,30)
+move(E)
+move(S)
+move(E)
+move(S)
+
+
+abort
+land
+liftoff
+move(N)
+move(W)
+pass
+wormhole
+status
+
+test(1,1,1,1,30)
+abort

@@ -1,0 +1,24 @@
+-- Test liftoff preconditions.
+liftoff
+test(1,1,1,1,40)
+liftoff
+
+-- planet but no star
+land
+liftoff
+
+-- planet but only blue giant (no YD)
+move(E)
+land
+liftoff
+
+-- yellow dwarf near planet not supporting life
+move(S)
+move(S)
+move(W)
+land
+
+liftoff
+liftoff
+
+abort

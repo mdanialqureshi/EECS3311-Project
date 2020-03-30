@@ -1,0 +1,16 @@
+-- Tests winning condition in test(1,1,1,1,30) mode.
+test(1,1,1,1,30)
+abort
+test(1,1,1,1,30)
+abort
+test(1,1,1,1,30)
+abort
+test(1,1,1,1,30)
+abort
+test(1,1,1,1,30)
+abort
+test(1,1,1,1,30)
+move(N)
+move(NE)
+move(SW)
+land

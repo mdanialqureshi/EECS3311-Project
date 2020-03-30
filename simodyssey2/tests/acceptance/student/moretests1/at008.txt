@@ -1,0 +1,14 @@
+-- Test move preconditions.
+test(1,1,1,1,30)
+
+-- land on planet without life
+move(S)
+move(S)
+land
+
+-- move while landed
+move(N)
+move(S)
+move(SW)
+
+abort
