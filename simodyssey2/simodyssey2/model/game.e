@@ -160,7 +160,7 @@ feature -- model operations
 								-- special case for planet
 								if m_entity.item.is_planet and (g.grid[m_entity.item.sector.row,m_entity.item.sector.col].contents.has (create {ENTITY_ALPHABET}.make ('Y'))
 									or g.grid[m_entity.item.sector.row,m_entity.item.sector.col].contents.has (create {ENTITY_ALPHABET}.make ('*'))) then
-										if attached {PLANET}m_entity as planet then
+										if attached {PLANET}m_entity.item as planet then
 											planet.in_orbit := true
 											if g.grid[planet.sector.row,planet.sector.col].contents.has (create {ENTITY_ALPHABET}.make ('Y')) then
 												if g.gen.rchoose (1, 2) = 2 then
