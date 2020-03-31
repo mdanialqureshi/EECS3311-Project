@@ -1,5 +1,4 @@
 -- to do list
-Planet 9 doesn't attach to star after turns left = 0 (planet alrdy on a star sector initially) 
 
 add reproduced and destroyed outputs 
 
