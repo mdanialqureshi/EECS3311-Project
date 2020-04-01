@@ -146,6 +146,7 @@ feature -- model operations
 					g.explorer.update_explorer(g.grid[g.explorer.sector.row,g.explorer.sector.col].contents, used_wormhole,moved) -- update explorer (fuel life etc)
 					if not g.explorer.is_alive then --dead explorer
 						g.grid[g.explorer.sector.row,g.explorer.sector.col].remove_entity (g.explorer,true) -- if explorer died, remove
+						in_game := false
 					end
 
 					if not(land_msg.is_equal ("Tranquility base here - we've got a life!")) then
@@ -270,7 +271,7 @@ feature -- model operations
 				moved := false -- reset for every entity
 				used_wormhole := false
 				across cur_reproduced as reprod loop
-					if not (g.movable_entities.has (reprod.item)) then
+					if not (g.movable_entities.has (reprod.item)) and not(reprod.item.is_explorer) then
 						g.movable_entities.extend (reprod.item) -- add new reproduced movable entities from last turn to g.movable_entities
 					end
 				end

@@ -3,3 +3,5 @@
 add reproduced and destroyed outputs 
 
 Test mode fucks up on high thresholds ( it used to give array out of bounds exception but in side the method add_to_entities list inside SECTOR i added a part that said if exhausted then added :=true). The array index issue is fixed but it fucks up placement.
+
+Game must end after asteroid or other entity kill the explorer. 

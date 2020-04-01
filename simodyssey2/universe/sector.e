@@ -481,9 +481,9 @@ feature -- Queries
 			add_to_entities_list (ent) -- add to entities list
 
 			if attached{MOVABLE_ENTITY}ent as curr_m_ent then --add to movable entities list
-				if not (curr_m_ent.is_explorer) then
+--				if not (curr_m_ent.is_explorer) then
 					movable_entities.extend (curr_m_ent)
-				end
+--				end
 			end
 
 --			--update the contents list by addition as well

@@ -72,7 +72,6 @@ feature -- commands
 				loop
 					if  not (sorted_movable_sector_ents.item.is_asteroid) and -- if its not an asteroid of a planet kill it
 						not (sorted_movable_sector_ents.item.is_planet) then
-
 							if attached{EXPLORER}sorted_movable_sector_ents.item as ex then -- is it an explorer, if so check if its landed
 								if not (ex.is_landed) then
 									destroy_msg.extend ("  destroyed [0,E] at [" + ex.sector.row.out + "," + ex.sector.col.out + "," + ex.sector.quadrant.out + "]")

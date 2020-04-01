@@ -85,7 +85,9 @@ feature --constructor
 
 					across grid[row,column].movable_entities as curr
 					loop
-						movable_entities.extend (curr.item)
+						if not curr.item.is_explorer then
+							movable_entities.extend (curr.item)
+						end
 					end
 						next_movable_id := next_movable_id + grid[row,column].movable_entities.count
 					--	next_movable_id := movable_entities.count + 1
