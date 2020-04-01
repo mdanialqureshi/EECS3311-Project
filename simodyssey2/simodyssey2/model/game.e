@@ -161,10 +161,12 @@ feature -- model operations
 								if m_entity.item.is_planet and (g.grid[m_entity.item.sector.row,m_entity.item.sector.col].contents.has (create {ENTITY_ALPHABET}.make ('Y'))
 									or g.grid[m_entity.item.sector.row,m_entity.item.sector.col].contents.has (create {ENTITY_ALPHABET}.make ('*'))) then
 										if attached {PLANET}m_entity.item as planet then
-											planet.in_orbit := true
-											if g.grid[planet.sector.row,planet.sector.col].contents.has (create {ENTITY_ALPHABET}.make ('Y')) then
-												if g.gen.rchoose (1, 2) = 2 then
-													planet.support_life := true
+											if not planet.in_orbit then
+												planet.in_orbit := true
+												if g.grid[planet.sector.row,planet.sector.col].contents.has (create {ENTITY_ALPHABET}.make ('Y')) then
+													if g.gen.rchoose (1, 2) = 2 then
+														planet.support_life := true
+													end
 												end
 											end
 										end
@@ -241,6 +243,9 @@ feature -- model operations
 										end
 										if attached {PLANET}m_entity.item as p then
 											p.new_behave (g.grid[p.sector.row,p.sector.col])
+										end
+										if attached {ASTEROID}m_entity.item as a then
+											a.behave (g.grid[a.sector.row,a.sector.col])
 										end
 
 									end -- end entitiy alive check

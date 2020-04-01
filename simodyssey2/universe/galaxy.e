@@ -87,7 +87,8 @@ feature --constructor
 					loop
 						movable_entities.extend (curr.item)
 					end
-						next_movable_id := movable_entities.count + 1
+						next_movable_id := next_movable_id + grid[row,column].movable_entities.count
+					--	next_movable_id := movable_entities.count + 1
 
 					column:= column + 1;
 

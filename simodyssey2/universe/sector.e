@@ -97,10 +97,15 @@ feature -- commands
 			loop_counter: INTEGER
 			component: ENTITY_ALPHABET
 			planet: PLANET
+			add_p : BOOLEAN
 			benign : BENIGN
+			add_b : BOOLEAN
 			janitaur : JANITAUR
+			add_j : BOOLEAN
 			asteroid : ASTEROID
+			add_a : BOOLEAN
 			malevolent : MALEVOLENT
+			add_m : BOOLEAN
 			added: BOOLEAN
 		do
 			added := false
@@ -112,31 +117,41 @@ feature -- commands
 			loop
 				threshold := gen.rchoose (1, 100) -- each iteration, generate a new value to compare against the threshold values provided by `test` or `play`
 
+				add_p := false
+				add_b := false
+				add_j := false
+				add_a := false
+				add_m := false
 
 				if threshold < shared_info.asteroid_threshold then
 					create asteroid.make (movable_entity_id, gen.rchoose (0, 2), [row,column,0])
 					movable_entity_id := movable_entity_id + 1
 					component := asteroid.icon
+					add_a := true
 				else
 					if threshold < shared_info.janitaur_threshold then
 						create janitaur.make (movable_entity_id, gen.rchoose (0, 2), [row,column,0])
 						movable_entity_id := movable_entity_id + 1
 						component := janitaur.icon
+						add_j := true
 					else
 						if (threshold < shared_info.malevolent_threshold) then
 								create malevolent.make (movable_entity_id, gen.rchoose (0, 2), [row,column,0])
 								movable_entity_id := movable_entity_id + 1
 								component := malevolent.icon
+								add_m := true
 						else
 							if (threshold < shared_info.benign_threshold) then
 								create benign.make (movable_entity_id, gen.rchoose (0, 2), [row,column,0])
 								movable_entity_id := movable_entity_id + 1
 								component := benign.icon
+								add_b := true
 							else
 								if threshold < shared_info.planet_threshold then
 									create planet.make (movable_entity_id,gen.rchoose (0, 2),[row,column,0])
 									movable_entity_id := movable_entity_id + 1
 									component := planet.icon
+									add_p := true
 								end
 							end
 						end
@@ -147,45 +162,45 @@ feature -- commands
 				if attached component as entity then
 
 
-					if attached asteroid as a then
+					if attached asteroid as a and add_a then
 						movable_entities.extend (a)
 					end
 
-					if attached janitaur as j then
+					if attached janitaur as j and add_j then
 						movable_entities.extend (j)
 					end
 
-					if attached malevolent as m then
+					if attached malevolent as m and add_m then
 						movable_entities.extend (m)
 					end
 
-					if attached benign as b then
+					if attached benign as b and add_b then
 						movable_entities.extend (b)
 					end
 
-					if attached planet as p then
+					if attached planet as p and add_p then
 						movable_entities.extend (p)
 					end
 
 					put (entity,true) -- add new entity to the contents list
 					-- add new entity to entites array
-					if attached {ENTITY} asteroid as add then
+					if attached {ENTITY} asteroid as add and add_a then
 						add_to_entities_list (add)
 					end
 
-					if attached {ENTITY} janitaur as add then
+					if attached {ENTITY} janitaur as add and add_j then
 						add_to_entities_list (add)
 					end
 
-					if attached {ENTITY} malevolent as add then
+					if attached {ENTITY} malevolent as add and add_m then
 						add_to_entities_list (add)
 					end
 
-					if attached {ENTITY} benign as add then
+					if attached {ENTITY} benign as add and add_b then
 						add_to_entities_list (add)
 					end
 
-					if attached {ENTITY} planet as add then
+					if attached {ENTITY} planet as add and add_p then
 						add_to_entities_list (add)
 					end
 
@@ -260,6 +275,9 @@ feature --command
 				if (new_component ~ (create {ENTITY_ALPHABET}.make ('P')) or new_component ~ (create {ENTITY_ALPHABET}.make ('J'))
 					or new_component ~ (create {ENTITY_ALPHABET}.make ('B')) or new_component ~ (create {ENTITY_ALPHABET}.make ('M'))
 					or new_component ~ (create {ENTITY_ALPHABET}.make ('A')))  and check_first then
+					if movable_entities[movable_entities.count].id = 4 then
+						--print("%NOK%N")
+					end
 					movable_entities[movable_entities.count].sector.quadrant := contents_count
 				end
 
@@ -448,6 +466,10 @@ feature -- Queries
 
 			--update the contents list by removal as well
 			if attached{MOVABLE_ENTITY}ent as curr_m_ent then
+--				print("index being used: " + curr_m_ent.sector.quadrant.out)
+--				print("%NSize of contents: " + contents.count.out)
+--				print("%N")
+
 				contents[curr_m_ent.sector.quadrant] := create {ENTITY_ALPHABET}.make ('-') --remove from contents of this sector
 				contents_count := contents_count - 1 -- decrement contents count
 			end
