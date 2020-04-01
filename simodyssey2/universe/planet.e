@@ -61,7 +61,7 @@ feature --commands
 
 		end
 
-	new_behave(cur_sector : SECTOR)
+	behave(cur_sector : SECTOR)
 		local
 			contents : ARRAYED_LIST[ENTITY_ALPHABET]
 		do
@@ -79,28 +79,6 @@ feature --commands
 			end
 		end
 
-	behave(contents : ARRAYED_LIST [ENTITY_ALPHABET])
-
-		do
-			if contents.has (create {ENTITY_ALPHABET}.make ('O')) then
-				is_alive := false -- planet is killed by blackhole (Remove from planets array in galaxy and dont place
-								  -- the planet in the new sector after movement from old sector
-				death_msg.append("Planet got devoured by blackhole (id: -1) at Sector:3:3")
-			end
-
-			if contents.has (create {ENTITY_ALPHABET}.make ('Y')) or contents.has (create {ENTITY_ALPHABET}.make ('*')) then
-				in_orbit := true
-				if contents.has (create {ENTITY_ALPHABET}.make ('Y')) then
-					if gen.rchoose (1, 2) = 2 then
-						support_life := true
-					end
-				end
-			elseif is_alive then
-
-				turns_left := gen.rchoose (0, 2)
-			end
-
-		end
 
 feature -- commands
 	set_in_orbit(orbit: BOOLEAN)

@@ -25,6 +25,8 @@ feature -- constructor
 			fuel := 3
 			actions_left_until_reproduction := 1
 			create death_msg.make_empty
+			create reproduce_msg.make_empty
+			create attack_msg.make_empty
 			is_alive := true
 		end
 
@@ -32,6 +34,8 @@ feature -- variables
 
 	fuel: INTEGER
 	death_msg : STRING
+	reproduce_msg : STRING
+	attack_msg : STRING
 	actions_left_until_reproduction : INTEGER
 
 feature -- commands
@@ -78,6 +82,7 @@ feature -- commands
 			quad : INTEGER
 		do
 			Result := false
+			reproduce_msg.make_empty
 			if not (cur_sector.is_full) and actions_left_until_reproduction = 0 then
 				-- impelement
 				create location.default_create
@@ -87,6 +92,8 @@ feature -- commands
 				quad := cur_sector.recently_added
 				location := [sector.row,sector.col,quad]
 				new_malevolent.sector := location
+				reproduce_msg.append ("  reproduced [" + new_malevolent.id.out + ",M] at [" + new_malevolent.sector.row.out + ","
+				+ new_malevolent.sector.col.out + "," + new_malevolent.sector.quadrant.out + "]")
 				-- add it to all the sectors lists
 				if attached{ENTITY}new_malevolent as add then
 					cur_sector.add_entity_to_all_lists (add)
@@ -111,6 +118,7 @@ feature -- commands
 			-- looks for non-landed explorer to attack
 			-- reduce life of explorer by 1 each time
 			-- malevolent attacks
+			attack_msg.make_empty
 			if turns_left = 0 then
 				create explorer.make
 				if cur_sector.contents.has (create {ENTITY_ALPHABET}.make ('E'))
@@ -118,6 +126,7 @@ feature -- commands
 					explorer := exp
 
 					if not (explorer.is_landed) then
+						attack_msg.append ("  attacked [0,E] at [" + exp.sector.row.out + "," + exp.sector.col.out + "," + exp.sector.quadrant.out + "]")
 						explorer.life := explorer.life - 1
 						if explorer.life = 0 then -- explorer is dead
 							cur_sector.remove_entity (explorer, true) -- remove explorer from sector lists

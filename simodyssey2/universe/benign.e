@@ -25,6 +25,7 @@ feature -- constructor
 			fuel := 3
 			actions_left_until_reproduction := 1
 			create death_msg.make_empty
+			create reproduce_msg.make_empty
 			is_alive := true
 		end
 
@@ -32,6 +33,7 @@ feature -- variables
 
 	fuel: INTEGER
 	death_msg : STRING
+	reproduce_msg : STRING
 	actions_left_until_reproduction : INTEGER
 
 feature -- commands
@@ -79,6 +81,7 @@ feature -- commands
 			added : BOOLEAN
 		do
 			Result := false
+			reproduce_msg.make_empty
 			if not (cur_sector.is_full) and actions_left_until_reproduction = 0 then
 				-- impelement
 				create location.default_create
@@ -88,6 +91,8 @@ feature -- commands
 				quad := cur_sector.recently_added
 				location := [sector.row,sector.col,quad]
 				new_benign.sector := location
+				reproduce_msg.append ("  reproduced [" + new_benign.id.out + ",B] at [" + new_benign.sector.row.out + "," + new_benign.sector.col.out + "," +
+				new_benign.sector.quadrant.out + "]")
 				-- add it to all the sectors lists
 				if attached{ENTITY}new_benign as add then
 					cur_sector.add_entity_to_all_lists (add)

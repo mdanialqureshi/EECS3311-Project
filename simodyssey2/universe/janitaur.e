@@ -25,6 +25,7 @@ feature -- constructor
 			fuel := 5
 			actions_left_until_reproduction := 2
 			create death_msg.make_empty
+			create reproduce_msg.make_empty
 			is_alive := true
 			load := 0
 			max_load := 2
@@ -34,6 +35,7 @@ feature -- variables
 
 	fuel: INTEGER
 	death_msg : STRING
+	reproduce_msg : STRING
 	actions_left_until_reproduction : INTEGER
 	load : INTEGER
 	max_load : INTEGER
@@ -67,7 +69,7 @@ feature -- commands
 				death_msg.append ("Janitaur got devoured by blackhole (id: -1) at Sector:3:3")
 			end
 			-- asteroid death handled in asteroid class
-			
+
 			if not (is_alive) then -- remove from board if its no longer alive
 				cur_sector.remove_entity(Current, true) -- removes from all sector lists and
 			end
@@ -84,6 +86,7 @@ feature -- commands
 			added : BOOLEAN
 		do
 			Result := false
+			reproduce_msg.make_empty
 			if not (cur_sector.is_full) and actions_left_until_reproduction = 0 then
 				-- impelement
 				create location.default_create
@@ -93,6 +96,8 @@ feature -- commands
 				quad := cur_sector.recently_added
 				location := [sector.row,sector.col,quad]
 				new_janitaur.sector := location
+				reproduce_msg.append ("  reproduced [" + new_janitaur.id.out + ",J] at [" + new_janitaur.sector.row.out + "," + new_janitaur.sector.col.out +
+				"," + new_janitaur.sector.quadrant.out + "]")
 				-- add it to all the sectors lists
 				if attached{ENTITY}new_janitaur as add then
 					cur_sector.add_entity_to_all_lists (add)

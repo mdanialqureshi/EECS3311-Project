@@ -209,18 +209,21 @@ feature -- model operations
 										if attached {MALEVOLENT}m_entity.item as m then
 											reproduced := m.reproduce (g.grid[m.sector.row,m.sector.col], g.next_movable_id)
 											if reproduced then
+												movements.extend(m.reproduce_msg)
 												g.next_movable_id := g.next_movable_id + 1 --handle case where it does not reproduce
 											end
 										end
 										if attached {BENIGN}m_entity.item as b then
 											reproduced := b.reproduce (g.grid[b.sector.row,b.sector.col], g.next_movable_id)
 											if reproduced then
+												movements.extend(b.reproduce_msg)
 												g.next_movable_id := g.next_movable_id + 1 --handle case where it does not reproduce
 											end
 										end
 										if attached {JANITAUR}m_entity.item as j then
 											reproduced := j.reproduce (g.grid[j.sector.row,j.sector.col], g.next_movable_id)
 											if reproduced then
+												movements.extend(j.reproduce_msg)
 												g.next_movable_id := g.next_movable_id + 1 --handle case where it does not reproduce
 											end
 										end
@@ -234,6 +237,10 @@ feature -- model operations
 										-- behave
 										if attached {MALEVOLENT}m_entity.item as m then
 											m.behave (g.grid[m.sector.row,m.sector.col],g.explorer)
+											if not m.attack_msg.is_empty then
+												movements.extend (m.attack_msg)
+											end
+
 										end
 										if attached {BENIGN}m_entity.item as b then
 											b.behave (g.grid[b.sector.row,b.sector.col])
@@ -246,6 +253,9 @@ feature -- model operations
 										end
 										if attached {ASTEROID}m_entity.item as a then
 											a.behave (g.grid[a.sector.row,a.sector.col])
+											if not a.destroy_msg.is_empty then
+												movements.append (a.destroy_msg)
+											end
 										end
 
 									end -- end entitiy alive check
@@ -319,7 +329,6 @@ feature -- model operations
 				end
 
 				g.grid[dest.row,dest.col].put (m_ent.icon, false) --add entity to sectors available contents quadrant position
-
 				dest.quadrant := g.grid[dest.row,dest.col].recently_added
 				m_ent.sector := dest
 				cur_move_msg.append ("->[" + m_ent.sector.row.out + "," + m_ent.sector.col.out + "," + m_ent.sector.quadrant.out + "]")
