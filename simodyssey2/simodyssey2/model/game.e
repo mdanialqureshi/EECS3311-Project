@@ -242,7 +242,7 @@ feature -- model operations
 											j.behave (g.grid[j.sector.row,j.sector.col])
 										end
 										if attached {PLANET}m_entity.item as p then
-											p.new_behave (g.grid[p.sector.row,p.sector.col])
+											p.behave (g.grid[p.sector.row,p.sector.col])
 										end
 										if attached {ASTEROID}m_entity.item as a then
 											a.behave (g.grid[a.sector.row,a.sector.col])
