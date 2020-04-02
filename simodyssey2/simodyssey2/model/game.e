@@ -245,9 +245,15 @@ feature -- model operations
 										end
 										if attached {BENIGN}m_entity.item as b then
 											b.behave (g.grid[b.sector.row,b.sector.col])
+											if not b.destroy_msg.is_empty then
+												movements.append (b.destroy_msg)
+											end
 										end
 										if attached {JANITAUR}m_entity.item as j then
 											j.behave (g.grid[j.sector.row,j.sector.col])
+											if not j.destroy_msg.is_empty then
+												movements.append (j.destroy_msg)
+											end
 										end
 										if attached {PLANET}m_entity.item as p then
 											p.behave (g.grid[p.sector.row,p.sector.col])

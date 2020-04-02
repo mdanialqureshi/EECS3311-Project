@@ -89,7 +89,11 @@ feature --constructor
 							movable_entities.extend (curr.item)
 						end
 					end
-						next_movable_id := next_movable_id + grid[row,column].movable_entities.count
+						if grid[row,column].contents.has (explorer.icon)  then
+							next_movable_id := next_movable_id + grid[row,column].movable_entities.count - 1
+						else
+							next_movable_id := next_movable_id + grid[row,column].movable_entities.count
+						end
 					--	next_movable_id := movable_entities.count + 1
 
 					column:= column + 1;
