@@ -227,6 +227,11 @@ feature -- model operations
 									end
 									if attached {ASTEROID}m_entity.item as a then
 										a.check_asteroid (g.grid[a.sector.row,a.sector.col], moved)
+										if not a.death_msg.is_empty then
+											deaths.extend ("[" + a.id.out + ",A]->turns_left:N/A,")
+											deaths.extend ("  " + a.death_msg)
+										end
+
 									end
 									if attached {PLANET}m_entity.item as p then
 										p.check_planet (g.grid[p.sector.row,p.sector.col])
@@ -279,6 +284,9 @@ feature -- model operations
 												deaths.extend ("  " + g.explorer.death_msg.out)
 												exp_first_death_check := false
 											end
+											if not g.explorer.is_alive then --dead explorer
+												in_game := false
+											end
 
 										end
 										if attached {BENIGN}m_entity.item as b then
@@ -314,6 +322,9 @@ feature -- model operations
 											end
 											if not a.deaths_by_asteroid.is_empty then
 												deaths.append (a.deaths_by_asteroid)
+											end
+											if not g.explorer.is_alive then --dead explorer
+												in_game := false
 											end
 										end
 									end -- end entitiy alive check
@@ -579,6 +590,7 @@ feature -- model operations
 			else
 				clear_messages(false)
 			end
+
 			added := false
 			added_ent := false
 			is_valid := true
@@ -604,6 +616,8 @@ feature -- model operations
 				if m_ent.is_explorer then
 					next_state (true)
 				end
+				wormhole_msg.append ("[" + m_ent.id.out + ","+ m_ent.icon.item.out + "]:[" + m_ent.sector.row.out + ","
+					+ m_ent.sector.col.out + "," + m_ent.sector.quadrant.out + "]")
 				from
 					added := false
 				until
@@ -611,14 +625,11 @@ feature -- model operations
 				loop
 					temp_row := g.gen.rchoose (1,5)
 					temp_col := g.gen.rchoose (1,5)
-					wormhole_msg.append ("[" + m_ent.id.out + ","+ m_ent.icon.item.out + "]:[" + m_ent.sector.row.out + ","
-						+ m_ent.sector.col.out + "," + m_ent.sector.quadrant.out + "]")
-					if not (g.grid[temp_row,temp_col].is_full) or ((m_ent.sector.row ~ temp_row) and (m_ent.sector.col ~ temp_col)) then
+					if not (g.grid[temp_row,temp_col].is_full) then
 						used_wormhole := true
 						if attached{ENTITY}m_ent as ent then
 							g.grid[row,col].remove_entity (ent,false) -- remove from all sectors lists
 						end
-
 						g.grid[temp_row,temp_col].put (m_ent.icon,false) --add entity to sectors available quadrant position
 						g.grid[temp_row,temp_col].add_entity_to_all_lists (m_ent) -- add to all sector lists
 
@@ -631,8 +642,8 @@ feature -- model operations
 						end
 						added := true
 					end
-					movements.extend (wormhole_msg)
 				end -- end from loop
+				movements.extend (wormhole_msg)
 			end -- end is valid
 		end
 
@@ -705,7 +716,6 @@ feature -- model operations
 	clear_messages (using_wormhole : BOOLEAN) --clear all error and success messages
 		do
 			create land_err.make_empty
-			create land_msg.make_empty
 			create liftoff_err.make_empty
 			create liftoff_msg.make_empty
 			create wormhole_err.make_empty
@@ -715,7 +725,6 @@ feature -- model operations
 			create abort_err.make_empty
 			create abort_msg.make_empty
 			create move_err.make_empty
-			create land_err.make_empty
 			create pass_err.make_empty
 			create move_msg.make_empty
 			create play_err.make_empty
@@ -723,6 +732,7 @@ feature -- model operations
 			if not (using_wormhole) then
 				create movements.make -- dont clear movements if wormhole is being used
 				create deaths.make
+				create land_msg.make_empty
 			end
 		end
 
@@ -774,7 +784,6 @@ feature -- queries
 					end
 				end
 			end
-			print("%N" + Result)
 		end
 
 	play_mode_in_game_output : STRING

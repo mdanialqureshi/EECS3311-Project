@@ -80,6 +80,8 @@ feature -- commands
 									destroy_msg.extend ("  destroyed [0,E] at [" + exp.sector.row.out + "," + exp.sector.col.out + "," + exp.sector.quadrant.out + "]")
 									exp.death_msg.append ("Explorer got destroyed by asteroid (id: " + Current.id.out + ") at Sector:"+ Current.sector.row.out +
 									":" + Current.sector.col.out)
+									exp.life := 0
+									exp.is_alive := false
 									cur_sector.remove_entity(sorted_movable_sector_ents.item,true) -- kill explorer if its not landed, ignore it if it is landed
 								end
 							else
