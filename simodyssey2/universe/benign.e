@@ -27,6 +27,7 @@ feature -- constructor
 			create death_msg.make_empty
 			create reproduce_msg.make_empty
 			create destroy_msg.make
+			create deaths_by_benign.make
 			is_alive := true
 		end
 
@@ -36,6 +37,7 @@ feature -- variables
 	death_msg : STRING
 	reproduce_msg : STRING
 	destroy_msg : LINKED_LIST[STRING]
+	deaths_by_benign: LINKED_LIST[STRING]
 	actions_left_until_reproduction : INTEGER
 
 feature -- commands
@@ -121,6 +123,7 @@ feature -- commands
 			-- lowest to highest id
 			sorted_movable_sector_ents := cur_sector.sector_sorted -- deep_twin so cant modify this
 			create destroy_msg.make
+			create deaths_by_benign.make
 			if turns_left = 0 then
 				from
 					sorted_movable_sector_ents.start
@@ -130,6 +133,16 @@ feature -- commands
 					if  sorted_movable_sector_ents.item.is_malevolent then
 						destroy_msg.extend("  destroyed [" + sorted_movable_sector_ents.item.id.out + ",M] at [" + sorted_movable_sector_ents.item.sector.row.out +
 						"," + sorted_movable_sector_ents.item.sector.col.out + "," + sorted_movable_sector_ents.item.sector.quadrant.out + "]")
+						if attached {MALEVOLENT}sorted_movable_sector_ents.item as m then
+							deaths_by_benign.extend ("["+ m.id.out + ",M]->fuel:" + m.fuel.out + "/3, actions_left_until_reproduction:" +
+							m.actions_left_until_reproduction.out + "/1, turns_left:N/A,")
+							m.death_msg.append ("Malevolent got destroyed by benign (id: " + Current.id.out + ") at Sector:" + Current.sector.row.out +
+							":" + Current.sector.col.out)
+							deaths_by_benign.extend ("  " + m.death_msg)
+						end
+
+
+
 						cur_sector.remove_entity(sorted_movable_sector_ents.item, true) -- removes from all sector lists and
 						-- sets is alive to false if the entity being passed in is movable
 					end

@@ -28,6 +28,7 @@ feature {NONE} -- Initialization
 			state2 := 0
 			in_game := false
 			create movements.make
+			create deaths.make
 			create land_err.make_empty
 			create land_msg.make_empty
 			create liftoff_err.make_empty
@@ -57,6 +58,7 @@ feature -- model attributes
 	info : SHARED_INFORMATION
 	in_game : BOOLEAN
 	movements: LINKED_LIST[STRING]
+	deaths: LINKED_LIST[STRING]
 	test_mode : BOOLEAN
 	land_err :STRING
 	land_msg : STRING
@@ -91,6 +93,7 @@ feature -- model operations
 	play
 		do
 			clear_messages(false)
+			g.explorer.death_msg.make_empty
 			if not (in_game) then
 				in_game := true
 				test_mode := false
@@ -113,6 +116,7 @@ feature -- model operations
 	test(a_threshold: INTEGER_32 ; j_threshold: INTEGER_32 ; m_threshold: INTEGER_32 ; b_threshold: INTEGER_32 ; p_threshold: INTEGER_32)
 		do
 			clear_messages(false)
+			g.explorer.death_msg.make_empty
 			if in_game then -- in play mode
 				next_state (false)
 				test_err.append ("To start a new mission, please abort the current one first.")
@@ -137,15 +141,23 @@ feature -- model operations
 			local
 				reproduced : BOOLEAN
 				cur_reproduced : LINKED_LIST[MOVABLE_ENTITY]
+				landed_str: STRING
+				exp_first_death_check: BOOLEAN
 			do
+
 				create cur_reproduced.make
+				create landed_str.make_empty
 				reproduced := false
+				exp_first_death_check := true
 				act(action,dir)
 				-- if an error does not occur (turn does not occur)
 				if no_error then
 					g.explorer.update_explorer(g.grid[g.explorer.sector.row,g.explorer.sector.col].contents, used_wormhole,moved) -- update explorer (fuel life etc)
 					if not g.explorer.is_alive then --dead explorer
+						deaths.extend (explorer_death_status_string)
+						deaths.extend ("  " + g.explorer.death_msg.out)
 						g.grid[g.explorer.sector.row,g.explorer.sector.col].remove_entity (g.explorer,true) -- if explorer died, remove
+						exp_first_death_check := false
 						in_game := false
 					end
 
@@ -181,7 +193,7 @@ feature -- model operations
 											wormhole(m) -- fix this wormhole issue
 										end
 										if attached {BENIGN}m_entity.item as b then
-											wormhole(b) -- fix this wormhole issue
+											wormhole(b) -- fix this wormhole issue	
 										end
 
 									else -- end wormhole conditional
@@ -190,19 +202,39 @@ feature -- model operations
 									-- preform checks
 									if attached {MALEVOLENT}m_entity.item as m then
 										m.check_malevolent (g.grid[m.sector.row,m.sector.col], used_wormhole, moved)
+										if not m.death_msg.is_empty then
+											deaths.extend ("["+ m.id.out + ",M]->fuel:" + m.fuel.out + "/3, actions_left_until_reproduction:" +
+											m.actions_left_until_reproduction.out + "/1, turns_left:N/A,")
+											deaths.extend ("  " + m.death_msg)
+										end
 									end
 
 									if attached {BENIGN}m_entity.item as b then
 										b.check_benign (g.grid[b.sector.row,b.sector.col], used_wormhole, moved)
+										if not b.death_msg.is_empty then
+											deaths.extend ("["+ b.id.out + ",B]->fuel:" + b.fuel.out + "/3, actions_left_until_reproduction:" +
+											b.actions_left_until_reproduction.out + "/1, turns_left:N/A,")
+											deaths.extend ("  " + b.death_msg)
+										end
 									end
 									if attached {JANITAUR}m_entity.item as j then
 										j.check_janitaur (g.grid[j.sector.row,j.sector.col], moved)
+										if not j.death_msg.is_empty then
+											deaths.extend ("["+ j.id.out + ",J]->fuel:" + j.fuel.out + "/5, load:" + j.load.out +
+											"/2, actions_left_until_reproduction:" + j.actions_left_until_reproduction.out + "/2, turns_left:N/A,")
+											deaths.extend ("  " + j.death_msg)
+										end
 									end
 									if attached {ASTEROID}m_entity.item as a then
 										a.check_asteroid (g.grid[a.sector.row,a.sector.col], moved)
 									end
 									if attached {PLANET}m_entity.item as p then
 										p.check_planet (g.grid[p.sector.row,p.sector.col])
+										if not p.death_msg.is_empty then
+											deaths.extend ("[" + p.id.out + ",P]->attached?:" + p.boolean_icon (p.in_orbit).out + ", support_life?:" +
+											p.boolean_icon (p.support_life).out + ", visited?:" + p.boolean_icon (p.visited).out + ", turns_left:N/A,")
+											deaths.extend ("  " + p.death_msg)
+										end
 									end
 
 									if m_entity.item.is_alive then -- if it is alive
@@ -213,6 +245,7 @@ feature -- model operations
 												movements.extend(m.reproduce_msg)
 												g.next_movable_id := g.next_movable_id + 1 --handle case where it does not reproduce
 											end
+
 										end
 										if attached {BENIGN}m_entity.item as b then
 											reproduced := b.reproduce (g.grid[b.sector.row,b.sector.col], g.next_movable_id)
@@ -241,6 +274,11 @@ feature -- model operations
 											if not m.attack_msg.is_empty then
 												movements.extend (m.attack_msg)
 											end
+											if not g.explorer.death_msg.is_empty and exp_first_death_check then --dead explorer
+												deaths.extend (explorer_death_status_string)
+												deaths.extend ("  " + g.explorer.death_msg.out)
+												exp_first_death_check := false
+											end
 
 										end
 										if attached {BENIGN}m_entity.item as b then
@@ -248,11 +286,17 @@ feature -- model operations
 											if not b.destroy_msg.is_empty then
 												movements.append (b.destroy_msg)
 											end
+											if not b.deaths_by_benign.is_empty then
+												deaths.append (b.deaths_by_benign)
+											end
 										end
 										if attached {JANITAUR}m_entity.item as j then
 											j.behave (g.grid[j.sector.row,j.sector.col])
 											if not j.destroy_msg.is_empty then
 												movements.append (j.destroy_msg)
+											end
+											if not j.deaths_by_janitaur.is_empty then
+												deaths.append (j.deaths_by_janitaur)
 											end
 										end
 										if attached {PLANET}m_entity.item as p then
@@ -263,8 +307,15 @@ feature -- model operations
 											if not a.destroy_msg.is_empty then
 												movements.append (a.destroy_msg)
 											end
+											if not g.explorer.death_msg.is_empty and exp_first_death_check then --dead explorer
+												deaths.extend (explorer_death_status_string)
+												deaths.extend ("  " + g.explorer.death_msg.out)
+												exp_first_death_check := false
+											end
+											if not a.deaths_by_asteroid.is_empty then
+												deaths.append (a.deaths_by_asteroid)
+											end
 										end
-
 									end -- end entitiy alive check
 								end -- end else
 							else -- end turnsleft = 0 conditional
@@ -334,7 +385,6 @@ feature -- model operations
 				if attached{ENTITY}m_ent as ent then -- remove from all sector lists
 					g.grid[m_ent.sector.row,m_ent.sector.col].remove_entity (ent,false)
 				end
-
 				g.grid[dest.row,dest.col].put (m_ent.icon, false) --add entity to sectors available contents quadrant position
 				dest.quadrant := g.grid[dest.row,dest.col].recently_added
 				m_ent.sector := dest
@@ -405,27 +455,11 @@ feature -- model operations
 					move_msg.append (g.explorer.sector.row.out + "," + g.explorer.sector.col.out + "," + g.explorer.sector.quadrant.out + "]")
 					movements.extend(move_msg)
 
-
---					-- move planets
---					across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
---						movements.extend (curr.item)
---					end -- finish moving planets
---					g.explorer.update_explorer(g.grid[g.explorer.sector.row,g.explorer.sector.col].contents, false) -- update explorer (fuel life etc)
-
 				else
 					move_err.append("Cannot transfer to new location as it is full." )
 					next_state (false)
 				end 	-- end moving explorer
 			end
-			-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-			-- *NOTE* after we move the explorer do the explorer check to see if still alive and if not handle it accordingly
-			-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		--	g.explorer.update_explorer(g.grid[g.explorer.sector.row,g.explorer.sector.col].contents, false) -- update explorer (fuel life etc)
---			if not g.explorer.death_msg.is_empty then
---				g.grid[g.explorer.sector.row,g.explorer.sector.col].contents[g.grid[g.explorer.sector.row,g.explorer.sector.col].contents.index_of (g.explorer.icon, 1)] := create {ENTITY_ALPHABET}.make ('-')
---				g.grid[g.explorer.sector.row,g.explorer.sector.col].entities.prune (g.explorer)
---			end
-
 		end
 
 	land
@@ -490,11 +524,6 @@ feature -- model operations
 					next_state(false)
 				else
 					next_state(true)
-					if in_game then
---						across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
---								movements.extend (curr.item)
---						end
-					end
 				end
 
 			end
@@ -529,9 +558,6 @@ feature -- model operations
 				next_state (true)
 				liftoff_msg.append ("Explorer has lifted off from planet at Sector:" + row.out + ":" + col.out)
 				g.explorer.is_landed := false
---				across g.check_planets as curr loop  -- check all the planets to see which ones need to be moved and iterate through the returned List of strings to append them to our movements List
---					movements.extend (curr.item)
---				end
 			end
 
 		end
@@ -558,7 +584,7 @@ feature -- model operations
 			is_valid := true
 			row := m_ent.sector.row
 			col := m_ent.sector.col
-			if not (in_game) then -- is it in a game
+			if not (in_game) and m_ent.is_explorer then -- is it in a game
 				wormhole_err.append ("Negative on that request:no mission in progress.")
 				is_valid := false
 			elseif  g.explorer.is_landed and m_ent.is_explorer then --is the explorer landed already
@@ -694,9 +720,9 @@ feature -- model operations
 			create move_msg.make_empty
 			create play_err.make_empty
 			create test_err.make_empty
-			g.explorer.death_msg.make_empty
 			if not (using_wormhole) then
-				create movements.make -- dont cleat movements if wormhole is being used
+				create movements.make -- dont clear movements if wormhole is being used
+				create deaths.make
 			end
 		end
 
@@ -748,6 +774,7 @@ feature -- queries
 					end
 				end
 			end
+			print("%N" + Result)
 		end
 
 	play_mode_in_game_output : STRING
@@ -777,6 +804,20 @@ feature -- queries
 				Result.append (play_string)
 				Result.append(g.out) -- print the board out
 			end
+		end
+
+	explorer_death_status_string : STRING
+		local
+			landed_str: STRING
+		do
+			create landed_str.make_empty
+			create Result.make_empty
+			if g.explorer.is_landed then
+				landed_str.append ("T")
+			else
+				landed_str.append ("F")
+			end
+			Result.append("[0,E]->fuel:" + g.explorer.fuel.out + "/3, life:" + g.explorer.life.out + "/3, landed?:" + landed_str.out + ",")
 		end
 
 	test_mode_in_game_output : STRING
@@ -937,17 +978,25 @@ feature -- queries
 		end
 
 	test_mode_deaths : STRING
+		local
+			count: INTEGER
 		do
 			create Result.make_empty
+			count := 1
 			Result.append ("  Deaths This Turn:")
-			if g.dead_planets.is_empty and g.explorer.death_msg.is_empty then
+			if deaths.is_empty then
 				Result.append ("none")
 			else
-				if not(g.explorer.death_msg.is_empty) then
-					Result.append ("%N" + explorer_death_string_helper)
-				end
-				if not (g.dead_planets.is_empty) then
-					Result.append("%N" + planet_death_string)
+				across deaths as curr loop
+					if count ~ 1 then
+						Result.append("%N")
+					end
+					Result.append ("    " + curr.item.out)
+					if not (count ~ deaths.count) then
+						Result.append("%N")
+					end
+					count := count + 1
+
 				end
 			end
 		end
@@ -1134,24 +1183,6 @@ feature -- queries
 			in_game := false -- end the game since the explorer is dead
 		end
 
-	planet_death_string : STRING
-		local
-			num_dead_planets : INTEGER
-		do
-			num_dead_planets := g.dead_planets.count
-			create Result.make_empty
-			if not(g.dead_planets.is_empty) then
-				across 1 |..| num_dead_planets as p loop
-					Result.append ("    [" + g.dead_planets[p.item].id.out + "," + g.dead_planets[p.item].icon.item.out + "]->attached?:" +
-					g.dead_planets[p.item].boolean_icon (g.dead_planets[p.item].in_orbit) + ", support_life?:" + g.dead_planets[p.item].boolean_icon (g.dead_planets[p.item].support_life)
-					+ ", visited?:" + g.dead_planets[p.item].boolean_icon (g.dead_planets[p.item].visited) + ", turns_left:N/A,%N      " + g.dead_planets[p.item].death_msg)
-					if not (p.item ~ num_dead_planets) then
-						Result.append ("%N")
-					end
-				end
-				g.clear_dead_planets
-			end
-		end
 
 	explorer_death_string_helper : STRING
 		do

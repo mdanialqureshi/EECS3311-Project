@@ -31,7 +31,6 @@ feature -- attributes
 	stationary_items: LINKED_LIST[STATIONARY_ENTITY]
 	stationary_count: INTEGER
 	movable_entities : LINKED_LIST[MOVABLE_ENTITY]
-	dead_planets: LINKED_LIST[PLANET]
 	explorer: EXPLORER
 	test_mode : BOOLEAN
 	directions: ARRAY[TUPLE[row:INTEGER;col:INTEGER]]
@@ -49,7 +48,6 @@ feature --constructor
 			create movable_entities.make
 			create stationary_items.make
 			create explorer.make
-			create dead_planets.make
 		end
 
 
@@ -63,7 +61,6 @@ feature --constructor
 			create grid.make_filled (create {SECTOR}.make_dummy, shared_info.number_rows, shared_info.number_columns)
 			create movable_entities.make
 			create explorer.make
-			create dead_planets.make
 			create stationary_items.make
 			test_mode := is_test_mode
 			stationary_count := -2
@@ -166,11 +163,6 @@ feature --commands
 			else
 				create Result.make('Y') -- create more yellow dwarfs this will never happen, but create by default
 			end -- inspect
-		end
-
-	clear_dead_planets
-		do
-			create dead_planets.make
 		end
 
 	set_next_movable_id(next : INTEGER)

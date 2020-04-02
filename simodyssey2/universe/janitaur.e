@@ -27,6 +27,7 @@ feature -- constructor
 			create death_msg.make_empty
 			create reproduce_msg.make_empty
 			create destroy_msg.make
+			create deaths_by_janitaur.make
 			is_alive := true
 			load := 0
 			max_load := 2
@@ -38,6 +39,7 @@ feature -- variables
 	death_msg : STRING
 	reproduce_msg : STRING
 	destroy_msg : LINKED_LIST[STRING]
+	deaths_by_janitaur: LINKED_LIST[STRING]
 	actions_left_until_reproduction : INTEGER
 	load : INTEGER
 	max_load : INTEGER
@@ -126,6 +128,7 @@ feature -- commands
 --			If there are multiple asteroids and not enough room in the janitaur,
 --			lower id asteroids are targeted first.
 			create destroy_msg.make
+			create deaths_by_janitaur.make
 			sorted_movable_sector_ents := cur_sector.sector_sorted -- deep_twin so cant modify this
 			if turns_left = 0 then
 				if load < max_load then
@@ -138,6 +141,14 @@ feature -- commands
 							destroy_msg.extend("  destroyed [" + sorted_movable_sector_ents.item.id.out + ",A] at [" +
 							sorted_movable_sector_ents.item.sector.row.out + "," + sorted_movable_sector_ents.item.sector.col.out + "," +
 							sorted_movable_sector_ents.item.sector.quadrant.out + "]")
+
+							if attached {ASTEROID}sorted_movable_sector_ents.item as a then
+								deaths_by_janitaur.extend ("[" + a.id.out + ",A]->turns_left:N/A,")
+								a.death_msg.append ("Asteroid got imploded by janitaur (id: " + Current.id.out + ") at Sector:" + Current.sector.row.out +
+								":" + Current.sector.col.out)
+								deaths_by_janitaur.extend ("  " + a.death_msg.out)
+							end
+
 							cur_sector.remove_entity(sorted_movable_sector_ents.item,true) -- removes from all sector lists and
 							-- sets is alive to false if the entity being passed in is movable
 							load := load + 1 -- killed an asteroid so load increases
