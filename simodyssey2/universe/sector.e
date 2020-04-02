@@ -69,6 +69,7 @@ feature -- constructor
 				if (row = 1) and (column = 1) then
 					put (a_explorer.icon,true) -- If this is the top left corner sector, place the explorer there
 					entities[1] := (a_explorer)
+					movable_entities.extend (a_explorer)
 				--	entities.extend (a_explorer)
 				end
 				populate -- Run the populate command to complete setup
