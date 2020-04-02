@@ -259,7 +259,7 @@ feature -- model operations
 											p.behave (g.grid[p.sector.row,p.sector.col])
 										end
 										if attached {ASTEROID}m_entity.item as a then
-											a.behave (g.grid[a.sector.row,a.sector.col])
+											a.behave (g.grid[a.sector.row,a.sector.col],g.explorer)
 											if not a.destroy_msg.is_empty then
 												movements.append (a.destroy_msg)
 											end

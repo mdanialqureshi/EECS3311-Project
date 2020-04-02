@@ -129,8 +129,9 @@ feature -- commands
 						attack_msg.append ("  attacked [0,E] at [" + exp.sector.row.out + "," + exp.sector.col.out + "," + exp.sector.quadrant.out + "]")
 						explorer.life := explorer.life - 1
 						if explorer.life = 0 then -- explorer is dead
+							explorer.death_msg.append ("Explorer got lost in space - out of life support at Sector:" + explorer.sector.row.out + ":"
+							+ explorer.sector.col.out)
 							cur_sector.remove_entity (explorer, true) -- remove explorer from sector lists
-							-- @@@@ need to add the death message for out of life for explorer @@ --
 						end
 					end
 				end

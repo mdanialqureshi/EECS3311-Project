@@ -53,7 +53,7 @@ feature -- commands
 
 		end
 
-	behave(cur_sector : SECTOR)
+	behave(cur_sector : SECTOR; exp: EXPLORER)
 		local
 			sorted_movable_sector_ents : ARRAYED_LIST[MOVABLE_ENTITY]
 			quadrant : INTEGER
@@ -73,8 +73,10 @@ feature -- commands
 					if  not (sorted_movable_sector_ents.item.is_asteroid) and -- if its not an asteroid of a planet kill it
 						not (sorted_movable_sector_ents.item.is_planet) then
 							if attached{EXPLORER}sorted_movable_sector_ents.item as ex then -- is it an explorer, if so check if its landed
-								if not (ex.is_landed) then
-									destroy_msg.extend ("  destroyed [0,E] at [" + ex.sector.row.out + "," + ex.sector.col.out + "," + ex.sector.quadrant.out + "]")
+								if not (exp.is_landed) then
+									destroy_msg.extend ("  destroyed [0,E] at [" + exp.sector.row.out + "," + exp.sector.col.out + "," + exp.sector.quadrant.out + "]")
+									exp.death_msg.append ("Explorer got destroyed by asteroid (id: " + Current.id.out + ") at Sector:"+ Current.sector.row.out +
+									":" + Current.sector.col.out)
 									cur_sector.remove_entity(sorted_movable_sector_ents.item,true) -- kill explorer if its not landed, ignore it if it is landed
 								end
 							else
