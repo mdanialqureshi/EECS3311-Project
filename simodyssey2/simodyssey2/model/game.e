@@ -586,7 +586,7 @@ feature -- model operations
 			added_ent: BOOLEAN
 		do
 			if not (m_ent.is_explorer) then
-				clear_messages(true)
+				create wormhole_msg.make_empty
 			else
 				clear_messages(false)
 			end
@@ -716,6 +716,7 @@ feature -- model operations
 	clear_messages (using_wormhole : BOOLEAN) --clear all error and success messages
 		do
 			create land_err.make_empty
+			create land_msg.make_empty
 			create liftoff_err.make_empty
 			create liftoff_msg.make_empty
 			create wormhole_err.make_empty
@@ -732,7 +733,6 @@ feature -- model operations
 			if not (using_wormhole) then
 				create movements.make -- dont clear movements if wormhole is being used
 				create deaths.make
-				create land_msg.make_empty
 			end
 		end
 
