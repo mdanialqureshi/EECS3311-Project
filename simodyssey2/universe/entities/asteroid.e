@@ -58,7 +58,6 @@ feature -- commands
 	behave(cur_sector : SECTOR; exp: EXPLORER)
 		local
 			sorted_movable_sector_ents : ARRAYED_LIST[MOVABLE_ENTITY]
-			quadrant : INTEGER
 		do
 			-- Seeks any other movable entities in its sector
 			-- except planets and other asteroids and destroys

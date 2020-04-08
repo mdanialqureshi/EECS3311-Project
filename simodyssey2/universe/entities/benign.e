@@ -81,8 +81,6 @@ feature -- commands
 			new_benign : BENIGN
 			location : TUPLE [INTEGER_32, INTEGER_32, INTEGER_32]
 			quad : INTEGER
-			counter : INTEGER
-			added : BOOLEAN
 		do
 			Result := false
 			reproduce_msg.make_empty
