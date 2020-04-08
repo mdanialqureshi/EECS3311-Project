@@ -1,3 +1,4 @@
+-- Testing fuel case for explorer after movements and pass.
 play
 move(S)
 move(S)

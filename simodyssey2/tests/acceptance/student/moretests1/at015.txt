@@ -1,5 +1,4 @@
 -- Test status
---toggle_RNG_out
 -- status during winning game
 test(1,1,1,1,30)
 status
