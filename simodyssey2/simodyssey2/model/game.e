@@ -111,7 +111,10 @@ feature -- model operations
 				play_err.append("To start a new mission, please abort the current one first.")
 	        end
 
+		ensure
+			is_in_game: in_game
 		end
+
 
 	test(a_threshold: INTEGER_32 ; j_threshold: INTEGER_32 ; m_threshold: INTEGER_32 ; b_threshold: INTEGER_32 ; p_threshold: INTEGER_32)
 		do
@@ -134,7 +137,6 @@ feature -- model operations
 					create mode.make_from_string ("test")
 				end
 			end
-
 		end
 
 	turn(action : STRING;dir : INTEGER)
@@ -359,7 +361,8 @@ feature -- model operations
 			elseif action.is_equal ("liftoff") then
 				liftoff
 			end
-
+		ensure
+			state_change: (state1 > old state1) or (state2 > old state2)
 		end
 
 	movement(m_ent : MOVABLE_ENTITY)
@@ -404,7 +407,8 @@ feature -- model operations
 
 			end -- end full check
 			movements.extend (cur_move_msg) -- add the move to string for output
-
+		ensure
+			movements_increased: movements.count > old movements.count
 		end
 
 	move(dir: INTEGER)
@@ -471,6 +475,9 @@ feature -- model operations
 					next_state (false)
 				end 	-- end moving explorer
 			end
+		ensure
+			move_msg_not_empty: (not move_msg.is_empty) or (not move_err.is_empty)
+			moved_to_diff_sector: move_err.is_empty implies not (g.explorer.sector ~ old g.explorer.sector)
 		end
 
 	land
@@ -538,7 +545,9 @@ feature -- model operations
 				end
 
 			end
-
+		ensure
+			land_msg_not_empty: (not land_msg.is_empty) or (not land_err.is_empty)
+			landed_on_a_planet: land_err.is_empty implies g.explorer.is_landed
 		end
 
 
@@ -570,7 +579,9 @@ feature -- model operations
 				liftoff_msg.append ("Explorer has lifted off from planet at Sector:" + row.out + ":" + col.out)
 				g.explorer.is_landed := false
 			end
-
+		ensure
+			liftoff_msg_not_empty: (not liftoff_msg.is_empty) or (not liftoff_err.is_empty)
+			not_landed: liftoff_err.is_empty implies not g.explorer.is_landed
 		end
 
 	wormhole (m_ent : MOVABLE_ENTITY)
@@ -645,6 +656,8 @@ feature -- model operations
 				end -- end from loop
 				movements.extend (wormhole_msg)
 			end -- end is valid
+		ensure
+			wormhole_msg_not_empty: (not wormhole_msg.is_empty) or (not wormhole_err.is_empty)
 		end
 
 	status
@@ -669,7 +682,8 @@ feature -- model operations
   			end
 
   			next_state (false) -- status always only increments state by 0.1
-
+		ensure
+			status_msg_not_empty: (not status_msg.is_empty) or (not status_err.is_empty)
 		end
 
 	pass
@@ -681,13 +695,8 @@ feature -- model operations
 				next_state(false)
 
 			else
---				across g.check_planets as curr loop  -- check all the planets to see which ones
---				need to be moved and iterate through the returned List of strings to append them to our movements List
---					movements.extend (curr.item)
---				end
 				next_state(true)
 			end
-
 		end
 
 	abort
@@ -700,6 +709,8 @@ feature -- model operations
 			end
 			-- in_game := false --set this value after we are done using it for the output so in abort_string
 			next_state (false) -- abort always increases the state by 0.1
+		ensure
+			abort_msg_not_empty: (not abort_msg.is_empty) or (not abort_err.is_empty)
 		end
 
 	next_state(ceil : BOOLEAN) -- increment the state accordingly. if it is not and error (not + 0.1) then ceil is true
@@ -711,6 +722,8 @@ feature -- model operations
 				state2 := state2 + 1
 			end
 
+		ensure
+			state_change: (state1 > old state1) or (state2 > old state2)
 		end
 
 	clear_messages (using_wormhole : BOOLEAN) --clear all error and success messages
