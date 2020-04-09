@@ -1,0 +1,98 @@
+{\rtf1\ansi\ansicpg1252\deflang1033{\fonttbl{\f0\fscript\fcharset0 Courier;}}{\colortbl ;\red0\green0\blue0;\red255\green255\blue255;\red128\green0\blue0;\red0\green0\blue255;\red0\green128\blue0;\red0\green0\blue128;}
+{\cf3\f0\fs16 {\tab}{\tab}{\tab}-- Automatic generation produced by ISE Eiffel --
+{\line}
+{{\b\cf6 note}{\line}
+{\tab}{\cf1 description}{\cf1 :} "Represents a sector in the galaxy."{\line}
+{\tab}{\cf1 author}{\cf1 :} "Ameer Bacchus and Muhammad Danial Qureshi"{\line}
+{\tab}{\cf1 date}{\cf1 :} "2020-03-13"{\line}
+{\tab}{\cf1 revision}{\cf1 :} "$Revision$"{\line}
+{\line}
+{\b\cf6 class} {\b\cf6 interface}{\line}
+{\tab}{\cf4 SECTOR}{\line}
+{\line}
+{\b\cf6 create} {\line}
+{\tab}{\cf5 make}{\cf1 ,}{\line}
+{\tab}{\cf5 make_dummy}{\line}
+{\line}
+{\b\cf6 feature} {\cf3 --}{\cf3  attributes}{\line}
+{\line}
+{\tab}{\cf5 {\cf5 shared_info_access}{\cf1 :} {\cf4 SHARED_INFORMATION_ACCESS}}{\line}
+{\line}
+{\tab}{\cf5 {\cf5 shared_info}{\cf1 :} {\cf4 SHARED_INFORMATION}{\line}
+}{\line}
+{\tab}{\cf5 {\cf5 gen}{\cf1 :} {\cf4 RANDOM_GENERATOR_ACCESS}}{\line}
+{\line}
+{\tab}{\cf5 {\cf5 contents}{\cf1 :} {\cf4 ARRAYED_LIST} {\cf1 [}{\cf4 ENTITY_ALPHABET}{\cf1 ]}}{\line}
+{\tab}{\tab}{\tab}{\cf3 --}{\cf3 holds 4 quadrants}{\line}
+{\line}
+{\tab}{\cf5 {\cf5 contents_count}{\cf1 :} {\cf4 INTEGER_32} {\b\cf6 assign} {\cf5 set_contents_count}}{\line}
+{\line}
+{\tab}{\cf5 {\cf5 row}{\cf1 :} {\cf4 INTEGER_32}}{\line}
+{\line}
+{\tab}{\cf5 {\cf5 column}{\cf1 :} {\cf4 INTEGER_32}}{\line}
+{\line}
+{\tab}{\cf5 {\cf5 movable_entity_id}{\cf1 :} {\cf4 INTEGER_32}}{\line}
+{\line}
+{\tab}{\cf5 {\cf5 movable_entities}{\cf1 :} {\cf4 ARRAYED_LIST} {\cf1 [}{\cf4 MOVABLE_ENTITY}{\cf1 ]}}{\line}
+{\line}
+{\tab}{\cf5 {\cf5 recently_added}{\cf1 :} {\cf4 INTEGER_32}}{\line}
+{\tab}{\tab}{\tab}{\cf3 --}{\cf3  index of most recently added entity}{\line}
+{\line}
+{\tab}{\cf5 {\cf5 entities}{\cf1 :} {\cf4 ARRAYED_LIST} {\cf1 [}{\cf4 ENTITY}{\cf1 ]}}{\line}
+{\tab}{\line}
+{\b\cf6 feature} {\cf3 --}{\cf3  constructor}{\line}
+{\line}
+{\tab}{\cf5 {\cf5 make} {\cf1 (}{\cf5 row_input}{\cf1 :} {\cf4 INTEGER_32}{\cf1 ;} {\cf5 column_input}{\cf1 :} {\cf4 INTEGER_32}{\cf1 ;} {\cf5 a_explorer}{\cf1 :} {\cf4 EXPLORER}{\cf1 ;} {\cf5 movable_entity_num}{\cf1 :} {\cf4 INTEGER_32}{\cf1 )}{\line}
+{\tab}{\tab}{\tab}{\cf3 --}{\cf3 initialization}{\line}
+{\tab}{\tab}{\b\cf6 require}{\line}
+{\tab}{\tab}{\tab}{\cf1 valid_row}{\cf1 :} {\cf1 (}{\cf5 row_input} {\cf1 >=} 1{\cf1 )} {\b\cf6 and} {\cf1 (}{\cf5 row_input} {\cf1 <=} {\cf5 shared_info}{\b\cf1 .}{\cf5 Number_rows}{\cf1 )}{\line}
+{\tab}{\tab}{\tab}{\cf1 valid_column}{\cf1 :} {\cf1 (}{\cf5 column_input} {\cf1 >=} 1{\cf1 )} {\b\cf6 and} {\cf1 (}{\cf5 column_input} {\cf1 <=} {\cf5 shared_info}{\b\cf1 .}{\cf5 Number_columns}{\cf1 )}{\line}
+}{\tab}{\line}
+{\b\cf6 feature} {\cf3 --}{\cf3  commands}{\line}
+{\line}
+{\tab}{\cf5 {\cf5 make_dummy}{\line}
+{\tab}{\tab}{\tab}{\cf3 --}{\cf3 initialization without creating entities in quadrants}{\line}
+}{\line}
+{\tab}{\cf5 {\cf5 populate}{\line}
+{\tab}{\tab}{\tab}{\cf3 --}{\cf3  this feature creates 1 to max_capacity-1 components to be intially stored in the}{\line}
+{\tab}{\tab}{\tab}{\cf3 --}{\cf3  sector. The component may be a planet or nothing at all.}{\line}
+}{\line}
+{\tab}{\cf5 {\cf5 add_to_entities_list} {\cf1 (}{\cf5 ent}{\cf1 :} {\cf4 ENTITY}{\cf1 )}{\line}
+}{\tab}{\line}
+{\b\cf6 feature} {\cf3 --}{\cf3 command}{\line}
+{\line}
+{\tab}{\cf5 {\cf5 put} {\cf1 (}{\cf5 new_component}{\cf1 :} {\cf4 ENTITY_ALPHABET}{\cf1 ;} {\cf5 first_time}{\cf1 :} {\cf4 BOOLEAN}{\cf1 )}{\line}
+{\tab}{\tab}{\tab}{\cf3 --}{\cf3  put }{\cf5 new_component}{\cf3  in contents array}{\line}
+{\tab}{\tab}{\b\cf6 ensure}{\line}
+{\tab}{\tab}{\tab}{\cf1 component_put}{\cf1 :} {\b\cf6 not} {\cf5 is_full} {\b\cf6 implies} {\cf5 contents}{\b\cf1 .}{\cf5 has}{\cf1  }{\cf1 (}{\cf5 new_component}{\cf1 )}{\line}
+}{\line}
+{\tab}{\cf5 {\cf5 set_contents_count} {\cf1 (}{\cf5 new_count}{\cf1 :} {\cf4 INTEGER_32}{\cf1 )}{\line}
+}{\tab}{\line}
+{\b\cf6 feature} {\cf3 --}{\cf3  Queries}{\line}
+{\line}
+{\tab}{\cf5 {\cf5 print_sector}{\cf1 :} {\cf4 STRING_8}{\line}
+{\tab}{\tab}{\tab}{\cf3 --}{\cf3  Printable version of location's coordinates with different formatting}{\line}
+}{\line}
+{\tab}{\cf5 {\cf5 is_full}{\cf1 :} {\cf4 BOOLEAN}{\line}
+{\tab}{\tab}{\tab}{\cf3 --}{\cf3  Is the location currently full?}{\line}
+}{\line}
+{\tab}{\cf5 {\cf5 has_stationary}{\cf1 :} {\cf4 BOOLEAN}{\line}
+{\tab}{\tab}{\tab}{\cf3 --}{\cf3  returns whether the location contains any stationary item}{\line}
+}{\line}
+{\tab}{\cf5 {\cf5 planets_sorted}{\cf1 :} {\cf4 ARRAYED_LIST} {\cf1 [}{\cf4 PLANET}{\cf1 ]}{\line}
+{\tab}{\tab}{\tab}{\cf3 --}{\cf3  Returns a sorted list of the planets in this sector by lowest id to highest (used for land command)}{\line}
+}{\line}
+{\tab}{\cf5 {\cf5 sector_sorted}{\cf1 :} {\cf4 ARRAYED_LIST} {\cf1 [}{\cf4 MOVABLE_ENTITY}{\cf1 ]}{\line}
+{\tab}{\tab}{\tab}{\cf3 --}{\cf3  Returns a sorted list of the movable entities in this sector by lowest id to highest}{\line}
+}{\line}
+{\tab}{\cf5 {\cf5 remove_entity} {\cf1 (}{\cf5 ent}{\cf1 :} {\cf4 ENTITY}{\cf1 ;} {\cf5 kill}{\cf1 :} {\cf4 BOOLEAN}{\cf1 )}{\line}
+}{\line}
+{\tab}{\cf5 {\cf5 add_entity_to_all_lists} {\cf1 (}{\cf5 ent}{\cf1 :} {\cf4 ENTITY}{\cf1 )}{\line}
+}{\tab}{\line}
+{\b\cf6 end} {\cf3 --} {\cf3 class }{\cf4 SECTOR}}
+{\line}
+{\cf3 {\tab}{\tab}{\tab}-- Generated by ISE Eiffel --}
+{\line}
+{\cf3{\tab}{\tab}{\tab}-- For more details: http://www.eiffel.com --}
+}}
+{\line}

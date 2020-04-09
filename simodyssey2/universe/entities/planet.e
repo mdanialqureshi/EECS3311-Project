@@ -1,5 +1,5 @@
 note
-	description: "Summary description for {PLANET}."
+	description: "This class represents the Planet movable entity in our universe, and correctly implements this entitys respective behaviours and features."
 	author: "Ameer Bacchus and Muhammad Danial Qureshi"
 	date: "2020-03-13"
 	revision: "$Revision$"

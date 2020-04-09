@@ -1,5 +1,5 @@
 note
-	description: "Summary description for {MOVABLE_ENTITY}."
+	description: "Representation of all the movable entities of our universe. This is a parent class to several movable entities in our game, and contains the shared features amount these entities."
 	author: "Ameer Bacchus and Muhammad Danial Qureshi"
 	date: "2020-03-13"
 	revision: "$Revision$"

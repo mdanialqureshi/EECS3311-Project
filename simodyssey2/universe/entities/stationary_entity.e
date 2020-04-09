@@ -1,5 +1,5 @@
 note
-	description: "Summary description for {STATIONARY_ENTITY}."
+	description: "Representation of all the stationary entities of our universe. The only stationary entities of our universe are stars."
 	author: "Ameer Bacchus and Muhammad Danial Qureshi"
 	date: "2020-03-13"
 	revision: "$Revision$"

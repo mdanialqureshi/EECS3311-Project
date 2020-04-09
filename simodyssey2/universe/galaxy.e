@@ -1,7 +1,7 @@
 note
-	description: "Galaxy represents a game board in simodyssey."
-	author: "Kevin B"
-	date: "$Date$"
+	description: "Representation of the galaxy in which an explorer is travelling in. This class represents the game board that is shown on the UI, and correctly implements its behaviours of Simodyssey game specifications, and is only a supplier to the GAME class in the model cluster."
+	author: "Kevin B, Ameer Bacchus and Muhammad Danial Qureshi"
+	date: "2020-03-13"
 	revision: "$Revision$"
 
 class

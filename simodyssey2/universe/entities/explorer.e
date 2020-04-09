@@ -1,5 +1,5 @@
 note
-	description: "Summary description for {EXPLORER}."
+	description: "This class represents the explorer of our universe, which is a movable entity of the game. The explorer is the user controlled movable entity."
 	author: "Ameer Bacchus and Muhammad Danial Qureshi"
 	date: "2020-03-13"
 	revision: "$Revision$"

@@ -1,5 +1,5 @@
 note
-	description: "Summary description for {ENTITY}."
+	description: "Representation of an entity in our Simodyssey game universe. This class represents all entity types in our universe."
 	author: "Ameer Bacchus and Muhammad Danial Qureshi"
 	date: "2020-03-13"
 	revision: "$Revision$"
