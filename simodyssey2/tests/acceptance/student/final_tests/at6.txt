@@ -1,0 +1,12 @@
+--Testing Wormhole Randomness
+play
+move(N)
+wormhole
+move(SW)
+move(S)
+wormhole
+move(NE)
+wormhole
+wormhole
+wormhole
+move(W)

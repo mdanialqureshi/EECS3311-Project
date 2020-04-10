@@ -1,0 +1,5 @@
+--Testing Testmode Win Condition
+test(1,2,3,4,50)
+move(S)
+move(S)
+land

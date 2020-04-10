@@ -1,0 +1,20 @@
+--Testing All Explorer Deaths
+test(3,5,7,15,30)
+move(S)
+move(E)
+move(S)
+test(70,71,72,73,74)
+move(S)
+status
+move(E)
+test(3,5,7,13,15)
+move(SE)
+move(SE)
+test(3,5,80,85,90)
+pass
+pass
+pass
+pass
+pass
+wormhole
+wormhole

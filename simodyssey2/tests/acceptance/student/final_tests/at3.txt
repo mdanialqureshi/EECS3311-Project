@@ -1,0 +1,7 @@
+--Testing Playmode Win Condition
+play
+abort
+play
+move(N)
+move(E)
+land

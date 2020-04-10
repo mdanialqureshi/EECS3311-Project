@@ -1,0 +1,17 @@
+--Testing Asteroid Interaction when Explorer is Landed on a Planet
+test(30,31,32,33,75)
+move(E)
+land
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+pass
+liftoff

@@ -1,0 +1,5 @@
+--Testing Malevolent Attacking While Explorer is Landed
+test(3,5,50,60,70)
+move(E)
+pass
+pass

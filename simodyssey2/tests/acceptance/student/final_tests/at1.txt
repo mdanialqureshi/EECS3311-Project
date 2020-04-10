@@ -1,0 +1,10 @@
+--Testing Random Board Generation
+test(20,30,40,50,60)
+abort
+test(15,30,45,50,90)
+abort
+play
+abort
+test(1,2,3,4,5)
+abort
+play

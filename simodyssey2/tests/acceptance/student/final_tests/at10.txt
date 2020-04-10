@@ -1,0 +1,9 @@
+--Testing Landing on a Planet that hasn't Attached Yet to the Yellow Dwarf
+test(40,41,42,43,70)
+move(S)
+move(E)
+pass
+pass
+test(40,41,42,43,70)
+move(NW)
+land
